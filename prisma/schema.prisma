@@ -13,19 +13,26 @@ enum Role {
   COMMERCIAL
 }
 
-model User {
-  id           String     @id @default(uuid())
-  name         String
-  email        String     @unique
-  passwordHash String
-  role         Role
-  isActive     Boolean    @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+enum ClientType {
+  COMPANY
+  INDIVIDUAL
+}
 
-  sessions     Session[]
-  auditLogs    AuditLog[]
+model User {
+  id             String     @id @default(uuid())
+  name           String
+  email          String     @unique
+  passwordHash   String
+  role           Role
+  isActive       Boolean    @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  sessions       Session[]
+  auditLogs      AuditLog[]
+  createdClients Client[]   @relation("ClientCreatedBy")
+  updatedClients Client[]   @relation("ClientUpdatedBy")
 
   @@index([email])
   @@index([role])
@@ -63,4 +70,52 @@ model AuditLog {
   @@index([entityId])
   @@index([createdAt])
   @@index([userId])
+}
+
+model Client {
+  id              String     @id @default(uuid())
+  type            ClientType @default(COMPANY)
+  companyName     String?
+  firstName       String?
+  lastName        String?
+  displayName     String
+  ice             String?
+  taxId           String?
+  rc              String?
+  cnss            String?
+  patent          String?
+  email           String?
+  phone           String?
+  secondaryPhone  String?
+  address         String?
+  addressLine2    String?
+  city            String?
+  postalCode      String?
+  country         String     @default("Maroc")
+  contactName     String?
+  contactPosition String?
+  contactEmail    String?
+  contactPhone    String?
+  notes           String?
+  isArchived      Boolean    @default(false)
+  archivedAt      DateTime?
+  createdById     String
+  updatedById     String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  createdBy       User       @relation("ClientCreatedBy", fields: [createdById], references: [id])
+  updatedBy       User?      @relation("ClientUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([displayName])
+  @@index([companyName])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([ice])
+  @@index([taxId])
+  @@index([email])
+  @@index([phone])
+  @@index([city])
+  @@index([isArchived])
+  @@index([createdAt])
 }

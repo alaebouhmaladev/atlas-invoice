@@ -1,129 +1,99 @@
 <template>
-  <div class="min-h-screen bg-slate-950 flex flex-col">
-    <!-- Header -->
-    <header class="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-bold flex items-center justify-center shadow-md shadow-amber-500/20 text-lg"
-          >
-            AB
-          </div>
-          <div>
-            <h1 class="font-bold text-slate-100 tracking-tight text-lg">Atlas Bites Facturation</h1>
-            <p class="text-xs text-slate-400">Atlas Bites SARL • Invoicing CRM</p>
-          </div>
-        </div>
+  <div class="space-y-6">
+    <!-- Welcome Header Banner -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-12 -top-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="flex items-center gap-4">
-          <div v-if="user" class="hidden sm:flex items-center gap-3 border-r border-slate-800 pr-4">
-            <div class="text-right">
-              <div class="text-sm font-semibold text-slate-200">{{ user.name }}</div>
-              <div class="text-xs text-slate-400">{{ user.email }}</div>
-            </div>
-            <span
-              class="px-2.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase border"
-              :class="getRoleBadgeClass(user.role)"
-            >
-              {{ formatRole(user.role) }}
-            </span>
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-3">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            Atlas Bites SARL • Espace CRM
           </div>
 
-          <button
-            @click="handleLogout"
-            :disabled="loading"
-            class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 transition-all flex items-center gap-2 cursor-pointer"
-          >
-            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content Body -->
-    <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-12 w-full flex flex-col justify-center">
-      <!-- Confirmation Banner -->
-      <div
-        class="bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden"
-      >
-        <div
-          class="absolute -right-12 -top-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
-        ></div>
-
-        <div class="relative z-10">
-          <div
-            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-6"
-          >
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Foundation & Authentication Active
-          </div>
-
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-50 tracking-tight mb-4">
-            Welcome, {{ user?.name || 'Administrator' }}!
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-50 tracking-tight">
+            Bienvenue, {{ user?.name || 'Gestionnaire' }} !
           </h2>
-
-          <p class="text-slate-300 text-base leading-relaxed mb-8 max-w-2xl">
-            The technical foundation for <strong class="text-amber-400">Atlas Bites Facturation</strong> has been
-            successfully established and verified. Database migrations, session authentication, user roles, security
-            headers, and Argon2 password hashing are operational.
+          <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+            Plateforme de gestion de facturation et suivi des clients traiteur.
           </p>
+        </div>
 
-          <!-- User Info Summary Card -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4">
-              <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1"
-                >Authenticated User</span
-              >
-              <span class="text-slate-100 font-medium text-sm block truncate">{{ user?.name }}</span>
-              <span class="text-slate-400 text-xs truncate block">{{ user?.email }}</span>
-            </div>
-
-            <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4">
-              <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1"
-                >Assigned Role</span
-              >
-              <span class="text-slate-100 font-medium text-sm block">{{ formatRole(user?.role) }}</span>
-              <span class="text-slate-400 text-xs block">Server Verified</span>
-            </div>
-
-            <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4">
-              <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1"
-                >Session Security</span
-              >
-              <span class="text-emerald-400 font-medium text-sm block">HttpOnly Cookie</span>
-              <span class="text-slate-400 text-xs block">SHA-256 Token Hash</span>
-            </div>
-          </div>
-
-          <!-- Feature Status Info -->
-          <div
-            class="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 text-xs text-amber-200/90 flex items-start gap-3"
+        <div class="flex items-center gap-3">
+          <NuxtLink
+            to="/clients/new"
+            class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2"
           >
-            <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            <div>
-              <strong class="font-semibold block mb-0.5">Phase 1 Complete</strong>
-              Clients, Devis (Estimates), Factures (Invoices), Dashboard analytics, and Settings features are
-              intentionally pending approval and will be built in subsequent phases.
-            </div>
-          </div>
+            <span>Nouveau client</span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/clients"
+            class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-colors"
+          >
+            Voir les clients
+          </NuxtLink>
         </div>
       </div>
-    </main>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Module Clients</span>
+          <span class="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold text-slate-100 mt-2">Actif</div>
+        <p class="text-[11px] text-slate-400 mt-1">Base clients opérationnelle avec ICE & IF</p>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Devis</span>
+          <span class="p-2 rounded-xl bg-slate-800 text-slate-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold text-slate-500 mt-2">Phase 3</div>
+        <p class="text-[11px] text-slate-500 mt-1">Bientôt disponible</p>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Factures</span>
+          <span class="p-2 rounded-xl bg-slate-800 text-slate-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold text-slate-500 mt-2">Phase 4</div>
+        <p class="text-[11px] text-slate-500 mt-1">Bientôt disponible</p>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sécurité & Role</span>
+          <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </span>
+        </div>
+        <div class="text-lg font-bold text-slate-100 mt-2">{{ formatRole(user?.role) }}</div>
+        <p class="text-[11px] text-slate-400 mt-1">Permissions vérifiées côté serveur</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -135,36 +105,19 @@ definePageMeta({
   layout: 'default'
 })
 
-const { user, logout, loading } = useAuth()
+const { user } = useAuth()
 
 function formatRole(role?: Role): string {
-  if (!role) return 'User'
+  if (!role) return 'Utilisateur'
   switch (role) {
     case 'SUPER_ADMIN':
-      return 'Super Admin'
+      return 'Super Administrateur'
     case 'ACCOUNTANT':
-      return 'Accountant'
+      return 'Comptable'
     case 'COMMERCIAL':
       return 'Commercial'
     default:
       return role
   }
-}
-
-function getRoleBadgeClass(role?: Role): string {
-  switch (role) {
-    case 'SUPER_ADMIN':
-      return 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-    case 'ACCOUNTANT':
-      return 'bg-blue-500/10 text-blue-400 border-blue-500/30'
-    case 'COMMERCIAL':
-      return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-    default:
-      return 'bg-slate-500/10 text-slate-400 border-slate-500/30'
-  }
-}
-
-async function handleLogout() {
-  await logout()
 }
 </script>

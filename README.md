@@ -10,11 +10,9 @@ Planned Subdomain: `facturation.ourdomain.com`
 
 **Atlas Bites Facturation** is a modern full-stack web application designed for managing catering clients, quotes (*devis*), invoices (*factures*), and financial reporting.
 
-This foundation phase establishes:
-- **Core Technology Stack**: Nuxt 3, Vue 3 Composition API, TypeScript (Strict Mode), Tailwind CSS, Nitro Server API routes, PostgreSQL 16, Prisma ORM, Zod, Argon2, Docker & Docker Compose.
-- **Authentication & Security**: Cookie-based HttpOnly sessions (`SameSite=Lax`), SHA-256 token hashing in DB, Argon2 password hashing, session rotation, in-memory rate limiting, security headers, and audit logging.
-- **Role-Based Authorization**: System roles (`SUPER_ADMIN`, `ACCOUNTANT`, `COMMERCIAL`) with server-side authorization enforcement.
-- **Initial Interface**: Modern dark-themed `/login` page with password visibility toggle, and a protected `/` welcome dashboard confirming foundational status.
+### Module Status:
+- **Phase 1: Foundation & Authentication**: Nuxt 3, Vue 3, TypeScript (Strict Mode), Tailwind CSS, PostgreSQL 16, Prisma ORM, Argon2, Cookie sessions (`SameSite=Lax`, `HttpOnly`), Docker Compose, Vitest.
+- **Phase 2: Client Management Module**: Complete management of Moroccan corporate (`COMPANY`) and individual (`INDIVIDUAL`) catering clients, supporting Moroccan legal & tax identifiers (ICE 15 digits, IF, RC, CNSS, Patente), duplicate detection, soft archiving, role-based authorization, and French UI.
 
 ---
 
@@ -30,31 +28,40 @@ This foundation phase establishes:
 
 ---
 
-## 🚀 Environment Setup & Local Installation
+## 👥 Client Management Permission Matrix
 
-> [!CAUTION]
-> **NEVER** commit the `.env` file to version control. Ensure `.env` is listed in `.gitignore`.
+| Action | Super Admin | Accountant (`ACCOUNTANT`) | Commercial (`COMMERCIAL`) |
+| :--- | :---: | :---: | :---: |
+| **View & Search Clients** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Create Clients** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Update Clients** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Archive Clients** | ✅ Yes | ✅ Yes | ❌ Forbidden (403) |
+| **Restore Clients** | ✅ Yes | ✅ Yes | ❌ Forbidden (403) |
+| **Permanently Delete Clients** | ✅ Yes | ❌ Forbidden (403) | ❌ Forbidden (403) |
 
-### 1. Clone & Copy Environment Configuration
+---
 
-```bash
-cd atlas-invoice
-cp .env.example .env
-```
+## 🔌 Client Module API Endpoints
 
-### 2. Generate a Secure Session Secret
+| Method | Endpoint | Description | Role Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/clients` | Paginated search & filtered client listing | All Roles |
+| `POST` | `/api/clients` | Create new client record (with duplicate checks) | All Roles |
+| `GET` | `/api/clients/:id` | Fetch client detail profile & audit history | All Roles |
+| `PATCH` | `/api/clients/:id` | Update client details | All Roles |
+| `POST` | `/api/clients/:id/archive` | Soft archive client (`isArchived: true`) | Super Admin, Accountant |
+| `POST` | `/api/clients/:id/restore` | Restore archived client (`isArchived: false`) | Super Admin, Accountant |
+| `DELETE` | `/api/clients/:id` | Permanently delete client record | Super Admin Only |
 
-Generate a 64-character hex secret for `SESSION_SECRET` in `.env`:
+---
 
-```bash
-# Option A: OpenSSL
-openssl rand -hex 32
+## ⚠️ Duplicate Detection Rules
 
-# Option B: Node.js CLI
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-Update your `.env` with the generated secret and set initial Super Admin credentials (`SUPER_ADMIN_NAME`, `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD`).
+1. **Exact ICE Collision**:
+   - If a provided ICE (15 digits) already exists in database, creation/update is **rejected** with HTTP 409 Conflict and a French validation message.
+2. **Soft Candidate Warnings**:
+   - Matches on exact Email, Phone, or Display Name return HTTP 200 with `{ duplicateWarning: true, potentialDuplicates: [...] }`.
+   - Users can review matching candidates in a modal dialog and confirm creation by passing `confirmDuplicate: true`.
 
 ---
 
@@ -63,19 +70,14 @@ Update your `.env` with the generated secret and set initial Super Admin credent
 ### Start Services (App, Database, Adminer)
 
 ```bash
-docker compose up -d --build
+cd atlas-invoice
+docker compose up -d
 ```
 
 Docker Compose services:
 - **`app`**: Nuxt 3 application running on `http://localhost:3000` (with hot reload).
-- **`db`**: PostgreSQL 16 database running on port `5432` with healthcheck (`pg_isready`).
+- **`db`**: PostgreSQL 16 database running on container port `5432` (host port `5436`).
 - **`adminer`**: Database UI accessible at `http://localhost:8080`.
-
-### Stop Services
-
-```bash
-docker compose down
-```
 
 ---
 
@@ -88,35 +90,30 @@ Inside Docker:
 docker compose exec app pnpm prisma:migrate
 ```
 
-Or locally (with Postgres running):
+Or locally:
 ```bash
 pnpm prisma:migrate
 ```
 
+Applied migrations:
+1. `20260813000131_init`
+2. `20260813003111_add_client_management`
+
 ### Seed Initial Super Admin
 
-> [!IMPORTANT]
-> The seed script reads `SUPER_ADMIN_NAME`, `SUPER_ADMIN_EMAIL`, and `SUPER_ADMIN_PASSWORD` from `.env`.
-> The password must be at least 12 characters and include uppercase, lowercase, numbers, and special characters.
-
-Inside Docker:
 ```bash
 docker compose exec app pnpm db:seed
 ```
 
-Or locally:
-```bash
-pnpm db:seed
-```
-
 ---
 
-## 🔑 Login & Verification
+## 🔑 Login & Credentials
 
-1. Access application at [http://localhost:3000](http://localhost:3000).
-2. Enter the Super Admin credentials defined in your `.env`.
-3. Upon successful login, you will be redirected to the protected `/` dashboard confirming system status.
-4. Database administration interface available at [http://localhost:8080](http://localhost:8080) (System: PostgreSQL, Server: `db`, Username: `atlas_user`, Database: `atlas_bites_facturation`).
+1. Access application at [http://localhost:3000/login](http://localhost:3000/login).
+2. Enter Super Admin credentials:
+   - **Email**: `admin@atlasbites.ma`
+   - **Password**: `AtlasAdmin2026!Secret`
+3. Access Client Directory at [http://localhost:3000/clients](http://localhost:3000/clients).
 
 ---
 
@@ -128,50 +125,8 @@ pnpm db:seed
 | `pnpm build` | Build production bundle |
 | `pnpm start` | Run production bundle from `.output/server/index.mjs` |
 | `pnpm lint` | Run ESLint check across `.ts` and `.vue` files |
-| `pnpm lint:fix` | Automatically fix linting issues |
 | `pnpm typecheck` | Execute `vue-tsc` strict TypeScript type checks |
 | `pnpm format` | Format code using Prettier |
-| `pnpm prisma:generate` | Generate Prisma Client |
 | `pnpm prisma:migrate` | Run Prisma database migrations |
 | `pnpm db:seed` | Seed initial Super Admin account |
-| `pnpm test` | Run Vitest unit & security test suite |
-
----
-
-## 📦 Production Build
-
-To build and run in production mode:
-
-```bash
-pnpm build
-pnpm start
-```
-
-Or target the production Docker image stage:
-```bash
-docker build --target runner -t atlas-invoice:latest .
-```
-
----
-
-## 💾 Database Backup & Restore
-
-### Backup Database
-
-```bash
-docker exec -t atlas_db pg_dump -U atlas_user atlas_bites_facturation > backup_$(date +%Y%m%d_%H%M%S).sql
-```
-
-### Restore Database
-
-```bash
-cat backup_file.sql | docker exec -i atlas_db psql -U atlas_user -d atlas_bites_facturation
-```
-
----
-
-## 🔍 Common Troubleshooting
-
-- **Nuxt Hot Reload inside Docker**: Configured with `WATCHPACK_POLLING=true` and `CHOKIDAR_USEPOLLING=true` in `compose.yml` for macOS/Linux compatibility.
-- **Port Conflict (5432 / 3000 / 8080)**: Stop local PostgreSQL (`brew services stop postgresql`) or change port mappings in `compose.yml`.
-- **Database Reset**: `pnpm prisma migrate reset` or `docker compose down -v`.
+| `pnpm test` | Run complete Vitest test suite (25 tests) |

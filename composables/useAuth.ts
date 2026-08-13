@@ -9,7 +9,10 @@ export function useAuth() {
     loading.value = true
     error.value = null
     try {
-      const response = await $fetch<ApiResponse<{ user: UserPublic }>>('/api/auth/me')
+      const headers = useRequestHeaders(['cookie'])
+      const response = await $fetch<ApiResponse<{ user: UserPublic }>>('/api/auth/me', {
+        headers
+      })
       if (response.success && response.data?.user) {
         user.value = response.data.user
         return user.value
