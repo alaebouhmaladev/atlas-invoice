@@ -1,0 +1,13 @@
+.git
+.github
+.nuxt
+.output
+node_modules
+npm-debug.log
+pnpm-debug.log
+Dockerfile
+compose.yml
+.env
+.env.*
+!.env.example
+README.md

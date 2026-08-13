@@ -1,0 +1,30 @@
+# Nuxt 3 & Node build outputs
+.nuxt
+.output
+dist
+node_modules
+
+# Environment files - MUST NEVER BE COMMITTED
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System & IDE files
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vscode/
+.idea/
+
+# Coverage
+coverage/
