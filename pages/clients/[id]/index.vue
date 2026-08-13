@@ -400,7 +400,5 @@ function formatDate(dateInput: string | Date): string {
   })
 }
 
-onMounted(() => {
-  loadClientData()
-})
+await useAsyncData(`client-detail-${route.params.id}`, () => loadClientData())
 </script>

@@ -13,55 +13,80 @@ Planned Subdomain: `facturation.ourdomain.com`
 ### Module Status:
 - **Phase 1: Foundation & Authentication**: Nuxt 3, Vue 3, TypeScript (Strict Mode), Tailwind CSS, PostgreSQL 16, Prisma ORM, Argon2, Cookie sessions (`SameSite=Lax`, `HttpOnly`), Docker Compose, Vitest.
 - **Phase 2: Client Management Module**: Complete management of Moroccan corporate (`COMPANY`) and individual (`INDIVIDUAL`) catering clients, supporting Moroccan legal & tax identifiers (ICE 15 digits, IF, RC, CNSS, Patente), duplicate detection, soft archiving, role-based authorization, and French UI.
+- **Phase 3: Devis Management Module**: End-to-end devis management with sequential numbering (`DEV-YYYY-0001`), frozen client snapshots, `decimal.js` exact financial calculations, line & global MAD/percentage discounts, TVA rate breakdowns (0%, 7%, 10%, 14%, 20%), controlled status transitions (`DRAFT → SENT → ACCEPTED / REJECTED`), A4 PDF generation via `PDFKit`, duplicate devis, soft archiving, role authorization, and French UI.
 
 ---
 
-## 🛠️ Required Technology Stack
-
-- **Node.js**: `v22.x` (LTS)
-- **Package Manager**: `pnpm` (`v9.x`+)
-- **Database**: PostgreSQL 16
-- **Containerization**: Docker & Docker Compose
-- **Framework**: Nuxt 3 (SSR enabled)
-- **Styling**: Tailwind CSS
-- **ORM**: Prisma ORM
-
----
-
-## 👥 Client Management Permission Matrix
+## 👥 Devis Management Permission Matrix
 
 | Action | Super Admin | Accountant (`ACCOUNTANT`) | Commercial (`COMMERCIAL`) |
 | :--- | :---: | :---: | :---: |
-| **View & Search Clients** | ✅ Yes | ✅ Yes | ✅ Yes |
-| **Create Clients** | ✅ Yes | ✅ Yes | ✅ Yes |
-| **Update Clients** | ✅ Yes | ✅ Yes | ✅ Yes |
-| **Archive Clients** | ✅ Yes | ✅ Yes | ❌ Forbidden (403) |
-| **Restore Clients** | ✅ Yes | ✅ Yes | ❌ Forbidden (403) |
-| **Permanently Delete Clients** | ✅ Yes | ❌ Forbidden (403) | ❌ Forbidden (403) |
+| **View & Search Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
+| **Create Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
+| **Update Draft Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
+| **Duplicate Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
+| **Generate & Download PDF** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
+| **Mark as Sent** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
+| **Mark as Accepted / Refused** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
+| **Archive / Restore Devis** | ✅ Allowed | ✅ Allowed | ❌ Forbidden (HTTP 403) |
+| **Permanently Delete Draft** | ✅ Allowed | ❌ Forbidden (HTTP 403) | ❌ Forbidden (HTTP 403) |
+| **Convert to Facture** | ⏳ Phase 4 | ⏳ Phase 4 | ❌ Forbidden |
 
 ---
 
-## 🔌 Client Module API Endpoints
+## 🔄 Devis Status Workflow Transitions
+
+```text
+DRAFT → SENT
+DRAFT → ACCEPTED
+DRAFT → REJECTED
+SENT → ACCEPTED
+SENT → REJECTED
+SENT → EXPIRED
+REJECTED → DRAFT (Reopen as Draft)
+```
+
+- Invalid status transitions return **HTTP 409 Conflict**.
+- Status timestamps (`sentAt`, `acceptedAt`, `rejectedAt`, `expiredAt`) are recorded automatically.
+
+---
+
+## 🔢 Document Numbering & Financial Calculations
+
+### Numbering Format
+- **Format**: `DEV-YYYY-0001` (e.g., `DEV-2026-0001`)
+- **Sequence Generator**: Concurrency-safe atomic transaction using `DocumentSequence` table with annual calendar year reset.
+
+### Financial Rules
+- **Precision**: Exact `decimal.js` / Prisma `Decimal` arithmetic rounded to 2 decimal places (`ROUND_HALF_UP`).
+- **Currency**: Displayed in Moroccan Dirham (`MAD`, e.g., `1 250,00 MAD`).
+- **Discounts**: Supports line-item discount rates (%) and global quote discounts (percentage or fixed MAD amount).
+- **TVA Rates**: 0%, 7%, 10%, 14%, 20%.
+
+---
+
+## 📄 Client Snapshot Mechanism
+
+To prevent future client updates from silently altering historical devis:
+- At creation/update time, a frozen client snapshot (`clientSnapshot` JSON) is stored on the `Quote` record.
+- The A4 PDF generator uses `clientSnapshot` rather than the active client profile.
+
+---
+
+## 🔌 Devis Module API Endpoints
 
 | Method | Endpoint | Description | Role Access |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/clients` | Paginated search & filtered client listing | All Roles |
-| `POST` | `/api/clients` | Create new client record (with duplicate checks) | All Roles |
-| `GET` | `/api/clients/:id` | Fetch client detail profile & audit history | All Roles |
-| `PATCH` | `/api/clients/:id` | Update client details | All Roles |
-| `POST` | `/api/clients/:id/archive` | Soft archive client (`isArchived: true`) | Super Admin, Accountant |
-| `POST` | `/api/clients/:id/restore` | Restore archived client (`isArchived: false`) | Super Admin, Accountant |
-| `DELETE` | `/api/clients/:id` | Permanently delete client record | Super Admin Only |
-
----
-
-## ⚠️ Duplicate Detection Rules
-
-1. **Exact ICE Collision**:
-   - If a provided ICE (15 digits) already exists in database, creation/update is **rejected** with HTTP 409 Conflict and a French validation message.
-2. **Soft Candidate Warnings**:
-   - Matches on exact Email, Phone, or Display Name return HTTP 200 with `{ duplicateWarning: true, potentialDuplicates: [...] }`.
-   - Users can review matching candidates in a modal dialog and confirm creation by passing `confirmDuplicate: true`.
+| `GET` | `/api/quotes` | Paginated search, filtered & sorted devis list | All Roles |
+| `POST` | `/api/quotes` | Create new devis record (with client snapshot & sequence) | All Roles |
+| `GET` | `/api/quotes/:id` | Fetch devis detail profile with service items | All Roles |
+| `PATCH` | `/api/quotes/:id` | Update draft devis record | All Roles |
+| `POST` | `/api/quotes/:id/duplicate` | Duplicate existing devis into a new DRAFT | All Roles |
+| `POST` | `/api/quotes/:id/status` | Transition devis status (`SENT`, `ACCEPTED`, `REJECTED`, `DRAFT`) | All Roles |
+| `POST` | `/api/quotes/:id/archive` | Soft archive devis (`isArchived: true`) | Super Admin, Accountant |
+| `POST` | `/api/quotes/:id/restore` | Restore archived devis (`isArchived: false`) | Super Admin, Accountant |
+| `DELETE` | `/api/quotes/:id` | Permanently delete draft devis record | Super Admin Only |
+| `GET` | `/api/quotes/:id/pdf` | Stream A4 PDF document (`DEV-2026-0001.pdf`) | All Roles |
 
 ---
 
@@ -74,46 +99,16 @@ cd atlas-invoice
 docker compose up -d
 ```
 
-Docker Compose services:
-- **`app`**: Nuxt 3 application running on `http://localhost:3000` (with hot reload).
-- **`db`**: PostgreSQL 16 database running on container port `5432` (host port `5436`).
-- **`adminer`**: Database UI accessible at `http://localhost:8080`.
+### Apply Migrations
 
----
-
-## 🗄️ Database Migrations & Initial Seed
-
-### Run Database Migrations
-
-Inside Docker:
 ```bash
 docker compose exec app pnpm prisma:migrate
-```
-
-Or locally:
-```bash
-pnpm prisma:migrate
 ```
 
 Applied migrations:
 1. `20260813000131_init`
 2. `20260813003111_add_client_management`
-
-### Seed Initial Super Admin
-
-```bash
-docker compose exec app pnpm db:seed
-```
-
----
-
-## 🔑 Login & Credentials
-
-1. Access application at [http://localhost:3000/login](http://localhost:3000/login).
-2. Enter Super Admin credentials:
-   - **Email**: `admin@atlasbites.ma`
-   - **Password**: `AtlasAdmin2026!Secret`
-3. Access Client Directory at [http://localhost:3000/clients](http://localhost:3000/clients).
+3. `20260813005738_add_quote_management`
 
 ---
 
@@ -129,4 +124,4 @@ docker compose exec app pnpm db:seed
 | `pnpm format` | Format code using Prettier |
 | `pnpm prisma:migrate` | Run Prisma database migrations |
 | `pnpm db:seed` | Seed initial Super Admin account |
-| `pnpm test` | Run complete Vitest test suite (25 tests) |
+| `pnpm test` | Run complete Vitest test suite (48 tests) |

@@ -39,46 +39,45 @@ async function seed() {
     where: { email }
   })
 
-  if (existingAdmin) {
+  let adminUser = existingAdmin
+  if (!adminUser) {
+    const passwordHash = await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 65536, // 64 MB
+      timeCost: 3,
+      parallelism: 4
+    })
+
+    adminUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash,
+        role: Role.SUPER_ADMIN,
+        isActive: true
+      }
+    })
+
+    await prisma.auditLog.create({
+      data: {
+        userId: adminUser.id,
+        action: 'SYSTEM_SUPER_ADMIN_SEEDED',
+        entityType: 'User',
+        entityId: adminUser.id,
+        metadata: {
+          email: adminUser.email,
+          seededAt: new Date().toISOString()
+        }
+      }
+    })
+
+    console.log(`✅ Super Admin created successfully!`)
+    console.log(`   ID: ${adminUser.id}`)
+  } else {
     console.log(`ℹ️ Super Admin account for (${email}) already exists. Skipping creation.`)
-    return
   }
 
-  const passwordHash = await argon2.hash(password, {
-    type: argon2.argon2id,
-    memoryCost: 65536, // 64 MB
-    timeCost: 3,
-    parallelism: 4
-  })
 
-  const superAdmin = await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash,
-      role: Role.SUPER_ADMIN,
-      isActive: true
-    }
-  })
-
-  await prisma.auditLog.create({
-    data: {
-      userId: superAdmin.id,
-      action: 'SYSTEM_SUPER_ADMIN_SEEDED',
-      entityType: 'User',
-      entityId: superAdmin.id,
-      metadata: {
-        email: superAdmin.email,
-        seededAt: new Date().toISOString()
-      }
-    }
-  })
-
-  console.log(`✅ Super Admin created successfully!`)
-  console.log(`   ID: ${superAdmin.id}`)
-  console.log(`   Name: ${superAdmin.name}`)
-  console.log(`   Email: ${superAdmin.email}`)
-  console.log(`   Role: ${superAdmin.role}`)
 }
 
 seed()

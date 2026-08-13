@@ -124,3 +124,55 @@ export const clientQuerySchema = z.object({
 })
 
 export type ClientQueryInput = z.infer<typeof clientQuerySchema>
+
+export const quoteItemSchema = z.object({
+  position: z.coerce.number().int().min(1).optional(),
+  title: z.string({ required_error: 'La désignation de la prestation est requise' }).trim().min(1, { message: 'La désignation ne peut pas être vide' }),
+  description: optionalText(1000),
+  quantity: z.coerce.number().positive({ message: 'La quantité doit être supérieure à 0' }),
+  unit: z.string().trim().min(1, { message: "L'unité est requise" }).default('Service'),
+  unitPriceHt: z.coerce.number().min(0, { message: 'Le prix unitaire HT ne peut pas être négatif' }),
+  discountRate: z.coerce.number().min(0).max(100, { message: 'Le taux de remise doit être entre 0 et 100%' }).default(0),
+  vatRate: z.coerce.number().min(0).max(100, { message: 'Le taux de TVA doit être entre 0 et 100%' }).default(20)
+})
+
+export const quoteSchema = z.object({
+  clientId: z.string({ required_error: 'Le client est requis' }).uuid({ message: 'Identifiant du client invalide' }),
+  issueDate: z.string().or(z.date()).transform((val) => new Date(val)),
+  validUntil: z.string().or(z.date()).transform((val) => new Date(val)),
+  subject: optionalText(255),
+  discountType: z.enum(['PERCENTAGE', 'FIXED']).optional().nullable(),
+  discountValue: z.coerce.number().min(0).optional().nullable(),
+  paymentTerms: optionalText(500),
+  publicNotes: optionalText(2000),
+  internalNotes: optionalText(2000),
+  items: z.array(quoteItemSchema).min(1, { message: 'Le devis doit contenir au moins une ligne de prestation' })
+})
+
+export type QuoteInput = z.infer<typeof quoteSchema>
+
+export const quoteUpdateSchema = quoteSchema.partial()
+
+export const quoteQuerySchema = z.object({
+  search: z.string().optional().transform((val) => val?.trim() || undefined),
+  clientId: z.string().uuid().optional(),
+  status: z.enum(['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED', 'CONVERTED', 'all']).default('all'),
+  archiveStatus: z.enum(['active', 'archived', 'all']).default('active'),
+  issueDateFrom: z.string().optional(),
+  issueDateTo: z.string().optional(),
+  validUntilFrom: z.string().optional(),
+  validUntilTo: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  sortBy: z.enum(['createdAt', 'issueDate', 'number', 'totalTtc']).default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc')
+})
+
+export type QuoteQueryInput = z.infer<typeof quoteQuerySchema>
+
+export const quoteStatusSchema = z.object({
+  status: z.enum(['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED', 'CONVERTED'], {
+    required_error: 'Le nouveau statut est requis'
+  })
+})
+
