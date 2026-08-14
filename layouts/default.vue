@@ -62,6 +62,13 @@ const pageTitle = computed(() => {
     if (route.params.id) return 'Fiche facture'
     return 'Gestion des factures'
   }
+  if (route.path.startsWith('/rh')) {
+    if (route.path === '/rh/employes/nouveau') return 'Nouveau collaborateur'
+    if (route.path.endsWith('/modifier')) return 'Modifier la fiche employé'
+    if (route.path.startsWith('/rh/employes/')) return 'Fiche employé'
+    if (route.path === '/rh/employes') return 'Annuaire des employés'
+    return 'Ressources Humaines'
+  }
   if (route.path.startsWith('/parametres')) return 'Paramètres de la société'
   return 'Atlas Bites Facturation'
 })
