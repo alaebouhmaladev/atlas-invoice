@@ -219,6 +219,7 @@ import type { DiscountType } from '@prisma/client'
 
 const props = defineProps<{
   initialData?: QuoteWithRelations
+  initialClientId?: string
   isEdit?: boolean
   loading?: boolean
   generalError?: string | null
@@ -231,7 +232,7 @@ const today = new Date().toISOString().split('T')[0]
 const defaultValidity = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
 const form = reactive({
-  clientId: props.initialData?.clientId || '',
+  clientId: props.initialData?.clientId || props.initialClientId || '',
   issueDate: props.initialData?.issueDate ? new Date(props.initialData.issueDate).toISOString().split('T')[0] : today,
   validUntil: props.initialData?.validUntil ? new Date(props.initialData.validUntil).toISOString().split('T')[0] : defaultValidity,
   subject: props.initialData?.subject || '',

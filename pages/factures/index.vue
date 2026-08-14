@@ -173,8 +173,11 @@
               </td>
 
               <td class="py-3.5 px-4">
-                <div class="font-semibold text-slate-200">
-                  {{ invoice.clientSnapshot?.displayName || invoice.client?.displayName }}
+                <NuxtLink v-if="invoice.clientId" :to="`/clients/${invoice.clientId}`" class="font-semibold text-slate-200 hover:text-amber-400 transition-colors block">
+                  {{ invoice.clientSnapshot?.displayName || invoice.client?.displayName || 'Client' }}
+                </NuxtLink>
+                <div v-else class="font-semibold text-slate-200">
+                  {{ invoice.clientSnapshot?.displayName || 'Client' }}
                 </div>
                 <div class="text-[11px] text-slate-400">
                   {{ invoice.clientSnapshot?.city || 'Maroc' }}

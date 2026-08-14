@@ -187,6 +187,7 @@ import { calculateQuoteFinancials, type RawLineItemInput } from '~/server/utils/
 const props = defineProps<{
   invoice?: any
   isEdit?: boolean
+  initialClientId?: string
   loading?: boolean
   error?: string | null
 }>()
@@ -199,7 +200,7 @@ const todayStr = new Date().toISOString().split('T')[0]
 const defaultDue = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
 const form = reactive({
-  clientId: props.invoice?.clientId || '',
+  clientId: props.invoice?.clientId || props.initialClientId || '',
   issueDate: props.invoice?.issueDate ? new Date(props.invoice.issueDate).toISOString().split('T')[0] : todayStr,
   dueDate: props.invoice?.dueDate ? new Date(props.invoice.dueDate).toISOString().split('T')[0] : defaultDue,
   subject: props.invoice?.subject || '',

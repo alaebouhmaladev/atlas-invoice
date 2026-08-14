@@ -22,7 +22,7 @@
       <span>{{ error }}</span>
     </div>
 
-    <InvoiceForm :loading="loading" :error="error" @submit="handleCreate" />
+    <InvoiceForm :initial-client-id="(route.query.clientId as string)" :loading="loading" :error="error" @submit="handleCreate" />
   </div>
 </template>
 
@@ -34,6 +34,8 @@ definePageMeta({
   middleware: 'auth',
   layout: 'default'
 })
+
+const route = useRoute()
 
 const { loading, error, createInvoice } = useInvoices()
 const notify = useNotify()

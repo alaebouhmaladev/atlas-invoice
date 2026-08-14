@@ -16,6 +16,7 @@
 
     <!-- Quote Form Component -->
     <QuoteForm
+      :initial-client-id="(route.query.clientId as string)"
       :loading="loading"
       :general-error="error"
       @submit="handleFormSubmit"
@@ -30,6 +31,8 @@ definePageMeta({
   middleware: 'auth',
   layout: 'default'
 })
+
+const route = useRoute()
 
 const { createQuote, loading, error } = useQuotes()
 const notify = useNotify()

@@ -332,8 +332,31 @@ export async function deleteClient(id: string, userId: string, ipAddress?: strin
   const existing = await prisma.client.findUnique({ where: { id } })
   if (!existing) return null
 
-  // Future phase check: Ensure no linked devis or factures exist
-  // When Devis / Facture models are added, check count here.
+  // Ensure no linked devis or factures exist
+  const linkedQuotes = await prisma.quote.count({ where: { clientId: id } })
+  const linkedInvoices = await prisma.invoice.count({ where: { clientId: id } })
+
+  if (linkedQuotes > 0 || linkedInvoices > 0) {
+    await createAuditLog({
+      userId,
+      action: 'CLIENT_DELETE_REJECTED',
+      category: 'SECURITY',
+      result: 'FAILURE',
+      entityType: 'Client',
+      entityId: id,
+      metadata: { displayName: existing.displayName, linkedQuotes, linkedInvoices, reason: 'Client linked to documents' },
+      ipAddress,
+      userAgent
+    })
+
+    const err: any = new Error('Ce client est lié à des documents et ne peut pas être supprimé définitivement. Vous pouvez l’archiver.')
+    err.statusCode = 400
+    err.data = {
+      code: 'CLIENT_HAS_LINKED_DOCUMENTS',
+      message: 'Ce client est lié à des documents et ne peut pas être supprimé définitivement. Vous pouvez l’archiver.'
+    }
+    throw err
+  }
 
   await createAuditLog({
     userId,
