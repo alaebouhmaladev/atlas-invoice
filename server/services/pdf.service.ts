@@ -43,6 +43,7 @@ export interface QuotePdfData {
   issueDate: Date | string
   validUntil: Date | string
   clientSnapshot: ClientSnapshotData
+  companySnapshot?: any
   currency?: string
   subtotalHt: string | number
   discountAmount: string | number
@@ -70,14 +71,14 @@ export function generateQuotePdfBuffer(data: QuotePdfData): Promise<Buffer> {
       doc.on('error', (err) => reject(err))
 
       // Company Info Fallbacks
-      const companyName = process.env.COMPANY_NAME || 'Atlas Bites SARL'
-      const companyAddress = process.env.COMPANY_ADDRESS || '123 Boulevard Zerktouni'
-      const companyCity = process.env.COMPANY_CITY || 'Casablanca, Maroc'
-      const companyIce = process.env.COMPANY_ICE || '001234567890123'
-      const companyIf = process.env.COMPANY_IF || '12345678'
-      const companyRc = process.env.COMPANY_RC || '98765 Casablanca'
-      const companyPhone = process.env.COMPANY_PHONE || '+212 522 12 34 56'
-      const companyEmail = process.env.COMPANY_EMAIL || 'contact@atlasbites.ma'
+      const companyName = data.companySnapshot?.legalName || 'Atlas Bites SARL'
+      const companyAddress = data.companySnapshot?.address || '123 Avenue Mohammed V'
+      const companyCity = data.companySnapshot?.city || 'Casablanca'
+      const companyIce = data.companySnapshot?.ice || '001234567890123'
+      const companyIf = data.companySnapshot?.taxId || '12345678'
+      const companyRc = data.companySnapshot?.rc || '98765'
+      const companyPhone = data.companySnapshot?.phone || '+212 5 22 00 11 22'
+      const companyEmail = data.companySnapshot?.email || 'contact@atlasbites.ma'
 
       // Formatting Dates
       const issueDateStr = new Date(data.issueDate).toLocaleDateString('fr-FR')
@@ -90,10 +91,10 @@ export function generateQuotePdfBuffer(data: QuotePdfData): Promise<Buffer> {
       const lightBg = '#f8fafc' // Slate-50
 
       // 1. Header (Company Identity + Title)
-      doc.fillColor(primaryColor).fontSize(20).font('Helvetica-Bold').text('ATLAS BITES', 40, 40)
+      doc.fillColor(primaryColor).fontSize(20).font('Helvetica-Bold').text(companyName.toUpperCase(), 40, 40)
       doc.fillColor(darkColor).fontSize(9).font('Helvetica').text('TRAITEUR & EVENEMENTIEL', 40, 63)
       doc.fillColor(textMuted).fontSize(8)
-        .text(`${companyName} • ${companyAddress}, ${companyCity}`, 40, 75)
+        .text(`${companyAddress}, ${companyCity}`, 40, 75)
         .text(`ICE: ${companyIce} | IF: ${companyIf} | RC: ${companyRc}`, 40, 86)
         .text(`Tél: ${companyPhone} | Email: ${companyEmail}`, 40, 97)
 

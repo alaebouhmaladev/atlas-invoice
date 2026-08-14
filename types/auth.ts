@@ -6,6 +6,7 @@ export interface UserPublic {
   email: string
   role: Role
   isActive: boolean
+  mustChangePassword?: boolean
   lastLoginAt?: string | Date | null
   createdAt: string | Date
 }

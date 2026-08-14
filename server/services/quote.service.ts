@@ -3,6 +3,7 @@ import { prisma } from '../utils/db'
 import { createAuditLog } from './audit.service'
 import { getNextSequenceNumber } from './sequence.service'
 import { calculateQuoteFinancials, type RawLineItemInput, type RawGlobalDiscountInput } from '../utils/calculation'
+import { getCompanySnapshot } from './company.service'
 import type { ClientSnapshotData } from './pdf.service'
 
 export interface CreateQuoteInput {
@@ -162,6 +163,7 @@ export async function createQuote(input: CreateQuoteInput, userId: string, ipAdd
   }
 
   const clientSnapshot = buildClientSnapshot(client)
+  const companySnapshot = await getCompanySnapshot()
 
   // Calculate exact financials
   const discountInput: RawGlobalDiscountInput = {
@@ -188,6 +190,7 @@ export async function createQuote(input: CreateQuoteInput, userId: string, ipAdd
         sequenceYear: seq.sequenceYear,
         clientId: client.id,
         clientSnapshot: clientSnapshot as unknown as object,
+        companySnapshot: companySnapshot as unknown as object,
         status: 'DRAFT',
         issueDate,
         validUntil,

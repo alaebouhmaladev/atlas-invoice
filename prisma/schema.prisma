@@ -19,27 +19,36 @@ enum ClientType {
 }
 
 model User {
-  id             String     @id @default(uuid())
-  name           String
-  email          String     @unique
-  passwordHash   String
-  role           Role
-  isActive       Boolean    @default(true)
-  lastLoginAt    DateTime?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  id                 String     @id @default(uuid())
+  name               String
+  email              String     @unique
+  passwordHash       String
+  role               Role
+  isActive           Boolean    @default(true)
+  mustChangePassword Boolean    @default(false)
+  passwordChangedAt  DateTime?
+  deactivatedAt      DateTime?
+  deactivatedById    String?
+  lastLoginAt        DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  deactivatedBy     User?             @relation("UserDeactivatedBy", fields: [deactivatedById], references: [id])
+  deactivatedUsers  User[]            @relation("UserDeactivatedBy")
 
   sessions          Session[]
   auditLogs         AuditLog[]
-  createdClients    Client[]   @relation("ClientCreatedBy")
-  updatedClients    Client[]   @relation("ClientUpdatedBy")
-  createdQuotes     Quote[]    @relation("QuoteCreatedBy")
-  updatedQuotes     Quote[]    @relation("QuoteUpdatedBy")
-  createdInvoices   Invoice[]  @relation("InvoiceCreatedBy")
-  updatedInvoices   Invoice[]  @relation("InvoiceUpdatedBy")
-  cancelledInvoices Invoice[]  @relation("InvoiceCancelledBy")
-  createdPayments   Payment[]  @relation("PaymentCreatedBy")
-  reversedPayments  Payment[]  @relation("PaymentReversedBy")
+  createdClients    Client[]          @relation("ClientCreatedBy")
+  updatedClients    Client[]          @relation("ClientUpdatedBy")
+  createdQuotes     Quote[]           @relation("QuoteCreatedBy")
+  updatedQuotes     Quote[]           @relation("QuoteUpdatedBy")
+  createdInvoices   Invoice[]         @relation("InvoiceCreatedBy")
+  updatedInvoices   Invoice[]         @relation("InvoiceUpdatedBy")
+  cancelledInvoices Invoice[]         @relation("InvoiceCancelledBy")
+  createdPayments   Payment[]         @relation("PaymentCreatedBy")
+  reversedPayments  Payment[]         @relation("PaymentReversedBy")
+  uploadedAssets    CompanyAsset[]    @relation("AssetUploadedBy")
+  updatedSettings   CompanySettings[] @relation("SettingsUpdatedBy")
 
   @@index([email])
   @@index([role])
@@ -151,6 +160,7 @@ model Quote {
 
   clientId              String
   clientSnapshot        Json
+  companySnapshot       Json?
 
   status                QuoteStatus  @default(DRAFT)
 
@@ -392,4 +402,88 @@ model DocumentSequence {
   updatedAt   DateTime @updatedAt
 
   @@unique([type, year])
+}
+
+enum CompanyAssetType {
+  LOGO
+  SIGNATURE
+  STAMP
+}
+
+model CompanySettings {
+  id                         String   @id @default(uuid())
+  singletonKey               String   @unique @default("DEFAULT")
+
+  legalName                  String
+  tradeName                  String?
+  legalForm                  String?
+  address                    String?
+  addressLine2               String?
+  city                       String?
+  postalCode                 String?
+  country                    String   @default("Maroc")
+
+  ice                        String?
+  taxId                      String?
+  rc                         String?
+  cnss                       String?
+  patent                     String?
+
+  phone                      String?
+  secondaryPhone             String?
+  email                      String?
+  website                    String?
+
+  bankName                   String?
+  accountHolder              String?
+  rib                        String?
+  iban                       String?
+  swiftBic                   String?
+
+  defaultCurrency            String   @default("MAD")
+  defaultVatRate             Decimal  @default(20) @db.Decimal(5, 2)
+  defaultQuoteValidityDays   Int      @default(30)
+  defaultInvoiceDueDays      Int      @default(30)
+  defaultPaymentTerms        String?
+  defaultQuoteNotes          String?
+  defaultInvoiceNotes        String?
+
+  quotePrefix                String   @default("DEV")
+  invoicePrefix              String   @default("FAC")
+
+  showSignatureOnPaidInvoice Boolean  @default(true)
+  showStampOnPaidInvoice     Boolean  @default(true)
+  showLogoOnDocuments        Boolean  @default(true)
+
+  activeLogoAssetId          String?
+  activeSignatureAssetId     String?
+  activeStampAssetId         String?
+
+  revision                   Int      @default(1)
+  updatedById                String?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  updatedBy                  User?    @relation("SettingsUpdatedBy", fields: [updatedById], references: [id])
+}
+
+model CompanyAsset {
+  id           String           @id @default(uuid())
+  type         CompanyAssetType
+  originalName String
+  mimeType     String
+  size         Int
+  width        Int?
+  height       Int?
+  sha256       String
+  data         Bytes
+  isActive     Boolean          @default(true)
+  uploadedById String
+  createdAt    DateTime         @default(now())
+
+  uploadedBy   User             @relation("AssetUploadedBy", fields: [uploadedById], references: [id])
+
+  @@index([type])
+  @@index([sha256])
+  @@index([createdAt])
 }

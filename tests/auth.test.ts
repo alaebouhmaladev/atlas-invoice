@@ -52,7 +52,7 @@ describe('Authentication & Security Foundation Tests', () => {
 
   describe('Super Admin Password Strength Validation', () => {
     it('should approve strong passwords meeting all requirements', () => {
-      expect(validatePasswordStrength('AtlasAdmin2026!Secret')).toBe(true)
+      expect(validatePasswordStrength('StrongP@ssw0rd2026!')).toBe(true)
     })
 
     it('should reject passwords shorter than 12 characters', () => {
@@ -60,15 +60,15 @@ describe('Authentication & Security Foundation Tests', () => {
     })
 
     it('should reject passwords lacking uppercase letters', () => {
-      expect(validatePasswordStrength('atlasadmin2026!secret')).toBe(false)
+      expect(validatePasswordStrength('strongp@ssw0rd2026!')).toBe(false)
     })
 
     it('should reject passwords lacking numbers', () => {
-      expect(validatePasswordStrength('AtlasAdminSecret!')).toBe(false)
+      expect(validatePasswordStrength('StrongP@sswordSecret!')).toBe(false)
     })
 
     it('should reject passwords lacking special characters', () => {
-      expect(validatePasswordStrength('AtlasAdmin2026Secret')).toBe(false)
+      expect(validatePasswordStrength('StrongPassword2026Secret')).toBe(false)
     })
   })
 

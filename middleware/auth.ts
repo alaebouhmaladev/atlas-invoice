@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(async (to) => {
   const { user, fetchUser } = useAuth()
 
   if (!user.value) {
@@ -7,5 +7,9 @@ export default defineNuxtRouteMiddleware(async () => {
 
   if (!user.value) {
     return navigateTo('/login')
+  }
+
+  if (user.value.mustChangePassword && to.path !== '/changer-mot-de-passe') {
+    return navigateTo('/changer-mot-de-passe')
   }
 })

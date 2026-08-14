@@ -94,9 +94,11 @@
         </NuxtLink>
 
         <!-- Paramètres (Super Admin Only) -->
-        <div
+        <NuxtLink
           v-if="user?.role === 'SUPER_ADMIN'"
-          class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 cursor-not-allowed select-none"
+          to="/parametres"
+          class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors"
+          :class="route.path.startsWith('/parametres') ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'"
         >
           <div class="flex items-center gap-3">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,8 +107,7 @@
             </svg>
             <span>Paramètres</span>
           </div>
-          <span class="text-[10px] bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full font-semibold">Bientôt</span>
-        </div>
+        </NuxtLink>
       </nav>
 
       <!-- Footer Info -->

@@ -247,4 +247,142 @@ export const invoiceCancelSchema = z.object({
   reason: z.string().trim().min(3, 'Le motif d\'annulation de la facture doit contenir au moins 3 caractères')
 })
 
+// Phase 5: Company Settings & User Management Zod Validation Schemas
+export const companySettingsSchema = z.object({
+  legalName: z.string({ required_error: 'La raison sociale est obligatoire' }).trim().min(1, 'La raison sociale est obligatoire'),
+  tradeName: optionalText(255),
+  legalForm: optionalText(100),
+  address: optionalText(500),
+  addressLine2: optionalText(500),
+  city: optionalText(100),
+  postalCode: optionalText(20),
+  country: z.string().default('Maroc').transform((val) => val?.trim() || 'Maroc'),
+  ice: optionalIce,
+  taxId: optionalText(100),
+  rc: optionalText(100),
+  cnss: optionalText(100),
+  patent: optionalText(100),
+  phone: optionalText(50),
+  secondaryPhone: optionalText(50),
+  email: optionalEmail,
+  website: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => {
+      if (!val) return null
+      const trimmed = val.trim()
+      return trimmed.length > 0 ? trimmed : null
+    })
+    .refine((val) => val === null || /^https?:\/\/.+/i.test(val), {
+      message: 'Le site web doit être une URL valide (commençant par http:// ou https://)'
+    }),
+  bankName: optionalText(255),
+  accountHolder: optionalText(255),
+  rib: optionalText(100),
+  iban: optionalText(100),
+  swiftBic: optionalText(50),
+  defaultCurrency: z.string().default('MAD').transform((val) => val?.trim() || 'MAD'),
+  defaultVatRate: z.coerce.number().min(0).max(100).default(20),
+  defaultQuoteValidityDays: z.coerce.number().int().min(1).max(365).default(30),
+  defaultInvoiceDueDays: z.coerce.number().int().min(1).max(365).default(30),
+  defaultPaymentTerms: optionalText(1000),
+  defaultQuoteNotes: optionalText(2000),
+  defaultInvoiceNotes: optionalText(2000),
+  quotePrefix: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z0-9_-]{1,10}$/, 'Le préfixe des devis doit contenir uniquement des lettres majuscules, chiffres, tirets et ne pas dépasser 10 caractères')
+    .default('DEV'),
+  invoicePrefix: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z0-9_-]{1,10}$/, 'Le préfixe des factures doit contenir uniquement des lettres majuscules, chiffres, tirets et ne pas dépasser 10 caractères')
+    .default('FAC'),
+  showSignatureOnPaidInvoice: z.boolean().default(true),
+  showStampOnPaidInvoice: z.boolean().default(true),
+  showLogoOnDocuments: z.boolean().default(true),
+  revision: z.number().int().min(1, 'La révision est obligatoire')
+})
+
+export type CompanySettingsInput = z.infer<typeof companySettingsSchema>
+
+export const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/
+
+export const userCreateSchema = z.object({
+  name: z.string({ required_error: 'Le nom est obligatoire' }).trim().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  email: z
+    .string({ required_error: 'L\'email est obligatoire' })
+    .trim()
+    .toLowerCase()
+    .pipe(z.string().email('Format d\'adresse email invalide')),
+  role: z.enum(['SUPER_ADMIN', 'ACCOUNTANT', 'COMMERCIAL'], { required_error: 'Le rôle est obligatoire' }),
+  password: z
+    .string({ required_error: 'Le mot de passe temporaire est obligatoire' })
+    .min(12, 'Le mot de passe doit contenir au moins 12 caractères')
+    .refine((val) => passwordStrengthRegex.test(val), {
+      message: 'Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial'
+    }),
+  confirmPassword: z.string({ required_error: 'La confirmation du mot de passe est obligatoire' })
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Les mots de passe ne correspondent pas',
+  path: ['confirmPassword']
+})
+
+export type UserCreateInput = z.infer<typeof userCreateSchema>
+
+export const userUpdateSchema = z.object({
+  name: z.string().trim().min(2, 'Le nom doit contenir au moins 2 caractères').optional(),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.string().email('Format d\'adresse email invalide'))
+    .optional(),
+  role: z.enum(['SUPER_ADMIN', 'ACCOUNTANT', 'COMMERCIAL']).optional()
+})
+
+export type UserUpdateInput = z.infer<typeof userUpdateSchema>
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string({ required_error: 'Le mot de passe actuel est requis' }).min(1, 'Le mot de passe actuel est requis'),
+    newPassword: z
+      .string({ required_error: 'Le nouveau mot de passe est requis' })
+      .min(12, 'Le nouveau mot de passe doit contenir au moins 12 caractères')
+      .refine((val) => passwordStrengthRegex.test(val), {
+        message: 'Le nouveau mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial'
+      }),
+    confirmPassword: z.string({ required_error: 'La confirmation est requise' })
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Les nouveaux mots de passe ne correspondent pas',
+    path: ['confirmPassword']
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: 'Le nouveau mot de passe doit être différent du mot de passe actuel',
+    path: ['newPassword']
+  })
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
+
+export const adminResetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string({ required_error: 'Le mot de passe est requis' })
+      .min(12, 'Le mot de passe doit contenir au moins 12 caractères')
+      .refine((val) => passwordStrengthRegex.test(val), {
+        message: 'Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial'
+      }),
+    confirmPassword: z.string({ required_error: 'La confirmation est requise' })
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Les mots de passe ne correspondent pas',
+    path: ['confirmPassword']
+  })
+
+export type AdminResetPasswordInput = z.infer<typeof adminResetPasswordSchema>
+
 

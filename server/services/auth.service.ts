@@ -51,6 +51,7 @@ export async function validateSessionToken(
           email: true,
           role: true,
           isActive: true,
+          mustChangePassword: true,
           lastLoginAt: true,
           createdAt: true
         }
