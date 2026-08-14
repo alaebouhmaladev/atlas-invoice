@@ -20,21 +20,11 @@
       :general-error="error"
       @submit="handleFormSubmit"
     />
-
-    <!-- Notification Toast -->
-    <NotificationToast
-      :show="showToast"
-      :title="toastTitle"
-      :message="toastMessage"
-      :type="toastType"
-      @close="showToast = false"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import QuoteForm from '~/components/quotes/QuoteForm.vue'
-import NotificationToast from '~/components/ui/NotificationToast.vue'
 
 definePageMeta({
   middleware: 'auth',
@@ -42,26 +32,16 @@ definePageMeta({
 })
 
 const { createQuote, loading, error } = useQuotes()
-
-// Toast states
-const showToast = ref(false)
-const toastTitle = ref('')
-const toastMessage = ref('')
-const toastType = ref<'success' | 'error'>('success')
+const notify = useNotify()
 
 async function handleFormSubmit(formData: Record<string, unknown>) {
   const result = await createQuote(formData)
 
   if (result.success && result.quote) {
-    triggerToast('Devis créé', `Le devis "${result.quote.number}" a été créé sous forme de brouillon.`)
+    notify.success('Devis créé avec succès', `Le devis "${result.quote.number}" a été créé sous forme de brouillon.`)
     await navigateTo(`/devis/${result.quote.id}`)
+  } else if (result.message) {
+    notify.error('Impossible de créer le devis', result.message)
   }
-}
-
-function triggerToast(title: string, message: string, type: 'success' | 'error' = 'success') {
-  toastTitle.value = title
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
 }
 </script>

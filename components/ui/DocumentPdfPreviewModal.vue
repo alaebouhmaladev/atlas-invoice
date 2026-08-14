@@ -153,14 +153,18 @@ const loadPdf = async () => {
   error.value = null
 
   try {
-    const blob = await $fetch<Blob>(props.pdfUrl, {
+    const rawData = await $fetch<any>(props.pdfUrl, {
       responseType: 'blob',
       headers: useRequestHeaders(['cookie'])
     })
-    if (!blob || blob.size === 0) {
+    if (!rawData) {
       throw new Error('Le fichier PDF généré est vide.')
     }
-    blobUrl.value = URL.createObjectURL(blob)
+    const pdfBlob = new Blob([rawData], { type: 'application/pdf' })
+    if (pdfBlob.size === 0) {
+      throw new Error('Le fichier PDF généré est vide.')
+    }
+    blobUrl.value = URL.createObjectURL(pdfBlob)
   } catch (err: any) {
     error.value = err.data?.message || err.message || 'Erreur lors de la récupération du PDF.'
   } finally {

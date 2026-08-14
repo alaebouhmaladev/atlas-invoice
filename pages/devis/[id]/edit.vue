@@ -56,21 +56,11 @@
         @submit="handleFormSubmit"
       />
     </template>
-
-    <!-- Notification Toast -->
-    <NotificationToast
-      :show="showToast"
-      :title="toastTitle"
-      :message="toastMessage"
-      :type="toastType"
-      @close="showToast = false"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import QuoteForm from '~/components/quotes/QuoteForm.vue'
-import NotificationToast from '~/components/ui/NotificationToast.vue'
 import type { QuoteWithRelations } from '~/composables/useQuotes'
 
 definePageMeta({
@@ -80,15 +70,10 @@ definePageMeta({
 
 const route = useRoute()
 const { fetchQuote, updateQuote, loading, error } = useQuotes()
+const notify = useNotify()
 
 const quote = ref<QuoteWithRelations | null>(null)
 const pageLoading = ref(true)
-
-// Toast states
-const showToast = ref(false)
-const toastTitle = ref('')
-const toastMessage = ref('')
-const toastType = ref<'success' | 'error'>('success')
 
 async function loadQuote() {
   const id = route.params.id as string
@@ -104,16 +89,11 @@ async function handleFormSubmit(formData: Record<string, unknown>) {
   const result = await updateQuote(quote.value.id, formData)
 
   if (result.success && result.quote) {
-    triggerToast('Devis mis à jour', `Le devis "${result.quote.number}" a été mis à jour avec succès.`)
+    notify.success('Devis mis à jour avec succès', `Le devis "${result.quote.number}" a été mis à jour avec succès.`)
     await navigateTo(`/devis/${result.quote.id}`)
+  } else if (result.message) {
+    notify.error('Impossible de modifier le devis', result.message)
   }
-}
-
-function triggerToast(title: string, message: string, type: 'success' | 'error' = 'success') {
-  toastTitle.value = title
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
 }
 
 onMounted(() => {

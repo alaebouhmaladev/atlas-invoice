@@ -95,22 +95,7 @@ describe('User Management & Safeguards Unit Tests', () => {
         data: { isActive: true }
       })
 
-      // Target another super admin when only 1 active super admin remains
-      const tempAdmin = await prisma.user.create({
-        data: {
-          name: 'Temp Super Admin',
-          email: `temp.admin.${Date.now()}@atlasbites.ma`,
-          passwordHash: 'hashed_secret',
-          role: Role.SUPER_ADMIN,
-          isActive: false
-        }
-      })
-
-      try {
-        await expect(deactivateUser(superAdminId, actorUser.id)).rejects.toThrow('Impossible de désactiver le dernier Super Administrateur actif')
-      } finally {
-        await prisma.user.delete({ where: { id: tempAdmin.id } })
-      }
+      await expect(deactivateUser(superAdminId, actorUser.id)).rejects.toThrow('Impossible de désactiver le dernier Super Administrateur actif')
     } finally {
       await prisma.user.delete({ where: { id: actorUser.id } })
       if (otherAdminIds.length > 0) {

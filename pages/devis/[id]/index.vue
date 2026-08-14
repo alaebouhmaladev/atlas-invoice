@@ -224,7 +224,6 @@
         </div>
       </div>
 
-      <!-- Confirmation Dialog -->
       <ConfirmDialog
         :show="showConfirmModal"
         :title="confirmModalTitle"
@@ -236,15 +235,6 @@
         @confirm="executeQuoteAction"
         @cancel="showConfirmModal = false"
       />
-
-      <!-- Notification Toast -->
-      <NotificationToast
-        :show="showToast"
-        :title="toastTitle"
-        :message="toastMessage"
-        :type="toastType"
-        @close="showToast = false"
-      />
     </template>
   </div>
 </template>
@@ -254,7 +244,6 @@ import QuoteStatusBadge from '~/components/quotes/QuoteStatusBadge.vue'
 import ClientStatusBadge from '~/components/clients/ClientStatusBadge.vue'
 import QuoteStatusActions from '~/components/quotes/QuoteStatusActions.vue'
 import ConfirmDialog from '~/components/ui/ConfirmDialog.vue'
-import NotificationToast from '~/components/ui/NotificationToast.vue'
 import { formatMoney } from '~/server/utils/calculation'
 import type { QuoteStatus } from '@prisma/client'
 import type { QuoteWithRelations } from '~/composables/useQuotes'
@@ -270,6 +259,7 @@ const router = useRouter()
 const { user } = useAuth()
 const { fetchQuote, changeStatus, duplicateQuote, archiveQuote, restoreQuote, deleteQuote, downloadPdf } = useQuotes()
 const { convertQuoteToInvoice } = useInvoices()
+const notify = useNotify()
 
 const quote = ref<QuoteWithRelations | null>(null)
 const loading = ref(true)
@@ -284,10 +274,10 @@ async function handleConvertToInvoice() {
   actionLoading.value = true
   try {
     const inv = await convertQuoteToInvoice(quote.value.id)
-    triggerToast('Devis converti', `Le devis ${quote.value.number} a été converti en facture.`)
+    notify.success('Devis converti avec succès', `Le devis ${quote.value.number} a été converti en facture.`)
     await navigateTo(`/factures/${inv.id}`)
   } catch (err: any) {
-    triggerToast('Erreur de conversion', err.message || 'Échec de la conversion', 'error')
+    notify.error('Erreur de conversion', err.message || 'Échec de la conversion')
   } finally {
     actionLoading.value = false
   }
@@ -297,12 +287,6 @@ async function handleConvertToInvoice() {
 const showConfirmModal = ref(false)
 const modalActionType = ref<'archive' | 'restore' | 'delete'>('archive')
 const actionLoading = ref(false)
-
-// Toast states
-const showToast = ref(false)
-const toastTitle = ref('')
-const toastMessage = ref('')
-const toastType = ref<'success' | 'error'>('success')
 
 const confirmModalTitle = computed(() => {
   if (modalActionType.value === 'delete') return 'Supprimer définitivement le devis'
@@ -343,10 +327,10 @@ async function handleStatusChange(newStatus: QuoteStatus) {
   actionLoading.value = false
 
   if (ok) {
-    triggerToast('Statut mis à jour', `Le devis "${quote.value.number}" est maintenant au statut ${newStatus}.`)
+    notify.success('Statut mis à jour', `Le devis "${quote.value.number}" est maintenant au statut ${newStatus}.`)
     await loadQuoteData()
   } else {
-    triggerToast('Erreur', 'Changement de statut impossible', 'error')
+    notify.error('Erreur', 'Changement de statut impossible')
   }
 }
 
@@ -354,10 +338,10 @@ async function handleDuplicate() {
   if (!quote.value) return
   const result = await duplicateQuote(quote.value.id)
   if (result.success && result.quote) {
-    triggerToast('Devis dupliqué', `Nouveau devis "${result.quote.number}" créé sous forme de brouillon.`)
+    notify.success('Devis dupliqué', `Nouveau devis "${result.quote.number}" créé sous forme de brouillon.`)
     await navigateTo(`/devis/${result.quote.id}/edit`)
   } else {
-    triggerToast('Erreur', result.message || 'Échec de la duplication', 'error')
+    notify.error('Erreur', result.message || 'Échec de la duplication')
   }
 }
 
@@ -381,15 +365,15 @@ async function executeQuoteAction() {
     let ok = false
     if (modalActionType.value === 'archive') {
       ok = await archiveQuote(quote.value.id)
-      if (ok) triggerToast('Devis archivé', `Le devis "${quote.value.number}" a été archivé.`)
+      if (ok) notify.success('Devis archivé', `Le devis "${quote.value.number}" a été archivé.`)
     } else if (modalActionType.value === 'restore') {
       ok = await restoreQuote(quote.value.id)
-      if (ok) triggerToast('Devis restauré', `Le devis "${quote.value.number}" est à nouveau actif.`)
+      if (ok) notify.success('Devis restauré', `Le devis "${quote.value.number}" est à nouveau actif.`)
     } else if (modalActionType.value === 'delete') {
       ok = await deleteQuote(quote.value.id)
       if (ok) {
-        triggerToast('Devis supprimé', `Le devis "${quote.value.number}" a été supprimé.`)
-        await router.push('/devis')
+        notify.success('Devis supprimé', `Le devis "${quote.value.number}" a été supprimé.`)
+        await navigateTo('/devis')
         return
       }
     }
@@ -401,13 +385,6 @@ async function executeQuoteAction() {
   } finally {
     actionLoading.value = false
   }
-}
-
-function triggerToast(title: string, message: string, type: 'success' | 'error' = 'success') {
-  toastTitle.value = title
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
 }
 
 function formatDate(dateInput: string | Date): string {

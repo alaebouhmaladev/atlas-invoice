@@ -1,4 +1,5 @@
 import PDFDocument from 'pdfkit'
+import sharp from 'sharp'
 import { formatMoney } from '../../utils/calculation'
 import type { ClientSnapshotData } from '../pdf.service'
 import type { CompanySnapshotData } from '../company.service'
@@ -71,7 +72,72 @@ function formatAmount(val: string | number): string {
   return formatMoney(val)
 }
 
-export function buildSharedPdfDocument(data: SharedPdfDocumentData): Promise<Buffer> {
+export interface NormalizedImageResult {
+  buffer: Buffer
+  width: number
+  height: number
+}
+
+export async function normalizePdfImage(buffer: Buffer | null | undefined): Promise<NormalizedImageResult | null> {
+  if (!buffer || buffer.length === 0) return null
+  try {
+    let img = sharp(buffer)
+    const meta = await img.metadata()
+    if (!meta.width || !meta.height) return null
+
+    // 1. Trim transparent background padding
+    try {
+      const trimmedTrans = await img.trim().toBuffer()
+      img = sharp(trimmedTrans)
+    } catch {}
+
+    // 2. Trim white / near-white background padding
+    try {
+      const trimmedWhite = await img.trim({ background: '#ffffff', threshold: 25 }).toBuffer()
+      img = sharp(trimmedWhite)
+    } catch {}
+
+    // 3. Add 4px transparent padding around trimmed visible mark
+    const finalBuffer = await img
+      .extend({
+        top: 4,
+        bottom: 4,
+        left: 4,
+        right: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      })
+      .png()
+      .toBuffer()
+
+    const finalMeta = await sharp(finalBuffer).metadata()
+    if (!finalMeta.width || !finalMeta.height) return null
+
+    return {
+      buffer: finalBuffer,
+      width: finalMeta.width,
+      height: finalMeta.height
+    }
+  } catch {
+    try {
+      const meta = await sharp(buffer).metadata()
+      if (meta.width && meta.height) {
+        return { buffer, width: meta.width, height: meta.height }
+      }
+    } catch {}
+    return null
+  }
+}
+
+export async function buildSharedPdfDocument(data: SharedPdfDocumentData): Promise<Buffer> {
+  const showSigOnPaid = (data.companySnapshot as any)?.showSignatureOnPaidInvoice !== false
+  const showStampOnPaid = (data.companySnapshot as any)?.showStampOnPaidInvoice !== false
+
+  const isInvoiceType = data.type === 'INVOICE'
+  const isPaidInvoice = data.paymentStatus === 'PAID'
+
+  const normSignature = (isInvoiceType && isPaidInvoice && showSigOnPaid && data.signatureBuffer) ? await normalizePdfImage(data.signatureBuffer) : null
+  const normStamp = (isInvoiceType && isPaidInvoice && showStampOnPaid && data.stampBuffer) ? await normalizePdfImage(data.stampBuffer) : null
+
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({
@@ -540,9 +606,6 @@ export function buildSharedPdfDocument(data: SharedPdfDocumentData): Promise<Buf
         bottomY = 36
       }
 
-      const showSigOnPaid = (data.companySnapshot as any)?.showSignatureOnPaidInvoice !== false
-      const showStampOnPaid = (data.companySnapshot as any)?.showStampOnPaidInvoice !== false
-
       if (isQuote) {
         doc.roundedRect(300, bottomY - 4, 263.28, 85, 6).fillAndStroke('#ffffff', borderDark)
         doc.fillColor(darkColor).fontSize(12).font('Helvetica-Bold').text('BON POUR ACCORD', 315, bottomY + 8)
@@ -552,49 +615,96 @@ export function buildSharedPdfDocument(data: SharedPdfDocumentData): Promise<Buf
           .text('Signature et cachet du client :', 315, bottomY + 58)
       } else if (isInvoice) {
         if (isPaid) {
-          const hasRealAssets = Boolean(
-            (showSigOnPaid && data.signatureBuffer && data.signatureBuffer.length > 0) ||
-            (showStampOnPaid && data.stampBuffer && data.stampBuffer.length > 0)
-          )
+          const hasSig = Boolean(normSignature)
+          const hasStamp = Boolean(normStamp)
 
-          doc.roundedRect(300, bottomY - 4, 263.28, 92, 6).fillAndStroke('#ffffff', greenBorder)
+          let panelHeight = 55
+          let sigDraw: { x: number; y: number; w: number; h: number } | null = null
+          let stampDraw: { x: number; y: number; w: number; h: number } | null = null
 
-          // Vector Checkmark Circle
-          const cX = 338
-          const cY = bottomY + 16
+          if (hasSig && hasStamp && normSignature && normStamp) {
+            // Both assets: Signature (max 235x95) on left (56%), Cachet (max 180x105) on right (40%)
+            const sigScale = Math.min(235 / normSignature.width, 95 / normSignature.height)
+            const sigW = Math.round(normSignature.width * sigScale)
+            const sigH = Math.round(normSignature.height * sigScale)
+
+            const stampScale = Math.min(180 / normStamp.width, 105 / normStamp.height)
+            const stampW = Math.round(normStamp.width * stampScale)
+            const stampH = Math.round(normStamp.height * stampScale)
+
+            const assetAreaH = Math.max(sigH, stampH, 80)
+            panelHeight = 48 + assetAreaH + 16
+
+            // Signature zone [52..327] (width 275)
+            const sigX = 52 + Math.round((275 - sigW) / 2)
+            const sigY = (bottomY + 48) + Math.round((assetAreaH - sigH) / 2)
+            sigDraw = { x: sigX, y: sigY, w: sigW, h: sigH }
+
+            // Cachet zone [347..543] (width 196)
+            const stampX = 347 + Math.round((196 - stampW) / 2)
+            const stampY = (bottomY + 48) + Math.round((assetAreaH - stampH) / 2)
+            stampDraw = { x: stampX, y: stampY, w: stampW, h: stampH }
+
+          } else if (hasSig && normSignature) {
+            // Signature only: max 235x95, centered horizontally in full-width panel [32..563.28]
+            const sigScale = Math.min(235 / normSignature.width, 95 / normSignature.height)
+            const sigW = Math.round(normSignature.width * sigScale)
+            const sigH = Math.round(normSignature.height * sigScale)
+
+            panelHeight = 48 + sigH + 16
+            const sigX = 32 + Math.round((531.28 - sigW) / 2)
+            const sigY = bottomY + 48
+            sigDraw = { x: sigX, y: sigY, w: sigW, h: sigH }
+
+          } else if (hasStamp && normStamp) {
+            // Cachet only: max 185x105, centered horizontally in full-width panel [32..563.28]
+            const stampScale = Math.min(185 / normStamp.width, 105 / normStamp.height)
+            const stampW = Math.round(normStamp.width * stampScale)
+            const stampH = Math.round(normStamp.height * stampScale)
+
+            panelHeight = 48 + stampH + 16
+            const stampX = 32 + Math.round((531.28 - stampW) / 2)
+            const stampY = bottomY + 48
+            stampDraw = { x: stampX, y: stampY, w: stampW, h: stampH }
+          }
+
+          // Safety check: ensure panel bottom doesn't cross footer divider at y = 780 pt
+          const panelY = bottomY + 4
+          const adjustedPanelY = (panelY + panelHeight > 770) ? Math.max(32, 770 - panelHeight) : panelY
+          const yShift = adjustedPanelY - panelY
+
+          // Full-width panel: X=32, Width=531.28
+          doc.roundedRect(32, adjustedPanelY, 531.28, panelHeight, 6).fillAndStroke('#ffffff', greenBorder)
+
+          // Vector Checkmark Circle + Title centered in full-width panel
+          const cX = 220
+          const cY = adjustedPanelY + 16
           doc.circle(cX, cY, 9).strokeColor(greenAccent).lineWidth(1.25).stroke()
           doc.moveTo(cX - 4, cY).lineTo(cX - 1, cY + 3).lineTo(cX + 5, cY - 3).strokeColor(greenAccent).lineWidth(1.25).stroke()
 
-          doc.fillColor(greenAccent).fontSize(12.5).font('Helvetica-Bold').text('FACTURE ACQUITTÉE', cX + 15, cY - 4)
+          doc.fillColor(greenAccent).fontSize(13).font('Helvetica-Bold').text('FACTURE ACQUITTÉE', cX + 15, cY - 4)
 
           doc.fillColor(textMuted).fontSize(10).font('Helvetica')
-            .text(`Date de paiement : ${formatPdfDate(data.paidAt || data.issueDate)}`, 300, bottomY + 33, { width: 263.28, align: 'center' })
+            .text(`Date de paiement : ${formatPdfDate(data.paidAt || data.issueDate)}`, 32, adjustedPanelY + 31, { width: 531.28, align: 'center' })
 
-          // Dotted Horizontal Divider Line
-          doc.save()
-          doc.dash(3, { space: 3 })
-          doc.moveTo(315, bottomY + 50).lineTo(548, bottomY + 50).strokeColor('#CBD5E1').lineWidth(0.75).stroke()
-          doc.restore()
+          if (hasSig || hasStamp) {
+            // Full-width Dotted Horizontal Divider Line
+            doc.save()
+            doc.dash(3, { space: 3 })
+            doc.moveTo(48, adjustedPanelY + 45).lineTo(547, adjustedPanelY + 45).strokeColor('#CBD5E1').lineWidth(0.75).stroke()
+            doc.restore()
 
-          if (hasRealAssets) {
-            let imgX = 360
-            if (showSigOnPaid && data.signatureBuffer && data.signatureBuffer.length > 0) {
+            if (sigDraw && normSignature) {
               try {
-                doc.image(data.signatureBuffer, imgX, bottomY + 54, { fit: [65, 30] })
-                imgX += 70
+                doc.image(normSignature.buffer, sigDraw.x, sigDraw.y + yShift, { width: sigDraw.w, height: sigDraw.h })
               } catch {}
             }
-            if (showStampOnPaid && data.stampBuffer && data.stampBuffer.length > 0) {
+
+            if (stampDraw && normStamp) {
               try {
-                doc.image(data.stampBuffer, imgX, bottomY + 54, { fit: [65, 30] })
+                doc.image(normStamp.buffer, stampDraw.x, stampDraw.y + yShift, { width: stampDraw.w, height: stampDraw.h })
               } catch {}
             }
-          } else {
-            // Text Placeholder matching the image specification
-            doc.fillColor(textMuted).fontSize(9.5).font('Helvetica')
-              .text('Signature et cachet', 300, bottomY + 56, { width: 263.28, align: 'center' })
-            doc.fontSize(8.5).font('Helvetica')
-              .text('(espace réservé)', 300, bottomY + 68, { width: 263.28, align: 'center' })
           }
         } else if (isPartiallyPaid) {
           doc.roundedRect(300, bottomY - 4, 263.28, 75, 6).fillAndStroke('#ffffff', amberAccent)

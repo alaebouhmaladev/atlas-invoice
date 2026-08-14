@@ -27,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import { useInvoices } from '~/composables/useInvoices'
 import InvoiceForm from '~/components/invoices/InvoiceForm.vue'
 
@@ -36,17 +35,18 @@ definePageMeta({
   layout: 'default'
 })
 
-const router = useRouter()
 const { loading, error, createInvoice } = useInvoices()
+const notify = useNotify()
 
 const handleCreate = async (payload: any) => {
   try {
     const created = await createInvoice(payload)
     if (created && created.id) {
-      router.push(`/factures/${created.id}`)
+      notify.success('Facture créée avec succès', 'La facture a été créée sous forme de brouillon.')
+      await navigateTo(`/factures/${created.id}`)
     }
-  } catch (e) {
-    // handled by composable error ref
+  } catch (e: any) {
+    notify.error('Impossible de créer la facture', e.message || 'Erreur lors de la création')
   }
 }
 </script>

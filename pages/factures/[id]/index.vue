@@ -277,15 +277,6 @@
       @confirm="handleConfirmDelete"
       @close="deleteModalOpen = false"
     />
-
-    <!-- Toast Notification -->
-    <NotificationToast
-      :show="showToast"
-      :title="toastTitle"
-      :message="toastMessage"
-      :type="toastType"
-      @close="showToast = false"
-    />
   </div>
 </template>
 
@@ -303,7 +294,6 @@ import InvoiceTotals from '~/components/invoices/InvoiceTotals.vue'
 import PaymentHistoryTable from '~/components/invoices/PaymentHistoryTable.vue'
 import PaymentModal from '~/components/invoices/PaymentModal.vue'
 import ConfirmDialog from '~/components/ui/ConfirmDialog.vue'
-import NotificationToast from '~/components/ui/NotificationToast.vue'
 
 definePageMeta({
   middleware: 'auth',
@@ -325,6 +315,7 @@ const {
 } = useInvoices()
 
 const { addPayment, reversePayment } = usePayments()
+const notify = useNotify()
 
 const invoice = ref<any>(null)
 const actionLoading = ref(false)
@@ -338,12 +329,6 @@ const reversalModalOpen = ref(false)
 const targetPayment = ref<any>(null)
 const reversalReason = ref('')
 const deleteModalOpen = ref(false)
-
-// Toast state
-const showToast = ref(false)
-const toastTitle = ref('')
-const toastMessage = ref('')
-const toastType = ref<'success' | 'error'>('success')
 
 const loadInvoiceDetails = async () => {
   const id = route.params.id as string
@@ -374,7 +359,6 @@ const invoiceFinancialTotals = computed(() => {
     quantity: Number(it.quantity),
     unitPriceHt: Number(it.unitPriceHt),
     discountRate: Number(it.discountRate || 0),
-    vatRate: Number(it.vatRate || 20)
   }))
 
   return calculateQuoteFinancials(rawItems, {
@@ -383,21 +367,14 @@ const invoiceFinancialTotals = computed(() => {
   })
 })
 
-const triggerToast = (title: string, message: string, type: 'success' | 'error' = 'success') => {
-  toastTitle.value = title
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
-}
-
 const handleFinalize = async () => {
   actionLoading.value = true
   try {
     const updated = await finalizeInvoice(invoice.value.id)
     invoice.value = updated
-    triggerToast('Facture finalisée', `Le numéro officiel ${updated.number} a été attribué.`)
+    notify.success('Facture finalisée avec succès', `Le numéro officiel ${updated.number} a été attribué.`)
   } catch (err: any) {
-    triggerToast('Erreur finalisation', err.message, 'error')
+    notify.error('Erreur de finalisation', err.message || 'Échec de la finalisation')
   } finally {
     actionLoading.value = false
   }
@@ -410,9 +387,10 @@ const handleSavePayment = async (paymentPayload: any) => {
     await addPayment(invoice.value.id, paymentPayload)
     paymentModalOpen.value = false
     await loadInvoiceDetails()
-    triggerToast('Paiement enregistré', 'Le montant a été crédité et le solde dû mis à jour.')
+    notify.success('Paiement enregistré avec succès', 'Le montant a été crédité et le solde dû mis à jour.')
   } catch (err: any) {
     actionError.value = err.message
+    notify.error('Erreur enregistrement paiement', err.message || 'Échec de l\'enregistrement')
   } finally {
     actionLoading.value = false
   }
@@ -420,7 +398,7 @@ const handleSavePayment = async (paymentPayload: any) => {
 
 const handleConfirmCancel = async () => {
   if (!cancellationReason.value.trim()) {
-    triggerToast('Raison obligatoire', 'Veuillez saisir un motif d\'annulation.', 'error')
+    notify.error('Raison obligatoire', 'Veuillez saisir un motif d\'annulation.')
     return
   }
 
@@ -430,9 +408,9 @@ const handleConfirmCancel = async () => {
     invoice.value = updated
     cancelModalOpen.value = false
     cancellationReason.value = ''
-    triggerToast('Facture annulée', 'La facture a été marquée comme annulée.')
+    notify.success('Facture annulée avec succès', 'La facture a été marquée comme annulée.')
   } catch (err: any) {
-    triggerToast('Erreur annulation', err.message, 'error')
+    notify.error('Erreur d\'annulation', err.message || 'Échec de l\'annulation')
   } finally {
     actionLoading.value = false
   }
@@ -446,7 +424,7 @@ const openReversalModal = (payment: any) => {
 
 const handleConfirmReversal = async () => {
   if (!reversalReason.value.trim()) {
-    triggerToast('Raison obligatoire', 'Veuillez indiquer le motif d\'annulation du paiement.', 'error')
+    notify.error('Raison obligatoire', 'Veuillez indiquer le motif d\'annulation du paiement.')
     return
   }
 
@@ -455,9 +433,9 @@ const handleConfirmReversal = async () => {
     await reversePayment(invoice.value.id, targetPayment.value.id, reversalReason.value)
     reversalModalOpen.value = false
     await loadInvoiceDetails()
-    triggerToast('Paiement annulé', 'Le règlement a été contrepassé et le solde ajusté.')
+    notify.success('Paiement annulé avec succès', 'Le règlement a été contrepassé et le solde ajusté.')
   } catch (err: any) {
-    triggerToast('Erreur annulation', err.message, 'error')
+    notify.error('Erreur d\'annulation du paiement', err.message || 'Échec du contrepassement')
   } finally {
     actionLoading.value = false
   }
@@ -468,9 +446,9 @@ const handleArchive = async () => {
   try {
     const updated = await archiveInvoice(invoice.value.id)
     invoice.value = updated
-    triggerToast('Facture archivée', 'La facture a été déplacée vers les archives.')
+    notify.success('Facture archivée avec succès', 'La facture a été déplacée vers les archives.')
   } catch (err: any) {
-    triggerToast('Erreur archivage', err.message, 'error')
+    notify.error('Erreur d\'archivage', err.message || 'Échec de l\'archivage')
   } finally {
     actionLoading.value = false
   }
@@ -481,9 +459,9 @@ const handleRestore = async () => {
   try {
     const updated = await restoreInvoice(invoice.value.id)
     invoice.value = updated
-    triggerToast('Facture restaurée', 'La facture a été restaurée parmi les factures actives.')
+    notify.success('Facture restaurée avec succès', 'La facture a été restaurée parmi les factures actives.')
   } catch (err: any) {
-    triggerToast('Erreur restauration', err.message, 'error')
+    notify.error('Erreur de restauration', err.message || 'Échec de la restauration')
   } finally {
     actionLoading.value = false
   }
@@ -498,9 +476,10 @@ const handleConfirmDelete = async () => {
   try {
     await deleteInvoice(invoice.value.id)
     deleteModalOpen.value = false
-    router.push('/factures')
+    notify.success('Brouillon supprimé', 'Le brouillon a été supprimé.')
+    await navigateTo('/factures')
   } catch (err: any) {
-    triggerToast('Erreur suppression', err.message, 'error')
+    notify.error('Erreur de suppression', err.message || 'Échec de la suppression')
   } finally {
     actionLoading.value = false
   }

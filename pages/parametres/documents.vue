@@ -292,9 +292,30 @@ const fetchSettings = async () => {
 
 onMounted(fetchSettings)
 
+const { user } = useAuth()
+const isSuperAdmin = computed(() => user.value?.role === 'SUPER_ADMIN')
+
 const handleFileUpload = async (event: Event, type: 'logo' | 'signature' | 'stamp') => {
   const target = event.target as HTMLInputElement
   if (!target.files || target.files.length === 0) return
+
+  if (!isSuperAdmin.value) {
+    errorMsg.value = 'Seul un Super Administrateur est autorisé à modifier les visuels officiels.'
+    target.value = ''
+    return
+  }
+
+  const isReplacing = (type === 'logo' && form.activeLogoAssetId) ||
+                      (type === 'signature' && form.activeSignatureAssetId) ||
+                      (type === 'stamp' && form.activeStampAssetId)
+
+  if (isReplacing) {
+    const confirmed = confirm(`Êtes-vous sûr de vouloir remplacer le visuel ${type} actif ? Cette action sera enregistrée dans le journal d'audit.`)
+    if (!confirmed) {
+      target.value = ''
+      return
+    }
+  }
 
   const file = target.files[0]
   const formData = new FormData()
@@ -312,16 +333,25 @@ const handleFileUpload = async (event: Event, type: 'logo' | 'signature' | 'stam
     })
     if (res.success) {
       await fetchSettings()
-      successMsg.value = `Le fichier ${type} a été téléversé et activé avec succès.`
+      successMsg.value = `Le visuel ${type} a été téléversé et activé avec succès.`
     }
   } catch (err: any) {
     errorMsg.value = err.data?.message || err.message || 'Erreur lors du téléversement du fichier'
   } finally {
     loading.value = false
+    target.value = ''
   }
 }
 
 const handleRemoveAsset = async (type: 'logo' | 'signature' | 'stamp') => {
+  if (!isSuperAdmin.value) {
+    errorMsg.value = 'Seul un Super Administrateur est autorisé à retirer les visuels officiels.'
+    return
+  }
+
+  const confirmed = confirm(`Êtes-vous sûr de vouloir retirer le visuel ${type} des paramètres actifs ? cette modification n'affectera pas les documents déjà finalisés.`)
+  if (!confirmed) return
+
   loading.value = true
   successMsg.value = null
   errorMsg.value = null

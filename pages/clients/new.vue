@@ -49,22 +49,12 @@
         </div>
       </div>
     </ConfirmDialog>
-
-    <!-- Notification Toast -->
-    <NotificationToast
-      :show="showToast"
-      :title="toastTitle"
-      :message="toastMessage"
-      :type="toastType"
-      @close="showToast = false"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import ClientForm from '~/components/clients/ClientForm.vue'
 import ConfirmDialog from '~/components/ui/ConfirmDialog.vue'
-import NotificationToast from '~/components/ui/NotificationToast.vue'
 import type { PotentialDuplicate } from '~/server/services/client.service'
 
 definePageMeta({
@@ -73,16 +63,11 @@ definePageMeta({
 })
 
 const { createClient, loading, error } = useClients()
+const notify = useNotify()
 
 const pendingFormData = ref<Record<string, unknown> | null>(null)
 const showDuplicateModal = ref(false)
 const potentialDuplicates = ref<PotentialDuplicate[]>([])
-
-// Toast states
-const showToast = ref(false)
-const toastTitle = ref('')
-const toastMessage = ref('')
-const toastType = ref<'success' | 'error'>('success')
 
 async function handleFormSubmit(formData: Record<string, unknown>) {
   pendingFormData.value = formData
@@ -95,8 +80,10 @@ async function handleFormSubmit(formData: Record<string, unknown>) {
   }
 
   if (result.success && result.client) {
-    triggerToast('Client créé', `Le client "${result.client.displayName}" a été créé avec succès.`)
+    notify.success('Client créé avec succès', `Le client "${result.client.displayName}" a été créé avec succès.`)
     await navigateTo(`/clients/${result.client.id}`)
+  } else if (result.message) {
+    notify.error('Impossible de créer le client', result.message)
   }
 }
 
@@ -111,15 +98,10 @@ async function confirmDuplicateCreation() {
 
   const result = await createClient(overrideData)
   if (result.success && result.client) {
-    triggerToast('Client créé', `Le client "${result.client.displayName}" a été créé avec succès.`)
+    notify.success('Client créé avec succès', `Le client "${result.client.displayName}" a été créé avec succès.`)
     await navigateTo(`/clients/${result.client.id}`)
+  } else if (result.message) {
+    notify.error('Impossible de créer le client', result.message)
   }
-}
-
-function triggerToast(title: string, message: string, type: 'success' | 'error' = 'success') {
-  toastTitle.value = title
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
 }
 </script>
