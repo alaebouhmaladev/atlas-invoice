@@ -15,7 +15,7 @@ async function cleanupTestData() {
       await prisma.payment.deleteMany({ where: { createdById: { in: testUserIds } } })
       await prisma.invoiceItem.deleteMany({ where: { invoice: { createdById: { in: testUserIds } } } })
       await prisma.invoice.deleteMany({ where: { createdById: { in: testUserIds } } })
-      await prisma.quoteItem.deleteMany({ where: { quote: { createdById: { in: testUserIds } } })
+      await prisma.quoteItem.deleteMany({ where: { quote: { createdById: { in: testUserIds } } } })
       await prisma.quote.deleteMany({ where: { createdById: { in: testUserIds } } })
       await prisma.client.deleteMany({ where: { createdById: { in: testUserIds } } })
       await prisma.auditLog.deleteMany({ where: { userId: { in: testUserIds } } })
