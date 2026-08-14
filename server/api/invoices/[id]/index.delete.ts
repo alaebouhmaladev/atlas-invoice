@@ -1,12 +1,11 @@
-import { defineEventHandler, createError } from 'h3'
-import { requireRole } from '../../../utils/auth'
-import { deleteInvoice } from '../../../services/invoice.service'
-import { createSuccessResponse } from '../../../utils/response'
+import { defineEventHandler, readBody, createError } from 'h3'
+import { requireAuth } from '../../../utils/auth'
+import { executeBulkAction } from '../../../services/documentManagement.service'
 
 export default defineEventHandler(async (event) => {
-  // SUPER_ADMIN only
-  const user = await requireRole(event, 'SUPER_ADMIN')
+  const user = await requireAuth(event)
   const id = event.context.params?.id
+  const body = await readBody(event).catch(() => ({}))
 
   if (!id) {
     throw createError({
@@ -16,18 +15,21 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  try {
-    await deleteInvoice(id, user.id)
-    return createSuccessResponse({ message: 'Facture supprimée avec succès' })
-  } catch (err: unknown) {
-    const error = err as Error
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
-      data: {
-        code: 'DELETE_INVOICE_FAILED',
-        message: error.message || 'Échec de la suppression de la facture'
-      }
-    })
+  const { confirmationPhrase, reason, password } = body || {}
+
+  const result = await executeBulkAction({
+    documentType: 'INVOICE',
+    actionType: 'DELETE_DRAFTS',
+    selectionMode: 'EXPLICIT',
+    explicitIds: [id],
+    confirmationPhrase: confirmationPhrase || 'SUPPRIMER',
+    reason: reason || 'Suppression définitive du brouillon de facture',
+    password,
+    user: { id: user.id, name: user.name, role: user.role }
+  })
+
+  return {
+    success: true,
+    data: result
   }
 })

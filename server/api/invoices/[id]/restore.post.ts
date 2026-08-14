@@ -1,12 +1,11 @@
-import { defineEventHandler, createError } from 'h3'
-import { requireRole } from '../../../utils/auth'
-import { restoreInvoice } from '../../../services/invoice.service'
-import { createSuccessResponse } from '../../../utils/response'
+import { defineEventHandler, readBody, createError } from 'h3'
+import { requireAuth } from '../../../utils/auth'
+import { executeBulkAction } from '../../../services/documentManagement.service'
 
 export default defineEventHandler(async (event) => {
-  // SUPER_ADMIN & ACCOUNTANT only
-  const user = await requireRole(event, 'SUPER_ADMIN', 'ACCOUNTANT')
+  const user = await requireAuth(event)
   const id = event.context.params?.id
+  const body = await readBody(event).catch(() => ({}))
 
   if (!id) {
     throw createError({
@@ -16,18 +15,20 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  try {
-    const invoice = await restoreInvoice(id, user.id)
-    return createSuccessResponse({ invoice })
-  } catch (err: unknown) {
-    const error = err as Error
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
-      data: {
-        code: 'RESTORE_INVOICE_FAILED',
-        message: error.message || 'Échec de la restauration de la facture'
-      }
-    })
+  const reason = body?.reason || 'Restauration individuelle du document'
+
+  const result = await executeBulkAction({
+    documentType: 'INVOICE',
+    actionType: 'RESTORE',
+    selectionMode: 'EXPLICIT',
+    explicitIds: [id],
+    confirmationPhrase: 'RESTAURER',
+    reason,
+    user: { id: user.id, name: user.name, role: user.role }
+  })
+
+  return {
+    success: true,
+    data: result
   }
 })

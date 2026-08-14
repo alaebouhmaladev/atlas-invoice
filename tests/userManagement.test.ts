@@ -84,12 +84,10 @@ describe('User Management & Safeguards Unit Tests', () => {
     const otherAdminIds = allOtherAdmins.map((u) => u.id)
 
     try {
-      if (otherAdminIds.length > 0) {
-        await prisma.user.updateMany({
-          where: { id: { in: otherAdminIds } },
-          data: { isActive: false }
-        })
-      }
+      await prisma.user.updateMany({
+        where: { role: Role.SUPER_ADMIN, id: { not: superAdminId } },
+        data: { isActive: false }
+      })
       await prisma.user.update({
         where: { id: superAdminId },
         data: { isActive: true }

@@ -45,6 +45,8 @@ model User {
   createdInvoices   Invoice[]         @relation("InvoiceCreatedBy")
   updatedInvoices   Invoice[]         @relation("InvoiceUpdatedBy")
   cancelledInvoices Invoice[]         @relation("InvoiceCancelledBy")
+  archivedInvoices  Invoice[]         @relation("InvoiceArchivedBy")
+  archivedQuotes    Quote[]           @relation("QuoteArchivedBy")
   createdPayments   Payment[]         @relation("PaymentCreatedBy")
   reversedPayments  Payment[]         @relation("PaymentReversedBy")
   uploadedAssets    CompanyAsset[]    @relation("AssetUploadedBy")
@@ -230,6 +232,8 @@ model Quote {
 
   isArchived            Boolean      @default(false)
   archivedAt            DateTime?
+  archivedById          String?
+  archiveReason         String?
 
   sentAt                DateTime?
   acceptedAt            DateTime?
@@ -247,6 +251,7 @@ model Quote {
   invoice               Invoice?     @relation("QuoteToInvoice")
   createdBy             User         @relation("QuoteCreatedBy", fields: [createdById], references: [id])
   updatedBy             User?        @relation("QuoteUpdatedBy", fields: [updatedById], references: [id])
+  archivedBy            User?        @relation("QuoteArchivedBy", fields: [archivedById], references: [id])
 
   @@unique([sequenceYear, sequenceNumber])
   @@index([clientId])
@@ -356,6 +361,8 @@ model Invoice {
 
   isArchived            Boolean         @default(false)
   archivedAt            DateTime?
+  archivedById          String?
+  archiveReason         String?
 
   createdById           String
   updatedById           String?
@@ -370,6 +377,7 @@ model Invoice {
   createdBy             User            @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
   updatedBy             User?           @relation("InvoiceUpdatedBy", fields: [updatedById], references: [id])
   cancelledBy           User?           @relation("InvoiceCancelledBy", fields: [cancelledById], references: [id])
+  archivedBy            User?           @relation("InvoiceArchivedBy", fields: [archivedById], references: [id])
 
   @@unique([sequenceYear, sequenceNumber])
   @@index([clientId])

@@ -1,12 +1,11 @@
-import { defineEventHandler, createError } from 'h3'
-import { requireRole } from '../../../utils/auth'
-import { archiveInvoice } from '../../../services/invoice.service'
-import { createSuccessResponse } from '../../../utils/response'
+import { defineEventHandler, readBody, createError } from 'h3'
+import { requireAuth } from '../../../utils/auth'
+import { executeBulkAction } from '../../../services/documentManagement.service'
 
 export default defineEventHandler(async (event) => {
-  // SUPER_ADMIN & ACCOUNTANT only
-  const user = await requireRole(event, 'SUPER_ADMIN', 'ACCOUNTANT')
+  const user = await requireAuth(event)
   const id = event.context.params?.id
+  const body = await readBody(event).catch(() => ({}))
 
   if (!id) {
     throw createError({
@@ -16,18 +15,20 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  try {
-    const invoice = await archiveInvoice(id, user.id)
-    return createSuccessResponse({ invoice })
-  } catch (err: unknown) {
-    const error = err as Error
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
-      data: {
-        code: 'ARCHIVE_INVOICE_FAILED',
-        message: error.message || 'Échec de l\'archivage de la facture'
-      }
-    })
+  const reason = body?.reason || 'Archivage individuel du document'
+
+  const result = await executeBulkAction({
+    documentType: 'INVOICE',
+    actionType: 'ARCHIVE',
+    selectionMode: 'EXPLICIT',
+    explicitIds: [id],
+    confirmationPhrase: 'ARCHIVER',
+    reason,
+    user: { id: user.id, name: user.name, role: user.role }
+  })
+
+  return {
+    success: true,
+    data: result
   }
 })

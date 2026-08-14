@@ -396,7 +396,12 @@ function formatActionLabel(action: string): string {
     USER_CREATED: 'Création d’un utilisateur',
     USER_UPDATED: 'Modification d’un utilisateur',
     USER_DEACTIVATED: 'Désactivation d’un utilisateur',
-    USER_ACTIVATED: 'Réactivation d’un utilisateur'
+    USER_ACTIVATED: 'Réactivation d’un utilisateur',
+    BULK_DOCUMENT_ARCHIVE: 'Archivage groupé de documents',
+    BULK_DRAFT_DELETE: 'Suppression groupée de brouillons',
+    BULK_MIXED_CLEANUP: 'Nettoyage groupé de documents',
+    BULK_DOCUMENT_RESTORE: 'Restauration groupée de documents',
+    UNAUTHORIZED_BULK_ACTION_ATTEMPT: 'Tentative d’action groupée non autorisée'
   }
   return map[action] || action
 }

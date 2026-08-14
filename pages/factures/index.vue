@@ -18,8 +18,51 @@
       </NuxtLink>
     </div>
 
+    <!-- Filter Tabs (Actifs, Archivés, Tous) -->
+    <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+      <button
+        type="button"
+        @click="setArchivedStatus('active')"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+        :class="activeArchivedStatus === 'active' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+      >
+        Actifs
+      </button>
+      <button
+        type="button"
+        @click="setArchivedStatus('archived')"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+        :class="activeArchivedStatus === 'archived' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+      >
+        Archivés
+      </button>
+      <button
+        type="button"
+        @click="setArchivedStatus('all')"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+        :class="activeArchivedStatus === 'all' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+      >
+        Tous
+      </button>
+    </div>
+
     <!-- Filters component -->
     <InvoiceFilters :clients="clientsList" @update:filters="handleFilterUpdate" />
+
+    <!-- Bulk Selection Floating Toolbar (Super Admin) -->
+    <BulkSelectionToolbar
+      v-if="isSuperAdmin"
+      :selected-count="selectionMode === 'ALL_FILTERED' ? pagination.totalItems : selectedIds.length"
+      :page-count="invoices.length"
+      :total-matching="pagination.totalItems"
+      :is-all-matching-selected="selectionMode === 'ALL_FILTERED'"
+      :is-archived-view="activeArchivedStatus === 'archived'"
+      @archive="openBulkModal('ARCHIVE')"
+      @delete="openBulkModal('DELETE_DRAFTS')"
+      @restore="openBulkModal('RESTORE')"
+      @clear="clearSelection"
+      @select-all-matching="selectAllMatchingFiltered"
+    />
 
     <!-- Error message alert -->
     <div
@@ -81,6 +124,14 @@
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider font-semibold">
+              <th v-if="isSuperAdmin" class="py-3.5 px-4 w-10">
+                <input
+                  type="checkbox"
+                  :checked="isCurrentPageAllSelected"
+                  @change="toggleSelectCurrentPage"
+                  class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/40 cursor-pointer"
+                />
+              </th>
               <th class="py-3.5 px-4">Numéro</th>
               <th class="py-3.5 px-4">Client</th>
               <th class="py-3.5 px-4">Émission / Échéance</th>
@@ -96,12 +147,26 @@
               v-for="invoice in invoices"
               :key="invoice.id"
               class="hover:bg-slate-800/30 transition-colors"
-              :class="{ 'opacity-60 bg-slate-950/40': invoice.isArchived }"
+              :class="{ 'opacity-60 bg-slate-950/40': invoice.isArchived, 'bg-amber-500/5': isSelected(invoice.id) }"
             >
+              <td v-if="isSuperAdmin" class="py-3.5 px-4">
+                <input
+                  type="checkbox"
+                  :checked="isSelected(invoice.id)"
+                  @change="toggleSelectRow(invoice.id)"
+                  class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/40 cursor-pointer"
+                />
+              </td>
+
               <td class="py-3.5 px-4 font-mono font-bold">
-                <NuxtLink :to="`/factures/${invoice.id}`" class="text-amber-400 hover:text-amber-300 transition-colors">
-                  {{ invoice.number || `BROUILLON #${invoice.id.substring(0, 6).toUpperCase()}` }}
-                </NuxtLink>
+                <div class="flex items-center gap-1.5">
+                  <NuxtLink :to="`/factures/${invoice.id}`" class="text-amber-400 hover:text-amber-300 transition-colors">
+                    {{ invoice.number || `BROUILLON #${invoice.id.substring(0, 6).toUpperCase()}` }}
+                  </NuxtLink>
+                  <span v-if="invoice.isArchived" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    ARCHIVÉ
+                  </span>
+                </div>
                 <div v-if="invoice.sourceQuote" class="text-[11px] text-slate-500 font-sans font-normal">
                   Devis : {{ invoice.sourceQuote.number }}
                 </div>
@@ -163,6 +228,32 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </button>
+
+                <!-- 3. Individual Archive / Restore / Delete (Super Admin) -->
+                <template v-if="isSuperAdmin">
+                  <button
+                    v-if="invoice.isArchived"
+                    type="button"
+                    @click="openSingleAction(invoice, 'RESTORE')"
+                    class="p-2 inline-flex items-center text-emerald-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                    title="Restaurer"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                  <button
+                    v-else
+                    type="button"
+                    @click="openSingleAction(invoice, 'ARCHIVE')"
+                    class="p-2 inline-flex items-center text-amber-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                    title="Archiver"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                  </button>
+                </template>
               </td>
             </tr>
           </tbody>
@@ -190,11 +281,30 @@
       :filename="`Facture_${previewDocNumber}.pdf`"
       @close="showPdfPreview = false"
     />
+
+    <!-- GitHub Destructive Confirmation Modal -->
+    <GitHubDestructiveModal
+      :show="showBulkModal"
+      :action-type="activeActionType"
+      :count="selectionMode === 'ALL_FILTERED' ? pagination.totalItems : selectedIds.length"
+      :preview-data="bulkPreviewData"
+      :loading="executingAction"
+      document-label="factures"
+      @close="showBulkModal = false"
+      @confirm="handleConfirmBulk"
+    />
+
+    <!-- Operation Summary Result Modal -->
+    <BulkResultModal
+      :show="showResultModal"
+      :result="bulkExecutionResult"
+      @close="showResultModal = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useInvoices } from '~/composables/useInvoices'
 import { formatMoney } from '~/server/utils/calculation'
 import InvoiceFilters from '~/components/invoices/InvoiceFilters.vue'
@@ -202,26 +312,158 @@ import InvoiceStatusBadge from '~/components/invoices/InvoiceStatusBadge.vue'
 import PaymentStatusBadge from '~/components/invoices/PaymentStatusBadge.vue'
 import Pagination from '~/components/ui/Pagination.vue'
 import DocumentPdfPreviewModal from '~/components/ui/DocumentPdfPreviewModal.vue'
+import BulkSelectionToolbar from '~/components/ui/BulkSelectionToolbar.vue'
+import GitHubDestructiveModal from '~/components/ui/GitHubDestructiveModal.vue'
+import BulkResultModal from '~/components/ui/BulkResultModal.vue'
+import { useNotify } from '~/composables/useNotify'
 
 definePageMeta({
   middleware: 'auth',
   layout: 'default'
 })
 
+const { user } = useAuth()
+const { notifySuccess, notifyError } = useNotify()
 const { loading, error, invoices, pagination, fetchInvoices } = useInvoices()
+
+const isSuperAdmin = computed(() => user.value?.role === 'SUPER_ADMIN')
 
 const clientsList = ref<Array<{ id: string; displayName: string }>>([])
 const activeFilters = ref<any>({})
+const activeArchivedStatus = ref<'active' | 'archived' | 'all'>('active')
+
+// Selection States
+const selectedIds = ref<string[]>([])
+const selectionMode = ref<'EXPLICIT' | 'ALL_FILTERED'>('EXPLICIT')
 
 // PDF Preview Modal States
 const showPdfPreview = ref(false)
 const previewPdfUrl = ref('')
 const previewDocNumber = ref('')
 
+// Bulk & Destructive Modal States
+const showBulkModal = ref(false)
+const activeActionType = ref<'ARCHIVE' | 'DELETE_DRAFTS' | 'MIXED_CLEANUP' | 'RESTORE'>('ARCHIVE')
+const bulkPreviewData = ref<any>(null)
+const executingAction = ref(false)
+const showResultModal = ref(false)
+const bulkExecutionResult = ref<any>(null)
+
+const isSelected = (id: string) => {
+  if (selectionMode.value === 'ALL_FILTERED') return true
+  return selectedIds.value.includes(id)
+}
+
+const isCurrentPageAllSelected = computed(() => {
+  if (invoices.value.length === 0) return false
+  if (selectionMode.value === 'ALL_FILTERED') return true
+  return invoices.value.every((inv) => selectedIds.value.includes(inv.id))
+})
+
+const toggleSelectCurrentPage = () => {
+  if (isCurrentPageAllSelected.value) {
+    clearSelection()
+  } else {
+    selectionMode.value = 'EXPLICIT'
+    selectedIds.value = Array.from(new Set([...selectedIds.value, ...invoices.value.map((i) => i.id)]))
+  }
+}
+
+const toggleSelectRow = (id: string) => {
+  if (selectionMode.value === 'ALL_FILTERED') {
+    selectionMode.value = 'EXPLICIT'
+    selectedIds.value = invoices.value.map((i) => i.id).filter((iId) => iId !== id)
+    return
+  }
+  const idx = selectedIds.value.indexOf(id)
+  if (idx > -1) {
+    selectedIds.value.splice(idx, 1)
+  } else {
+    selectedIds.value.push(id)
+  }
+}
+
+const selectAllMatchingFiltered = () => {
+  selectionMode.value = 'ALL_FILTERED'
+}
+
+const clearSelection = () => {
+  selectedIds.value = []
+  selectionMode.value = 'EXPLICIT'
+}
+
+const setArchivedStatus = async (status: 'active' | 'archived' | 'all') => {
+  clearSelection()
+  activeArchivedStatus.value = status
+  await handleFilterUpdate(activeFilters.value)
+}
+
 const openPdfPreview = (invoice: any) => {
   previewPdfUrl.value = `/api/invoices/${invoice.id}/pdf`
   previewDocNumber.value = invoice.number || `BROUILLON #${invoice.id.substring(0, 6).toUpperCase()}`
   showPdfPreview.value = true
+}
+
+const openSingleAction = (invoice: any, action: 'ARCHIVE' | 'RESTORE') => {
+  clearSelection()
+  selectedIds.value = [invoice.id]
+  openBulkModal(action)
+}
+
+const openBulkModal = async (action: 'ARCHIVE' | 'DELETE_DRAFTS' | 'MIXED_CLEANUP' | 'RESTORE') => {
+  activeActionType.value = action
+  bulkPreviewData.value = null
+  showBulkModal.value = true
+
+  try {
+    const res = await $fetch<any>('/api/admin/documents/preview', {
+      method: 'POST',
+      body: {
+        documentType: 'INVOICE',
+        selectionMode: selectionMode.value,
+        explicitIds: selectionMode.value === 'EXPLICIT' ? selectedIds.value : undefined,
+        filters: { ...activeFilters.value, archivedStatus: activeArchivedStatus.value.toUpperCase() }
+      }
+    })
+    if (res.success) {
+      bulkPreviewData.value = res.data
+    }
+  } catch (err: any) {
+    notifyError(err.data?.message || 'Erreur lors de la prévisualisation de la sélection.')
+  }
+}
+
+const handleConfirmBulk = async (payload: { reason: string; confirmationPhrase: string; password?: string }) => {
+  executingAction.value = true
+
+  try {
+    const res = await $fetch<any>('/api/admin/documents/execute', {
+      method: 'POST',
+      body: {
+        documentType: 'INVOICE',
+        actionType: activeActionType.value,
+        selectionMode: selectionMode.value,
+        explicitIds: selectionMode.value === 'EXPLICIT' ? selectedIds.value : undefined,
+        filters: { ...activeFilters.value, archivedStatus: activeArchivedStatus.value.toUpperCase() },
+        reason: payload.reason,
+        confirmationPhrase: payload.confirmationPhrase,
+        password: payload.password
+      }
+    })
+
+    if (res.success) {
+      showBulkModal.value = false
+      bulkExecutionResult.value = res.data
+      showResultModal.value = true
+      clearSelection()
+      notifySuccess(`${res.data.totalSelected} document(s) traité(s) avec succès.`)
+      await fetchInvoices({ ...activeFilters.value, page: pagination.value.page })
+    }
+  } catch (err: any) {
+    notifyError(err.data?.message || err.message || 'Échec du traitement du document.')
+  } finally {
+    executingAction.value = false
+  }
 }
 
 onMounted(async () => {
@@ -239,12 +481,21 @@ onMounted(async () => {
 })
 
 const handleFilterUpdate = async (filters: any) => {
+  clearSelection()
   activeFilters.value = filters
-  await fetchInvoices({ ...filters, page: 1 })
+  let statusQuery = 'active'
+  if (activeArchivedStatus.value === 'archived') statusQuery = 'archived'
+  if (activeArchivedStatus.value === 'all') statusQuery = 'all'
+
+  await fetchInvoices({ ...filters, archiveStatus: statusQuery, page: 1 })
 }
 
 const changePage = async (newPage: number) => {
-  await fetchInvoices({ ...activeFilters.value, page: newPage })
+  let statusQuery = 'active'
+  if (activeArchivedStatus.value === 'archived') statusQuery = 'archived'
+  if (activeArchivedStatus.value === 'all') statusQuery = 'all'
+
+  await fetchInvoices({ ...activeFilters.value, archiveStatus: statusQuery, page: newPage })
 }
 
 const formatDate = (dateInput: Date | string) => {

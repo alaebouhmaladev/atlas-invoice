@@ -18,12 +18,55 @@
       </NuxtLink>
     </div>
 
+    <!-- Filter Tabs (Actifs, Archivés, Tous) -->
+    <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+      <button
+        type="button"
+        @click="setArchivedStatus('active')"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+        :class="queryFilters.archiveStatus === 'active' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+      >
+        Actifs
+      </button>
+      <button
+        type="button"
+        @click="setArchivedStatus('archived')"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+        :class="queryFilters.archiveStatus === 'archived' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+      >
+        Archivés
+      </button>
+      <button
+        type="button"
+        @click="setArchivedStatus('all')"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+        :class="queryFilters.archiveStatus === 'all' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+      >
+        Tous
+      </button>
+    </div>
+
     <!-- Filters -->
     <QuoteFilters
       :search="queryFilters.search"
       :status="queryFilters.status"
       :archive-status="queryFilters.archiveStatus"
       @update:filters="handleFilterUpdate"
+    />
+
+    <!-- Bulk Selection Floating Toolbar (Super Admin) -->
+    <BulkSelectionToolbar
+      v-if="canDelete"
+      :selected-count="selectionMode === 'ALL_FILTERED' ? pagination.totalItems : selectedIds.length"
+      :page-count="quotes.length"
+      :total-matching="pagination.totalItems"
+      :is-all-matching-selected="selectionMode === 'ALL_FILTERED'"
+      :is-archived-view="queryFilters.archiveStatus === 'archived'"
+      @archive="openBulkModal('ARCHIVE')"
+      @delete="openBulkModal('DELETE_DRAFTS')"
+      @restore="openBulkModal('RESTORE')"
+      @clear="clearSelection"
+      @select-all-matching="selectAllMatchingFiltered"
     />
 
     <!-- Error Banner -->
@@ -86,6 +129,14 @@
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider font-semibold">
+              <th v-if="canDelete" class="py-3.5 px-4 w-10">
+                <input
+                  type="checkbox"
+                  :checked="isCurrentPageAllSelected"
+                  @change="toggleSelectCurrentPage"
+                  class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/40 cursor-pointer"
+                />
+              </th>
               <th class="py-3.5 px-4">Numéro</th>
               <th class="py-3.5 px-4">Client</th>
               <th class="py-3.5 px-4">Émission</th>
@@ -101,13 +152,27 @@
               v-for="quote in quotes"
               :key="quote.id"
               class="hover:bg-slate-800/30 transition-colors"
-              :class="{ 'opacity-60 bg-slate-950/40': quote.isArchived }"
+              :class="{ 'opacity-60 bg-slate-950/40': quote.isArchived, 'bg-amber-500/5': isSelected(quote.id) }"
             >
+              <td v-if="canDelete" class="py-3.5 px-4">
+                <input
+                  type="checkbox"
+                  :checked="isSelected(quote.id)"
+                  @change="toggleSelectRow(quote.id)"
+                  class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/40 cursor-pointer"
+                />
+              </td>
+
               <!-- Number -->
               <td class="py-3.5 px-4 font-mono font-bold text-amber-400">
-                <NuxtLink :to="`/devis/${quote.id}`" class="hover:underline">
-                  {{ quote.number }}
-                </NuxtLink>
+                <div class="flex items-center gap-1.5">
+                  <NuxtLink :to="`/devis/${quote.id}`" class="hover:underline">
+                    {{ quote.number }}
+                  </NuxtLink>
+                  <span v-if="quote.isArchived" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    ARCHIVÉ
+                  </span>
+                </div>
                 <span v-if="quote.subject" class="text-[11px] font-sans font-normal text-slate-400 block truncate max-w-[160px]">
                   {{ quote.subject }}
                 </span>
@@ -207,11 +272,11 @@
                   </svg>
                 </button>
 
-                <!-- 4. Archive / Restore (SUPER_ADMIN & ACCOUNTANT) -->
+                <!-- 4. Archive / Restore (SUPER_ADMIN) -->
                 <button
-                  v-if="canArchiveRestore"
+                  v-if="canDelete"
                   type="button"
-                  @click="openArchiveModal(quote)"
+                  @click="openSingleAction(quote, quote.isArchived ? 'RESTORE' : 'ARCHIVE')"
                   class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
                   :title="quote.isArchived ? 'Restaurer' : 'Archiver'"
                   :aria-label="quote.isArchived ? 'Restaurer le devis' : 'Archiver le devis'"
@@ -226,9 +291,9 @@
 
                 <!-- 5. Permanent Delete (SUPER_ADMIN ONLY on DRAFT) -->
                 <button
-                  v-if="canDelete && quote.status === 'DRAFT'"
+                  v-if="canDelete && quote.status === 'DRAFT' && !quote.isArchived"
                   type="button"
-                  @click="openDeleteModal(quote)"
+                  @click="openSingleAction(quote, 'DELETE_DRAFTS')"
                   class="p-2 inline-flex items-center text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500/40 cursor-pointer"
                   title="Supprimer définitivement"
                   aria-label="Supprimer définitivement le devis brouillon"
@@ -244,7 +309,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="quotes.length > 0" class="p-4 bg-slate-950/40">
+      <div v-if="quotes.length > 0" class="p-4 bg-slate-950/40 border-t border-slate-800">
         <Pagination
           :page="pagination.page"
           :page-size="pagination.pageSize"
@@ -254,19 +319,6 @@
         />
       </div>
     </div>
-
-    <!-- Confirm Dialog -->
-    <ConfirmDialog
-      :show="showConfirmModal"
-      :title="confirmModalTitle"
-      :message="confirmModalMessage"
-      :confirm-text="confirmModalButtonText"
-      :danger="modalActionType === 'delete'"
-      :loading="actionLoading"
-      :require-match-text="modalActionType === 'delete' ? targetQuote?.number : undefined"
-      @confirm="executeQuoteAction"
-      @cancel="showConfirmModal = false"
-    />
 
     <!-- PDF Preview Modal -->
     <DocumentPdfPreviewModal
@@ -278,27 +330,40 @@
       @close="showPdfPreview = false"
     />
 
-    <!-- Notification Toast -->
-    <NotificationToast
-      :show="showToast"
-      :title="toastTitle"
-      :message="toastMessage"
-      :type="toastType"
-      @close="showToast = false"
+    <!-- GitHub Destructive Confirmation Modal -->
+    <GitHubDestructiveModal
+      :show="showBulkModal"
+      :action-type="activeActionType"
+      :count="selectionMode === 'ALL_FILTERED' ? pagination.totalItems : selectedIds.length"
+      :preview-data="bulkPreviewData"
+      :loading="executingAction"
+      document-label="devis"
+      @close="showBulkModal = false"
+      @confirm="handleConfirmBulk"
+    />
+
+    <!-- Operation Summary Result Modal -->
+    <BulkResultModal
+      :show="showResultModal"
+      :result="bulkExecutionResult"
+      @close="showResultModal = false"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
 import QuoteFilters from '~/components/quotes/QuoteFilters.vue'
 import QuoteStatusBadge from '~/components/quotes/QuoteStatusBadge.vue'
 import Pagination from '~/components/ui/Pagination.vue'
-import ConfirmDialog from '~/components/ui/ConfirmDialog.vue'
-import NotificationToast from '~/components/ui/NotificationToast.vue'
 import DocumentPdfPreviewModal from '~/components/ui/DocumentPdfPreviewModal.vue'
+import BulkSelectionToolbar from '~/components/ui/BulkSelectionToolbar.vue'
+import GitHubDestructiveModal from '~/components/ui/GitHubDestructiveModal.vue'
+import BulkResultModal from '~/components/ui/BulkResultModal.vue'
 import { formatMoney } from '~/server/utils/calculation'
 import type { QuoteStatus } from '@prisma/client'
 import type { QuoteWithRelations } from '~/composables/useQuotes'
+import { useNotify } from '~/composables/useNotify'
 
 definePageMeta({
   middleware: 'auth',
@@ -308,15 +373,27 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const { user } = useAuth()
-const { quotes, pagination, loading, error, fetchQuotes, duplicateQuote, archiveQuote, restoreQuote, deleteQuote, downloadPdf } = useQuotes()
+const { notifySuccess, notifyError } = useNotify()
+const { quotes, pagination, loading, error, fetchQuotes, duplicateQuote } = useQuotes()
 
-const canArchiveRestore = computed(() => ['SUPER_ADMIN', 'ACCOUNTANT'].includes(user.value?.role || ''))
 const canDelete = computed(() => user.value?.role === 'SUPER_ADMIN')
+
+// Selection States
+const selectedIds = ref<string[]>([])
+const selectionMode = ref<'EXPLICIT' | 'ALL_FILTERED'>('EXPLICIT')
 
 // PDF Preview Modal States
 const showPdfPreview = ref(false)
 const previewPdfUrl = ref('')
 const previewDocNumber = ref('')
+
+// Bulk & Destructive Modal States
+const showBulkModal = ref(false)
+const activeActionType = ref<'ARCHIVE' | 'DELETE_DRAFTS' | 'MIXED_CLEANUP' | 'RESTORE'>('ARCHIVE')
+const bulkPreviewData = ref<any>(null)
+const executingAction = ref(false)
+const showResultModal = ref(false)
+const bulkExecutionResult = ref<any>(null)
 
 function openPdfPreview(quote: QuoteWithRelations) {
   previewPdfUrl.value = `/api/quotes/${quote.id}/pdf`
@@ -336,40 +413,56 @@ const queryFilters = reactive<{
   page: route.query.page ? parseInt(route.query.page as string, 10) : 1
 })
 
-// Modal states
-const showConfirmModal = ref(false)
-const targetQuote = ref<QuoteWithRelations | null>(null)
-const modalActionType = ref<'archive' | 'restore' | 'delete'>('archive')
-const actionLoading = ref(false)
+const isSelected = (id: string) => {
+  if (selectionMode.value === 'ALL_FILTERED') return true
+  return selectedIds.value.includes(id)
+}
 
-// Toast states
-const showToast = ref(false)
-const toastTitle = ref('')
-const toastMessage = ref('')
-const toastType = ref<'success' | 'error'>('success')
-
-const confirmModalTitle = computed(() => {
-  if (modalActionType.value === 'delete') return 'Supprimer définitivement le devis'
-  if (modalActionType.value === 'archive') return 'Archiver le devis'
-  return 'Restaurer le devis'
+const isCurrentPageAllSelected = computed(() => {
+  if (quotes.value.length === 0) return false
+  if (selectionMode.value === 'ALL_FILTERED') return true
+  return quotes.value.every((q) => selectedIds.value.includes(q.id))
 })
 
-const confirmModalMessage = computed(() => {
-  if (!targetQuote.value) return ''
-  if (modalActionType.value === 'delete') {
-    return `Êtes-vous sûr de vouloir supprimer définitivement le devis "${targetQuote.value.number}" ? Cette action est irréversible.`
+const toggleSelectCurrentPage = () => {
+  if (isCurrentPageAllSelected.value) {
+    clearSelection()
+  } else {
+    selectionMode.value = 'EXPLICIT'
+    selectedIds.value = Array.from(new Set([...selectedIds.value, ...quotes.value.map((q) => q.id)]))
   }
-  if (modalActionType.value === 'archive') {
-    return `Voulez-vous archiver le devis "${targetQuote.value.number}" ?`
-  }
-  return `Voulez-vous restaurer le devis "${targetQuote.value.number}" dans la liste des devis actifs ?`
-})
+}
 
-const confirmModalButtonText = computed(() => {
-  if (modalActionType.value === 'delete') return 'Supprimer définitivement'
-  if (modalActionType.value === 'archive') return 'Archiver le devis'
-  return 'Restaurer le devis'
-})
+const toggleSelectRow = (id: string) => {
+  if (selectionMode.value === 'ALL_FILTERED') {
+    selectionMode.value = 'EXPLICIT'
+    selectedIds.value = quotes.value.map((q) => q.id).filter((qId) => qId !== id)
+    return
+  }
+  const idx = selectedIds.value.indexOf(id)
+  if (idx > -1) {
+    selectedIds.value.splice(idx, 1)
+  } else {
+    selectedIds.value.push(id)
+  }
+}
+
+const selectAllMatchingFiltered = () => {
+  selectionMode.value = 'ALL_FILTERED'
+}
+
+const clearSelection = () => {
+  selectedIds.value = []
+  selectionMode.value = 'EXPLICIT'
+}
+
+const setArchivedStatus = (status: 'active' | 'archived' | 'all') => {
+  clearSelection()
+  queryFilters.archiveStatus = status
+  queryFilters.page = 1
+  syncUrlQuery()
+  loadQuotes()
+}
 
 async function loadQuotes() {
   await fetchQuotes({
@@ -381,6 +474,7 @@ async function loadQuotes() {
 }
 
 function handleFilterUpdate(filters: { search?: string; status: QuoteStatus | 'all'; archiveStatus: 'active' | 'archived' | 'all' }) {
+  clearSelection()
   queryFilters.search = filters.search
   queryFilters.status = filters.status
   queryFilters.archiveStatus = filters.archiveStatus
@@ -410,56 +504,73 @@ function syncUrlQuery() {
 async function handleDuplicate(quote: QuoteWithRelations) {
   const result = await duplicateQuote(quote.id)
   if (result.success && result.quote) {
-    triggerToast('Devis dupliqué', `Nouveau devis "${result.quote.number}" créé sous forme de brouillon.`)
+    notifySuccess(`Nouveau devis "${result.quote.number}" créé sous forme de brouillon.`)
     await navigateTo(`/devis/${result.quote.id}/edit`)
   } else {
-    triggerToast('Erreur', result.message || 'Échec de la duplication', 'error')
+    notifyError(result.message || 'Échec de la duplication')
   }
 }
 
-function openArchiveModal(quote: QuoteWithRelations) {
-  targetQuote.value = quote
-  modalActionType.value = quote.isArchived ? 'restore' : 'archive'
-  showConfirmModal.value = true
+const openSingleAction = (quote: QuoteWithRelations, action: 'ARCHIVE' | 'DELETE_DRAFTS' | 'RESTORE') => {
+  clearSelection()
+  selectedIds.value = [quote.id]
+  openBulkModal(action)
 }
 
-function openDeleteModal(quote: QuoteWithRelations) {
-  targetQuote.value = quote
-  modalActionType.value = 'delete'
-  showConfirmModal.value = true
-}
-
-async function executeQuoteAction() {
-  if (!targetQuote.value) return
-  actionLoading.value = true
+const openBulkModal = async (action: 'ARCHIVE' | 'DELETE_DRAFTS' | 'MIXED_CLEANUP' | 'RESTORE') => {
+  activeActionType.value = action
+  bulkPreviewData.value = null
+  showBulkModal.value = true
 
   try {
-    let ok = false
-    if (modalActionType.value === 'archive') {
-      ok = await archiveQuote(targetQuote.value.id)
-      if (ok) triggerToast('Devis archivé', `Le devis "${targetQuote.value.number}" a été archivé.`)
-    } else if (modalActionType.value === 'restore') {
-      ok = await restoreQuote(targetQuote.value.id)
-      if (ok) triggerToast('Devis restauré', `Le devis "${targetQuote.value.number}" est à nouveau actif.`)
-    } else if (modalActionType.value === 'delete') {
-      ok = await deleteQuote(targetQuote.value.id)
-      if (ok) triggerToast('Devis supprimé', `Le devis "${targetQuote.value.number}" a été supprimé.`)
+    const res = await $fetch<any>('/api/admin/documents/preview', {
+      method: 'POST',
+      body: {
+        documentType: 'QUOTE',
+        selectionMode: selectionMode.value,
+        explicitIds: selectionMode.value === 'EXPLICIT' ? selectedIds.value : undefined,
+        filters: { search: queryFilters.search, status: queryFilters.status, archivedStatus: queryFilters.archiveStatus.toUpperCase() }
+      }
+    })
+    if (res.success) {
+      bulkPreviewData.value = res.data
     }
-
-    if (ok) {
-      showConfirmModal.value = false
-      await loadQuotes()
-    }
-  } finally {
-    actionLoading.value = false
+  } catch (err: any) {
+    notifyError(err.data?.message || 'Erreur lors de la prévisualisation de la sélection.')
   }
 }
 
-function triggerToast(title: string, message: string, type: 'success' | 'error' = 'success') {
-  toastTitle.value = title
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
+const handleConfirmBulk = async (payload: { reason: string; confirmationPhrase: string; password?: string }) => {
+  executingAction.value = true
+
+  try {
+    const res = await $fetch<any>('/api/admin/documents/execute', {
+      method: 'POST',
+      body: {
+        documentType: 'QUOTE',
+        actionType: activeActionType.value,
+        selectionMode: selectionMode.value,
+        explicitIds: selectionMode.value === 'EXPLICIT' ? selectedIds.value : undefined,
+        filters: { search: queryFilters.search, status: queryFilters.status, archivedStatus: queryFilters.archiveStatus.toUpperCase() },
+        reason: payload.reason,
+        confirmationPhrase: payload.confirmationPhrase,
+        password: payload.password
+      }
+    })
+
+    if (res.success) {
+      showBulkModal.value = false
+      bulkExecutionResult.value = res.data
+      showResultModal.value = true
+      clearSelection()
+      notifySuccess(`${res.data.totalSelected} devis traité(s) avec succès.`)
+      await loadQuotes()
+    }
+  } catch (err: any) {
+    notifyError(err.data?.message || err.message || 'Échec du traitement des devis.')
+  } finally {
+    executingAction.value = false
+  }
 }
 
 function formatDate(dateInput: string | Date): string {

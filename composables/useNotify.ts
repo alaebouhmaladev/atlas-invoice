@@ -131,6 +131,10 @@ export function useNotify() {
       addToast('info', title, message, options),
     loading: (title: string, message: string, options?: { duration?: number; dedupId?: string }) =>
       addToast('loading', title, message, options),
+    notifySuccess: (message: string, title: string = 'Succès', options?: { duration?: number; dedupId?: string }) =>
+      addToast('success', title, message, options),
+    notifyError: (message: string, title: string = 'Erreur', options?: { duration?: number; dedupId?: string }) =>
+      addToast('error', title, message, options),
     dismiss,
     clearAll
   }

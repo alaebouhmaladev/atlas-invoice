@@ -1,11 +1,11 @@
-import { defineEventHandler, createError } from 'h3'
-import { requireSuperAdmin } from '../../../utils/auth'
-import { deleteQuote } from '../../../services/quote.service'
-import { createSuccessResponse } from '../../../utils/response'
+import { defineEventHandler, readBody, createError } from 'h3'
+import { requireAuth } from '../../../utils/auth'
+import { executeBulkAction } from '../../../services/documentManagement.service'
 
 export default defineEventHandler(async (event) => {
-  const user = await requireSuperAdmin(event) // SUPER_ADMIN only
+  const user = await requireAuth(event)
   const id = event.context.params?.id
+  const body = await readBody(event).catch(() => ({}))
 
   if (!id) {
     throw createError({
@@ -15,18 +15,21 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  try {
-    await deleteQuote(id, user.id)
-    return createSuccessResponse({ message: 'Devis supprimé définitivement' })
-  } catch (err: unknown) {
-    const error = err as Error
-    throw createError({
-      statusCode: 409,
-      statusMessage: 'Conflict',
-      data: {
-        code: 'DELETE_QUOTE_FAILED',
-        message: error.message || 'Impossible de supprimer ce devis'
-      }
-    })
+  const { confirmationPhrase, reason, password } = body || {}
+
+  const result = await executeBulkAction({
+    documentType: 'QUOTE',
+    actionType: 'DELETE_DRAFTS',
+    selectionMode: 'EXPLICIT',
+    explicitIds: [id],
+    confirmationPhrase: confirmationPhrase || 'SUPPRIMER',
+    reason: reason || 'Suppression définitive du brouillon de devis',
+    password,
+    user: { id: user.id, name: user.name, role: user.role }
+  })
+
+  return {
+    success: true,
+    data: result
   }
 })
