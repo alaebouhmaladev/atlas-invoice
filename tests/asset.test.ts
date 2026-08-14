@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { CompanyAssetType } from '@prisma/client'
 import { prisma } from '../server/utils/db'
 import { validateImageBinary, uploadCompanyAsset, removeCompanyAsset } from '../server/services/asset.service'
+import { getCompanySettings } from '../server/services/companySettings.service'
 
 describe('Company Asset Security & Upload Unit Tests', () => {
   let userId: string
@@ -84,7 +85,10 @@ describe('Company Asset Security & Upload Unit Tests', () => {
   })
 
   it('should upload a valid PNG asset, update settings, and compute SHA-256', async () => {
-    const pngHeader = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 50])
+    const pngHeader = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 50]),
+      Buffer.from(`test-uniq-${Date.now()}`)
+    ])
     const asset = await uploadCompanyAsset(
       CompanyAssetType.LOGO,
       { originalName: 'company_logo.png', mimeType: 'image/png', size: pngHeader.length, buffer: pngHeader },
@@ -95,13 +99,13 @@ describe('Company Asset Security & Upload Unit Tests', () => {
     expect(asset.sha256).toBeDefined()
     expect(asset.type).toBe('LOGO')
 
-    const settings = await prisma.companySettings.findUnique({ where: { singletonKey: 'DEFAULT' } })
+    const settings = await getCompanySettings()
     expect(settings?.activeLogoAssetId).toBe(asset.id)
   })
 
   it('should remove active asset reference from settings when requested', async () => {
     await removeCompanyAsset(CompanyAssetType.LOGO, userId)
-    const settings = await prisma.companySettings.findUnique({ where: { singletonKey: 'DEFAULT' } })
+    const settings = await getCompanySettings()
     expect(settings?.activeLogoAssetId).toBeNull()
   })
 })

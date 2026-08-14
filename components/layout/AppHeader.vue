@@ -19,6 +19,9 @@
 
     <!-- Right: User Menu & Actions -->
     <div class="flex items-center gap-3 sm:gap-4">
+      <!-- Persistent Notification Center Bell -->
+      <NotificationCenter />
+
       <div v-if="user" class="hidden sm:flex items-center gap-3 border-r border-slate-800 pr-4">
         <div class="text-right">
           <div class="text-xs font-semibold text-slate-200">{{ user.name }}</div>
@@ -48,6 +51,7 @@
 
 <script setup lang="ts">
 import type { Role } from '@prisma/client'
+import NotificationCenter from '~/components/layout/NotificationCenter.vue'
 
 defineProps<{
   title?: string

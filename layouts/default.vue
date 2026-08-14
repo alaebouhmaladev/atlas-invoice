@@ -1,5 +1,8 @@
 <template>
   <div class="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-900 flex">
+    <!-- Global Toast Container -->
+    <NotificationToastContainer />
+
     <!-- Unauthenticated layout for login page -->
     <template v-if="isLoginPage">
       <main class="w-full">
@@ -31,6 +34,7 @@
 <script setup lang="ts">
 import AppSidebar from '~/components/layout/AppSidebar.vue'
 import AppHeader from '~/components/layout/AppHeader.vue'
+import NotificationToastContainer from '~/components/ui/NotificationToastContainer.vue'
 
 const route = useRoute()
 const mobileSidebarOpen = ref(false)
@@ -39,12 +43,26 @@ const isLoginPage = computed(() => route.path === '/login')
 
 const pageTitle = computed(() => {
   if (route.path === '/') return 'Tableau de bord'
+  if (route.path.startsWith('/activites')) return 'Journal d’activités & traçabilité'
   if (route.path.startsWith('/clients')) {
     if (route.path === '/clients/new') return 'Nouveau client'
     if (route.path.endsWith('/edit')) return 'Modifier le client'
     if (route.params.id) return 'Fiche client'
     return 'Gestion des clients'
   }
+  if (route.path.startsWith('/devis')) {
+    if (route.path === '/devis/new') return 'Nouveau devis'
+    if (route.path.endsWith('/edit')) return 'Modifier le devis'
+    if (route.params.id) return 'Fiche devis'
+    return 'Gestion des devis'
+  }
+  if (route.path.startsWith('/factures')) {
+    if (route.path === '/factures/new') return 'Nouvelle facture'
+    if (route.path.endsWith('/edit')) return 'Modifier la facture'
+    if (route.params.id) return 'Fiche facture'
+    return 'Gestion des factures'
+  }
+  if (route.path.startsWith('/parametres')) return 'Paramètres de la société'
   return 'Atlas Bites Facturation'
 })
 

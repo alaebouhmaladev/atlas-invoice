@@ -2,7 +2,8 @@ import crypto from 'node:crypto'
 import { CompanyAssetType } from '@prisma/client'
 import { prisma } from '../utils/db'
 import { getCompanySettings } from './companySettings.service'
-import { createAuditLog } from './audit.service'
+import { createAuditEntry, createAuditLog } from './audit.service'
+import { createNotification } from './notification.service'
 
 export interface UploadedFileMeta {
   originalName: string
@@ -92,11 +93,14 @@ export async function uploadCompanyAsset(type: CompanyAssetType, fileMeta: Uploa
     data: updateData
   })
 
-  await createAuditLog({
+  await createAuditEntry({
     userId,
     action: 'COMPANY_ASSET_UPLOADED',
+    category: 'SETTINGS',
+    result: 'SUCCESS',
     entityType: 'CompanyAsset',
     entityId: asset.id,
+    entityReference: asset.originalName,
     metadata: {
       type,
       originalName: asset.originalName,
@@ -105,12 +109,15 @@ export async function uploadCompanyAsset(type: CompanyAssetType, fileMeta: Uploa
     }
   })
 
-  await createAuditLog({
-    userId,
-    action: 'COMPANY_ASSET_ACTIVATED',
+  await createNotification({
+    recipientRole: 'SUPER_ADMIN',
+    type: 'COMPANY_ASSET_UPDATED',
+    severity: 'INFO',
+    title: 'Visuel d’entreprise mis à jour',
+    message: `Le visuel de type ${type} (${asset.originalName}) a été mis à jour avec succès.`,
+    actionUrl: '/parametres',
     entityType: 'CompanyAsset',
-    entityId: asset.id,
-    metadata: { type }
+    entityId: asset.id
   })
 
   return {

@@ -14,6 +14,7 @@ describe('User Management & Safeguards Unit Tests', () => {
   let accountantUserId: string
 
   beforeAll(async () => {
+    await prisma.user.deleteMany({ where: { email: 'staff.accountant@atlasbites.ma' } }).catch(() => {})
     const admin = await prisma.user.upsert({
       where: { email: 'test.admin.main@atlasbites.ma' },
       update: { role: Role.SUPER_ADMIN, isActive: true },
@@ -77,10 +78,10 @@ describe('User Management & Safeguards Unit Tests', () => {
       }
     })
 
-    const otherAdmins = await prisma.user.findMany({
-      where: { role: Role.SUPER_ADMIN, isActive: true, id: { not: superAdminId } }
+    const allOtherAdmins = await prisma.user.findMany({
+      where: { role: Role.SUPER_ADMIN, id: { not: superAdminId } }
     })
-    const otherAdminIds = otherAdmins.map((u) => u.id)
+    const otherAdminIds = allOtherAdmins.map((u) => u.id)
 
     try {
       if (otherAdminIds.length > 0) {
@@ -94,7 +95,22 @@ describe('User Management & Safeguards Unit Tests', () => {
         data: { isActive: true }
       })
 
-      await expect(deactivateUser(superAdminId, actorUser.id)).rejects.toThrow('Impossible de désactiver le dernier Super Administrateur actif')
+      // Target another super admin when only 1 active super admin remains
+      const tempAdmin = await prisma.user.create({
+        data: {
+          name: 'Temp Super Admin',
+          email: `temp.admin.${Date.now()}@atlasbites.ma`,
+          passwordHash: 'hashed_secret',
+          role: Role.SUPER_ADMIN,
+          isActive: false
+        }
+      })
+
+      try {
+        await expect(deactivateUser(superAdminId, actorUser.id)).rejects.toThrow('Impossible de désactiver le dernier Super Administrateur actif')
+      } finally {
+        await prisma.user.delete({ where: { id: tempAdmin.id } })
+      }
     } finally {
       await prisma.user.delete({ where: { id: actorUser.id } })
       if (otherAdminIds.length > 0) {

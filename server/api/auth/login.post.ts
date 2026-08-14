@@ -4,7 +4,9 @@ import { loginSchema } from '../../utils/validation'
 import { loginRateLimiter } from '../../services/rateLimit.service'
 import { verifyPassword, rotateSession, updateLastLogin } from '../../services/auth.service'
 import { setSessionTokenCookie, getSessionTokenCookie } from '../../utils/auth'
-import { createAuditLog } from '../../services/audit.service'
+import { createAuditEntry } from '../../services/audit.service'
+import { createNotification } from '../../services/notification.service'
+import { createSanitizedError } from '../../utils/error'
 import { createSuccessResponse } from '../../utils/response'
 
 export default defineEventHandler(async (event) => {
@@ -31,20 +33,24 @@ export default defineEventHandler(async (event) => {
 
   // Rate Limiting Check
   if (loginRateLimiter.isRateLimited(rateLimitKey)) {
-    await createAuditLog({
+    await createAuditEntry({
       action: 'AUTH_LOGIN_RATE_LIMITED',
+      category: 'AUTH',
+      result: 'FAILURE',
       metadata: { email, ipAddress },
       ipAddress,
-      userAgent
+      userAgent,
+      event
     })
-    throw createError({
-      statusCode: 429,
-      statusMessage: 'Too Many Requests',
-      data: {
-        code: 'RATE_LIMITED',
-        message: 'Too many failed login attempts. Please try again after 15 minutes.'
-      }
+    await createNotification({
+      recipientRole: 'SUPER_ADMIN',
+      type: 'SECURITY_RATE_LIMITED',
+      severity: 'WARNING',
+      title: 'Alerte de sécurité : Tentatives d’accès excessives',
+      message: `Plusieurs tentatives de connexion échouées depuis l'adresse IP ${ipAddress} (${email}).`,
+      deduplicationKey: `rate_limit:${ipAddress}`
     })
+    throw createSanitizedError(event, 429, 'RATE_LIMITED', 'Trop de tentatives. Réessayez dans quelques minutes.')
   }
 
   // Fetch User
@@ -55,65 +61,57 @@ export default defineEventHandler(async (event) => {
   // Generic Credential Check (prevent email enumeration)
   if (!user) {
     loginRateLimiter.increment(rateLimitKey)
-    await createAuditLog({
+    await createAuditEntry({
       action: 'AUTH_LOGIN_FAILED',
+      category: 'AUTH',
+      result: 'FAILURE',
       metadata: { email, reason: 'USER_NOT_FOUND' },
       ipAddress,
-      userAgent
+      userAgent,
+      event
     })
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      data: {
-        code: 'INVALID_CREDENTIALS',
-        message: 'Invalid email or password'
-      }
-    })
+    throw createSanitizedError(event, 401, 'INVALID_CREDENTIALS', 'Email ou mot de passe incorrect.')
   }
 
   // Active User Check
   if (!user.isActive) {
     loginRateLimiter.increment(rateLimitKey)
-    await createAuditLog({
+    await createAuditEntry({
       userId: user.id,
+      actorDisplayNameSnapshot: user.name,
+      actorRoleSnapshot: user.role,
       action: 'AUTH_LOGIN_REJECTED_INACTIVE',
+      category: 'AUTH',
+      result: 'FAILURE',
       entityType: 'User',
       entityId: user.id,
       metadata: { email },
       ipAddress,
-      userAgent
+      userAgent,
+      event
     })
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      data: {
-        code: 'ACCOUNT_DISABLED',
-        message: 'Your account is deactivated. Please contact a Super Administrator.'
-      }
-    })
+    throw createSanitizedError(event, 401, 'ACCOUNT_DISABLED', 'Votre compte est désactivé. Contactez un administrateur.')
   }
 
   // Verify Argon2 Password Hash
   const isValidPassword = await verifyPassword(user.passwordHash, password)
   if (!isValidPassword) {
     loginRateLimiter.increment(rateLimitKey)
-    await createAuditLog({
+    await createAuditEntry({
       userId: user.id,
+      actorDisplayNameSnapshot: user.name,
+      actorRoleSnapshot: user.role,
       action: 'AUTH_LOGIN_FAILED',
+      category: 'AUTH',
+      result: 'FAILURE',
       entityType: 'User',
       entityId: user.id,
       metadata: { email, reason: 'INVALID_PASSWORD' },
       ipAddress,
-      userAgent
+      userAgent,
+      event
     })
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      data: {
-        code: 'INVALID_CREDENTIALS',
-        message: 'Invalid email or password'
-      }
-    })
+    throw createSanitizedError(event, 401, 'INVALID_CREDENTIALS', 'Email ou mot de passe incorrect.')
   }
 
   // Reset rate limiter on successful authentication
@@ -133,14 +131,19 @@ export default defineEventHandler(async (event) => {
   await updateLastLogin(user.id)
 
   // Record Audit Log
-  await createAuditLog({
+  await createAuditEntry({
     userId: user.id,
+    actorDisplayNameSnapshot: user.name,
+    actorRoleSnapshot: user.role,
     action: 'AUTH_LOGIN_SUCCESS',
+    category: 'AUTH',
+    result: 'SUCCESS',
     entityType: 'User',
     entityId: user.id,
     metadata: { email: user.email, role: user.role },
     ipAddress,
-    userAgent
+    userAgent,
+    event
   })
 
   const userPublic = {

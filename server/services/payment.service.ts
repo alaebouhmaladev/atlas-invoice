@@ -1,5 +1,6 @@
 import { prisma } from '../utils/db'
-import { createAuditLog } from './audit.service'
+import { createAuditEntry, createAuditLog } from './audit.service'
+import { createNotification } from './notification.service'
 import type { PaymentMethod, PaymentStatus } from '@prisma/client'
 
 export interface CreatePaymentInput {
@@ -38,6 +39,20 @@ export async function addPayment(invoiceId: string, input: CreatePaymentInput, u
 
     if (invoice.status !== 'FINALIZED') {
       throw new Error('Les paiements ne peuvent être enregistrés que sur une facture finalisée')
+    }
+
+    // Idempotency check: Reject duplicate payment submissions within 3 seconds
+    const recentDuplicate = invoice.payments.find((p) =>
+      p.status === 'CONFIRMED' &&
+      Number(p.amount) === input.amount &&
+      p.method === input.method &&
+      (Date.now() - new Date(p.createdAt).getTime()) < 3000
+    )
+    if (recentDuplicate) {
+      const err: any = new Error('Un paiement identique est déjà en cours de traitement')
+      err.statusCode = 409
+      err.code = 'DUPLICATE_OPERATION'
+      throw err
     }
 
     // Calculate current confirmed paid amount
@@ -92,11 +107,14 @@ export async function addPayment(invoiceId: string, input: CreatePaymentInput, u
       }
     })
 
-    await createAuditLog({
+    await createAuditEntry({
       userId,
       action: 'PAYMENT_CREATED',
+      category: 'PAYMENT',
+      result: 'SUCCESS',
       entityType: 'Payment',
       entityId: payment.id,
+      entityReference: invoice.number || invoice.id,
       metadata: {
         invoiceId,
         invoiceNumber: invoice.number,
@@ -104,6 +122,17 @@ export async function addPayment(invoiceId: string, input: CreatePaymentInput, u
         method: input.method,
         newPaymentStatus
       }
+    })
+
+    await createNotification({
+      recipientRole: 'SUPER_ADMIN',
+      type: 'PAYMENT_RECORDED',
+      severity: 'SUCCESS',
+      title: 'Paiement enregistré',
+      message: `Un paiement de ${input.amount.toFixed(2)} MAD a été enregistré sur la facture ${invoice.number || invoice.id}.`,
+      actionUrl: `/factures/${invoice.id}`,
+      entityType: 'Payment',
+      entityId: payment.id
     })
 
     return { payment, invoice: updatedInvoice }

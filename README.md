@@ -17,6 +17,8 @@ All core modules through **Phase 5** and the **PDF Engine Design & Layout Refine
 - **Phase 5: Company Settings & Asset Management**: Company profile & parameters (`Paramètres`), legal identifiers (ICE, IF, RC, CNSS, Patente), bank RIB/IBAN details, logo, signature, and stamp asset uploads with SHA-256 deduplication and mime/size validation.
 - **PDF Engine & Layout Refinement**: Shared PDFKit engine matching authoritative reference design (`#FAF9F5` canvas, outer dark border, top logo & header metadata grid, two-column ÉMETTEUR / DESTINATAIRE alignment, side-by-side RÈGLEMENT & Totals alignment, vector checkmark circle `FACTURE ACQUITTÉE` box, centered bold legal footer with address line and no page numbers, strict 12pt font minimum, guaranteed single-page layout math).
 
+- **Phase 6: Production Dashboard, Backups, Deployment & Operations**: Real-time server-aggregated Super Admin Production Dashboard with date filters (`30d`, `7d`, `today`, `this_month`, `last_month`, `this_year`, `custom`), financial KPIs (Chiffre d’affaires facturé, Montant encaissé, Montant restant à encaisser, Factures en retard, Taux de transformation, Valeur devis acceptés), operational cards, visual distribution charts, Action-Required alerts, and Super Admin System Health card. Automated PostgreSQL `.dump` & Company Assets `.tar.gz` CLI backup tool (`scripts/backup.ts`) with SHA-256 `manifest.json` verification and retention policy. Verified CLI restoration tool (`scripts/restore.ts`) with test-database mode (`--test-restore-db`) and live safeguards (`--confirm-live-restore`). Production Docker Compose stack (`compose.production.yml`) with non-root app runner container, isolated database network, persistent named volumes (`postgres_prod_data`, `atlas_prod_uploads`, `atlas_prod_backups`), and zero public DB ports. Production Nginx reverse proxy template (`nginx/atlas-invoice.conf`) with security headers, body upload limits, blocked `.env` & `.dump` paths, and TLS setup. Process liveness (`/api/health/live`) and readiness (`/api/health/ready`) endpoints. Zero-data-loss deployment workflow script (`scripts/deploy.sh`), automated post-deployment smoke test (`scripts/smoke_test.ts`), and comprehensive operations documentation (`docs/`).
+
 ---
 
 ## 🔒 Permission Matrix (All Modules)
@@ -33,6 +35,8 @@ All core modules through **Phase 5** and the **PDF Engine Design & Layout Refine
 | **Payment Recording & Reversal**| ✅ Allowed | ✅ Allowed | ❌ Forbidden (HTTP 403) |
 | **Facture Archive / Cancel** | ✅ Archive & Cancel | ✅ Archive & Cancel | ❌ Forbidden (HTTP 403) |
 | **Company Settings & Assets** | ✅ Update Profile/Upload Assets | 👁️ View Only | 👁️ View Only |
+| **Production Dashboard & KPIs**| ✅ Full Dashboard & Infra Health | ✅ Financials & Operations | ✅ Sales & Devis Metrics |
+| **Backup & Restore Operations**| ✅ CLI & Status Endpoint | ❌ Forbidden (HTTP 403) | ❌ Forbidden (HTTP 403) |
 
 ---
 
@@ -91,6 +95,14 @@ To prevent future client or company parameter updates from silently altering his
 | `POST` | `/api/auth/logout` | Terminate active session | Authenticated |
 | `GET` | `/api/auth/me` | Fetch active user profile | Authenticated |
 
+### Dashboard & Health Module (`/api/dashboard`, `/api/health`)
+| Method | Endpoint | Description | Role Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/dashboard/stats` | Server-aggregated KPIs, trends & actions | Authenticated |
+| `GET` | `/api/health/live` | Process liveness check (200 OK) | Public |
+| `GET` | `/api/health/ready` | Readiness check (Postgres & storage) | Public |
+| `GET` | `/api/admin/backup/status` | Backup health status | Super Admin Only |
+
 ### Client Module (`/api/clients`)
 | Method | Endpoint | Description | Role Access |
 | :--- | :--- | :--- | :--- |
@@ -147,17 +159,16 @@ To prevent future client or company parameter updates from silently altering his
 
 ## 🐳 Docker Setup
 
-### Start Services (App, Database, Adminer)
-
+### Start Services (Development)
 ```bash
 cd atlas-invoice
 docker compose up -d
 ```
 
-### Apply Migrations
-
+### Production Deployment
 ```bash
-docker compose exec app pnpm prisma:migrate
+cp .env.production.example .env.production
+./scripts/deploy.sh
 ```
 
 Applied migrations:
@@ -181,11 +192,13 @@ Applied migrations:
 | `pnpm format` | Format code using Prettier |
 | `pnpm prisma:migrate` | Run Prisma database migrations |
 | `pnpm db:seed` | Seed initial Super Admin account |
-| `pnpm test` | Run complete Vitest test suite (81 tests passing) |
+| `pnpm backup` | Execute automated PostgreSQL & asset backup script |
+| `pnpm restore` | Execute verified restoration CLI tool |
+| `pnpm test` | Run complete Vitest test suite (86 tests passing) |
 
 ---
 
-## 🧪 Test Suite Summary (15 Test Files, 81/81 Passing)
+## 🧪 Test Suite Summary (18 Test Files, 86/86 Passing)
 
 1. `tests/auth.test.ts` (12 tests) — Argon2 hashing, login/logout, cookie session management, user management.
 2. `tests/client.validation.test.ts` (7 tests) — Moroccan ICE 15-digit validation, corporate vs individual client validation.
@@ -202,16 +215,20 @@ Applied migrations:
 13. `tests/companySettings.test.ts` (3 tests) — Singleton settings update, user data preservation safeguards.
 14. `tests/asset.test.ts` (5 tests) — Logo, signature, stamp asset upload, SHA-256 deduplication, state preservation.
 15. `tests/userManagement.test.ts` (7 tests) — Super admin user management & role restriction tests.
+16. `tests/dashboard.test.ts` (3 tests) — Dashboard aggregation formulas, date range filtering, financial KPI accuracy, role authorization.
+17. `tests/health.test.ts` (1 test) — Database & storage readiness query verification.
+18. `tests/backup.test.ts` (1 test) — Backup CLI execution, `manifest.json` generation, SHA-256 checksum integrity.
 
 ---
 
-## 📝 Guidelines for Appending Future Phases (Phase 6+)
+## 📝 Guidelines for Appending Future Phases (Phase 7+)
 
-When completing subsequent phases (e.g. Phase 6 Dashboard & Analytics, Phase 7 Export & Emailing):
+When completing subsequent phases:
 1. **Append Phase Audit**: Add a summary of the completed features, database schema additions, and new API routes to the **Executive Summary** and **API Endpoint Registry** sections in `README.md`.
 2. **Permission Matrix Update**: Add any new permission capabilities to the **Permission Matrix**.
 3. **Quality Gates**: Ensure that:
-   - `pnpm test` passes 100% (81+ tests).
+   - `pnpm test` passes 100% (86+ tests).
    - `pnpm typecheck` returns 0 errors.
    - `pnpm build` compiles cleanly.
 4. **Data Protection**: Never delete or un-link live user database records or asset IDs.
+

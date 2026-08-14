@@ -1,7 +1,8 @@
 import { prisma } from '../utils/db'
 import { calculateQuoteFinancials } from '../utils/calculation'
 import { getNextSequenceNumber } from './sequence.service'
-import { createAuditLog } from './audit.service'
+import { createAuditEntry, createAuditLog } from './audit.service'
+import { createNotification } from './notification.service'
 import { getCompanySnapshot } from './company.service'
 import type { InvoiceStatus, PaymentStatus, DiscountType } from '@prisma/client'
 
@@ -582,17 +583,31 @@ export async function finalizeInvoice(id: string, userId: string) {
       }
     })
 
-    await createAuditLog({
+    await createAuditEntry({
       userId,
       action: 'INVOICE_FINALIZED',
+      category: 'FACTURE',
+      result: 'SUCCESS',
       entityType: 'Invoice',
       entityId: finalizedInvoice.id,
+      entityReference: formattedNumber,
       metadata: {
         number: formattedNumber,
         sequenceYear,
         sequenceNumber,
         totalTtc: Number(finalizedInvoice.totalTtc)
       }
+    })
+
+    await createNotification({
+      recipientRole: 'SUPER_ADMIN',
+      type: 'FACTURE_FINALIZED',
+      severity: 'SUCCESS',
+      title: 'Facture finalisée',
+      message: `La facture ${formattedNumber} a été finalisée avec succès (Montant: ${Number(finalizedInvoice.totalTtc).toFixed(2)} MAD).`,
+      actionUrl: `/factures/${finalizedInvoice.id}`,
+      entityType: 'Invoice',
+      entityId: finalizedInvoice.id
     })
 
     return finalizedInvoice
@@ -633,15 +648,29 @@ export async function cancelInvoice(id: string, reason: string, userId: string) 
       }
     })
 
-    await createAuditLog({
+    await createAuditEntry({
       userId,
       action: 'INVOICE_CANCELLED',
+      category: 'FACTURE',
+      result: 'SUCCESS',
       entityType: 'Invoice',
       entityId: cancelledInvoice.id,
+      entityReference: existing.number || cancelledInvoice.id,
       metadata: {
         number: existing.number,
         reason: reason.trim()
       }
+    })
+
+    await createNotification({
+      recipientRole: 'SUPER_ADMIN',
+      type: 'FACTURE_CANCELLED',
+      severity: 'WARNING',
+      title: 'Facture annulée',
+      message: `La facture ${existing.number || cancelledInvoice.id} a été annulée. Motif: ${reason.trim()}`,
+      actionUrl: `/factures/${cancelledInvoice.id}`,
+      entityType: 'Invoice',
+      entityId: cancelledInvoice.id
     })
 
     return cancelledInvoice
