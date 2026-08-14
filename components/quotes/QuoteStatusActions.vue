@@ -104,16 +104,29 @@
       </button>
     </template>
 
-    <!-- Convert to Facture Disabled Placeholder (Phase 4) -->
-    <div
-      v-if="quote.status === 'ACCEPTED'"
-      class="px-3.5 py-2 bg-slate-900 text-slate-500 border border-slate-800 rounded-xl text-xs font-semibold select-none flex items-center gap-1.5 cursor-not-allowed"
-      title="La conversion en facture sera disponible à la Phase 4"
+    <!-- Convert to Facture Action (ACCEPTED devis) -->
+    <button
+      v-if="quote.status === 'ACCEPTED' && canConvertToInvoice"
+      type="button"
+      @click="$emit('convert-to-invoice')"
+      :disabled="loading"
+      class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer"
     >
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
-      <span>Convertir en facture (Phase 4)</span>
+      <span>Convertir en facture</span>
+    </button>
+
+    <!-- Converted Indicator Link -->
+    <div
+      v-if="quote.status === 'CONVERTED'"
+      class="px-3.5 py-2 bg-emerald-950/60 text-emerald-300 border border-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+    >
+      <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <span>Devis converti en facture</span>
     </div>
 
     <!-- Archive / Restore (SUPER_ADMIN & ACCOUNTANT) -->
@@ -157,7 +170,8 @@ defineProps<{
   loading?: boolean
   canArchiveRestore?: boolean
   canDelete?: boolean
+  canConvertToInvoice?: boolean
 }>()
 
-defineEmits(['change-status', 'duplicate', 'archive-restore', 'delete', 'download-pdf'])
+defineEmits(['change-status', 'duplicate', 'archive-restore', 'delete', 'download-pdf', 'convert-to-invoice'])
 </script>

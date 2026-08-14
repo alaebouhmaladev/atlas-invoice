@@ -79,16 +79,19 @@
           </div>
         </NuxtLink>
 
-        <!-- Factures (Disabled) -->
-        <div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 cursor-not-allowed select-none">
+        <!-- Factures -->
+        <NuxtLink
+          to="/factures"
+          class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors"
+          :class="route.path.startsWith('/factures') ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'"
+        >
           <div class="flex items-center gap-3">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             <span>Factures</span>
           </div>
-          <span class="text-[10px] bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full font-semibold">Bientôt</span>
-        </div>
+        </NuxtLink>
 
         <!-- Paramètres (Super Admin Only) -->
         <div

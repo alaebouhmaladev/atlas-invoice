@@ -29,12 +29,17 @@ model User {
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
-  sessions       Session[]
-  auditLogs      AuditLog[]
-  createdClients Client[]   @relation("ClientCreatedBy")
-  updatedClients Client[]   @relation("ClientUpdatedBy")
-  createdQuotes  Quote[]    @relation("QuoteCreatedBy")
-  updatedQuotes  Quote[]    @relation("QuoteUpdatedBy")
+  sessions          Session[]
+  auditLogs         AuditLog[]
+  createdClients    Client[]   @relation("ClientCreatedBy")
+  updatedClients    Client[]   @relation("ClientUpdatedBy")
+  createdQuotes     Quote[]    @relation("QuoteCreatedBy")
+  updatedQuotes     Quote[]    @relation("QuoteUpdatedBy")
+  createdInvoices   Invoice[]  @relation("InvoiceCreatedBy")
+  updatedInvoices   Invoice[]  @relation("InvoiceUpdatedBy")
+  cancelledInvoices Invoice[]  @relation("InvoiceCancelledBy")
+  createdPayments   Payment[]  @relation("PaymentCreatedBy")
+  reversedPayments  Payment[]  @relation("PaymentReversedBy")
 
   @@index([email])
   @@index([role])
@@ -109,6 +114,7 @@ model Client {
   createdBy       User       @relation("ClientCreatedBy", fields: [createdById], references: [id])
   updatedBy       User?      @relation("ClientUpdatedBy", fields: [updatedById], references: [id])
   quotes          Quote[]
+  invoices        Invoice[]
 
   @@index([displayName])
   @@index([companyName])
@@ -184,6 +190,7 @@ model Quote {
 
   client                Client       @relation(fields: [clientId], references: [id])
   items                 QuoteItem[]
+  invoice               Invoice?     @relation("QuoteToInvoice")
   createdBy             User         @relation("QuoteCreatedBy", fields: [createdById], references: [id])
   updatedBy             User?        @relation("QuoteUpdatedBy", fields: [updatedById], references: [id])
 
@@ -222,6 +229,159 @@ model QuoteItem {
 
   @@unique([quoteId, position])
   @@index([quoteId])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  FINALIZED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CHEQUE
+  CARD
+  OTHER
+}
+
+enum PaymentRecordStatus {
+  CONFIRMED
+  REVERSED
+}
+
+model Invoice {
+  id                    String          @id @default(uuid())
+
+  number                String?         @unique
+  sequenceNumber        Int?
+  sequenceYear          Int?
+
+  clientId              String
+  sourceQuoteId         String?         @unique
+
+  status                InvoiceStatus   @default(DRAFT)
+  paymentStatus         PaymentStatus   @default(UNPAID)
+
+  issueDate             DateTime
+  dueDate               DateTime
+
+  currency              String          @default("MAD")
+  clientSnapshot        Json
+  companySnapshot       Json
+
+  discountType          DiscountType?
+  discountValue         Decimal?        @db.Decimal(12, 2)
+
+  subtotalHt            Decimal         @db.Decimal(14, 2)
+  discountAmount        Decimal         @default(0) @db.Decimal(14, 2)
+  totalNetHt            Decimal         @db.Decimal(14, 2)
+  totalVat              Decimal         @db.Decimal(14, 2)
+  totalTtc              Decimal         @db.Decimal(14, 2)
+
+  amountPaid            Decimal         @default(0) @db.Decimal(14, 2)
+  amountDue             Decimal         @db.Decimal(14, 2)
+
+  subject               String?
+  paymentTerms          String?
+  publicNotes           String?
+  internalNotes         String?
+
+  finalizedAt           DateTime?
+  cancelledAt           DateTime?
+  cancellationReason    String?
+  cancelledById         String?
+
+  paidAt                DateTime?
+
+  isArchived            Boolean         @default(false)
+  archivedAt            DateTime?
+
+  createdById           String
+  updatedById           String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  client                Client          @relation(fields: [clientId], references: [id])
+  sourceQuote           Quote?          @relation("QuoteToInvoice", fields: [sourceQuoteId], references: [id])
+  items                 InvoiceItem[]
+  payments              Payment[]
+
+  createdBy             User            @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
+  updatedBy             User?           @relation("InvoiceUpdatedBy", fields: [updatedById], references: [id])
+  cancelledBy           User?           @relation("InvoiceCancelledBy", fields: [cancelledById], references: [id])
+
+  @@unique([sequenceYear, sequenceNumber])
+  @@index([clientId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([issueDate])
+  @@index([dueDate])
+  @@index([isArchived])
+  @@index([createdAt])
+}
+
+model InvoiceItem {
+  id              String   @id @default(uuid())
+  invoiceId       String
+  position        Int
+
+  title           String
+  description     String?
+  quantity        Decimal  @db.Decimal(12, 3)
+  unit            String
+  unitPriceHt     Decimal  @db.Decimal(14, 2)
+  discountRate    Decimal  @default(0) @db.Decimal(5, 2)
+  vatRate         Decimal  @default(20) @db.Decimal(5, 2)
+
+  grossAmountHt   Decimal  @db.Decimal(14, 2)
+  discountAmount  Decimal  @db.Decimal(14, 2)
+  netAmountHt     Decimal  @db.Decimal(14, 2)
+  vatAmount       Decimal  @db.Decimal(14, 2)
+  totalTtc        Decimal  @db.Decimal(14, 2)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@unique([invoiceId, position])
+  @@index([invoiceId])
+}
+
+model Payment {
+  id                String              @id @default(uuid())
+  invoiceId         String
+  amount            Decimal             @db.Decimal(14, 2)
+  paymentDate       DateTime
+  method            PaymentMethod
+  reference         String?
+  notes             String?
+  status            PaymentRecordStatus @default(CONFIRMED)
+
+  reversedAt        DateTime?
+  reversedById      String?
+  reversalReason    String?
+
+  createdById       String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  invoice           Invoice             @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  createdBy         User                @relation("PaymentCreatedBy", fields: [createdById], references: [id])
+  reversedBy        User?               @relation("PaymentReversedBy", fields: [reversedById], references: [id])
+
+  @@index([invoiceId])
+  @@index([paymentDate])
+  @@index([method])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model DocumentSequence {

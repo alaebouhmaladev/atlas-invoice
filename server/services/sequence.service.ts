@@ -30,7 +30,9 @@ export async function getNextSequenceNumber(
   })
 
   const paddedNumber = String(sequence.lastNumber).padStart(4, '0')
-  const prefix = type === 'QUOTE' ? 'DEV' : type
+  let prefix = type
+  if (type === 'QUOTE') prefix = 'DEV'
+  if (type === 'INVOICE') prefix = 'FAC'
   const formattedNumber = `${prefix}-${year}-${paddedNumber}`
 
   return {

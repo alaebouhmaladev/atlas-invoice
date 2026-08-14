@@ -176,3 +176,75 @@ export const quoteStatusSchema = z.object({
   })
 })
 
+// Phase 4: Invoice & Payment Zod Validation Schemas
+export const invoiceItemSchema = z.object({
+  position: z.number().int().min(1).optional(),
+  title: z.string().trim().min(1, 'La désignation de la prestation est requise'),
+  description: z.string().trim().nullable().optional(),
+  quantity: z.number().positive('La quantité doit être supérieure à 0'),
+  unit: z.string().trim().min(1, 'L\'unité est requise').default('Service'),
+  unitPriceHt: z.number().min(0, 'Le prix unitaire HT ne peut pas être négatif'),
+  discountRate: z.number().min(0).max(100).default(0),
+  vatRate: z.number().refine((val) => [0, 7, 10, 14, 20].includes(val), {
+    message: 'Le taux de TVA doit être l\'un des suivants: 0%, 7%, 10%, 14%, 20%'
+  }).default(20)
+})
+
+export const invoiceSchema = z.object({
+  clientId: z.string({ required_error: 'Le client est obligatoire' }).uuid('Identifiant client invalide'),
+  issueDate: z.string({ required_error: 'La date de la facture est obligatoire' }),
+  dueDate: z.string({ required_error: 'La date d\'échéance est obligatoire' }),
+  subject: z.string().trim().nullable().optional(),
+  paymentTerms: z.string().trim().nullable().optional(),
+  publicNotes: z.string().trim().nullable().optional(),
+  internalNotes: z.string().trim().nullable().optional(),
+  discountType: z.enum(['PERCENTAGE', 'FIXED']).nullable().optional(),
+  discountValue: z.number().min(0).nullable().optional(),
+  items: z.array(invoiceItemSchema).min(1, 'Au moins une ligne de prestation est requise')
+})
+
+export type InvoiceInput = z.infer<typeof invoiceSchema>
+
+export const invoiceUpdateSchema = invoiceSchema.partial()
+
+export const invoiceQuerySchema = z.object({
+  search: z.string().optional().transform((val) => val?.trim() || undefined),
+  clientId: z.string().uuid().optional(),
+  status: z.enum(['DRAFT', 'FINALIZED', 'CANCELLED', 'all']).default('all'),
+  paymentStatus: z.enum(['UNPAID', 'PARTIALLY_PAID', 'PAID', 'all']).default('all'),
+  overdue: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
+  source: z.enum(['quote', 'direct', 'all']).default('all'),
+  archiveStatus: z.enum(['active', 'archived', 'all']).default('active'),
+  issueDateFrom: z.string().optional(),
+  issueDateTo: z.string().optional(),
+  dueDateFrom: z.string().optional(),
+  dueDateTo: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  sortBy: z.enum(['createdAt', 'issueDate', 'dueDate', 'number', 'totalTtc', 'amountDue']).default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc')
+})
+
+export type InvoiceQueryInput = z.infer<typeof invoiceQuerySchema>
+
+export const paymentSchema = z.object({
+  amount: z.number({ required_error: 'Le montant du paiement est requis' }).positive('Le montant doit être supérieur à 0 MAD'),
+  paymentDate: z.string({ required_error: 'La date de paiement est requise' }),
+  method: z.enum(['CASH', 'BANK_TRANSFER', 'CHEQUE', 'CARD', 'OTHER'], {
+    required_error: 'Le moyen de paiement est requis'
+  }),
+  reference: z.string().trim().nullable().optional(),
+  notes: z.string().trim().nullable().optional()
+})
+
+export type PaymentInput = z.infer<typeof paymentSchema>
+
+export const paymentReversalSchema = z.object({
+  reason: z.string().trim().min(3, 'Le motif d\'annulation du paiement doit contenir au moins 3 caractères')
+})
+
+export const invoiceCancelSchema = z.object({
+  reason: z.string().trim().min(3, 'Le motif d\'annulation de la facture doit contenir au moins 3 caractères')
+})
+
+

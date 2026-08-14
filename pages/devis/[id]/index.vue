@@ -52,11 +52,13 @@
             :loading="actionLoading"
             :can-archive-restore="canArchiveRestore"
             :can-delete="canDelete"
+            :can-convert-to-invoice="canConvertToInvoice"
             @change-status="handleStatusChange"
             @duplicate="handleDuplicate"
             @archive-restore="openArchiveModal"
             @delete="openDeleteModal"
             @download-pdf="downloadPdf(quote.id, quote.number)"
+            @convert-to-invoice="handleConvertToInvoice"
           />
         </div>
 
@@ -256,6 +258,7 @@ import NotificationToast from '~/components/ui/NotificationToast.vue'
 import { formatMoney } from '~/server/utils/calculation'
 import type { QuoteStatus } from '@prisma/client'
 import type { QuoteWithRelations } from '~/composables/useQuotes'
+import { useInvoices } from '~/composables/useInvoices'
 
 definePageMeta({
   middleware: 'auth',
@@ -266,12 +269,29 @@ const route = useRoute()
 const router = useRouter()
 const { user } = useAuth()
 const { fetchQuote, changeStatus, duplicateQuote, archiveQuote, restoreQuote, deleteQuote, downloadPdf } = useQuotes()
+const { convertQuoteToInvoice } = useInvoices()
 
 const quote = ref<QuoteWithRelations | null>(null)
 const loading = ref(true)
 
 const canArchiveRestore = computed(() => ['SUPER_ADMIN', 'ACCOUNTANT'].includes(user.value?.role || ''))
 const canDelete = computed(() => user.value?.role === 'SUPER_ADMIN')
+const canConvertToInvoice = computed(() => ['SUPER_ADMIN', 'ACCOUNTANT'].includes(user.value?.role || ''))
+
+async function handleConvertToInvoice() {
+  if (!quote.value) return
+  if (!confirm(`Voulez-vous vraiment convertir le devis "${quote.value.number}" en facture ?`)) return
+  actionLoading.value = true
+  try {
+    const inv = await convertQuoteToInvoice(quote.value.id)
+    triggerToast('Devis converti', `Le devis ${quote.value.number} a été converti en facture.`)
+    await navigateTo(`/factures/${inv.id}`)
+  } catch (err: any) {
+    triggerToast('Erreur de conversion', err.message || 'Échec de la conversion', 'error')
+  } finally {
+    actionLoading.value = false
+  }
+}
 
 // Modal states
 const showConfirmModal = ref(false)
