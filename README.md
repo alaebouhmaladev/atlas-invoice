@@ -6,87 +6,142 @@ Planned Subdomain: `facturation.ourdomain.com`
 
 ---
 
-## 📌 Project Overview
+## 📋 Comprehensive Audit & Status Report
 
-**Atlas Bites Facturation** is a modern full-stack web application designed for managing catering clients, quotes (*devis*), invoices (*factures*), and financial reporting.
-
-### Module Status:
-- **Phase 1: Foundation & Authentication**: Nuxt 3, Vue 3, TypeScript (Strict Mode), Tailwind CSS, PostgreSQL 16, Prisma ORM, Argon2, Cookie sessions (`SameSite=Lax`, `HttpOnly`), Docker Compose, Vitest.
-- **Phase 2: Client Management Module**: Complete management of Moroccan corporate (`COMPANY`) and individual (`INDIVIDUAL`) catering clients, supporting Moroccan legal & tax identifiers (ICE 15 digits, IF, RC, CNSS, Patente), duplicate detection, soft archiving, role-based authorization, and French UI.
-- **Phase 3: Devis Management Module**: End-to-end devis management with sequential numbering (`DEV-YYYY-0001`), frozen client snapshots, `decimal.js` exact financial calculations, line & global MAD/percentage discounts, TVA rate breakdowns (0%, 7%, 10%, 14%, 20%), controlled status transitions (`DRAFT → SENT → ACCEPTED / REJECTED`), A4 PDF generation via `PDFKit`, duplicate devis, soft archiving, role authorization, and French UI.
+### Executive Summary
+All core modules through **Phase 5** and the **PDF Engine Design & Layout Refinement** are **100% completed, tested, and verified**:
+- **Phase 1: Foundation & Authentication**: Nuxt 3, Vue 3, TypeScript (Strict Mode), Tailwind CSS, PostgreSQL 16, Prisma ORM, Argon2 password hashing, Cookie session management (`HttpOnly`, `SameSite=Lax`), Docker Compose setup, Vitest integration.
+- **Phase 2: Client Management Module**: Moroccan corporate (`COMPANY`) and individual (`INDIVIDUAL`) catering clients, supporting Moroccan legal & tax identifiers (ICE 15 digits, IF, RC, CNSS, Patente), duplicate detection, soft archiving, role-based authorization, and French UI.
+- **Phase 3: Devis Management Module**: End-to-end devis management with sequential numbering (`DEV-YYYY-0001`), frozen client snapshots, `decimal.js` exact financial calculations, line & global MAD/percentage discounts, TVA rate breakdowns (0%, 7%, 10%, 14%, 20%), controlled status transitions (`DRAFT → SENT → ACCEPTED / REJECTED`), PDFKit rendering, quote duplication, soft archiving, role authorization, and French UI.
+- **Phase 4: Factures & Payments Module**: Facture creation & quote conversion (`DEV` → `FAC-YYYY-0001`), partial & full payment recording (`UNPAID`, `PARTIALLY_PAID`, `PAID`), payment reversal audit trail, credit notes / cancellations, automatic payment status synchronization, `FACTURE ACQUITTÉE` status badges, and locking of finalized invoices.
+- **Phase 5: Company Settings & Asset Management**: Company profile & parameters (`Paramètres`), legal identifiers (ICE, IF, RC, CNSS, Patente), bank RIB/IBAN details, logo, signature, and stamp asset uploads with SHA-256 deduplication and mime/size validation.
+- **PDF Engine & Layout Refinement**: Shared PDFKit engine matching authoritative reference design (`#FAF9F5` canvas, outer dark border, top logo & header metadata grid, two-column ÉMETTEUR / DESTINATAIRE alignment, side-by-side RÈGLEMENT & Totals alignment, vector checkmark circle `FACTURE ACQUITTÉE` box, centered bold legal footer with address line and no page numbers, strict 12pt font minimum, guaranteed single-page layout math).
 
 ---
 
-## 👥 Devis Management Permission Matrix
+## 🔒 Permission Matrix (All Modules)
 
-| Action | Super Admin | Accountant (`ACCOUNTANT`) | Commercial (`COMMERCIAL`) |
+| Feature / Action | Super Admin | Accountant (`ACCOUNTANT`) | Commercial (`COMMERCIAL`) |
 | :--- | :---: | :---: | :---: |
-| **View & Search Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
-| **Create Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
-| **Update Draft Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
-| **Duplicate Devis** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
-| **Generate & Download PDF** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
-| **Mark as Sent** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
-| **Mark as Accepted / Refused** | ✅ Allowed | ✅ Allowed | ✅ Allowed |
-| **Archive / Restore Devis** | ✅ Allowed | ✅ Allowed | ❌ Forbidden (HTTP 403) |
-| **Permanently Delete Draft** | ✅ Allowed | ❌ Forbidden (HTTP 403) | ❌ Forbidden (HTTP 403) |
-| **Convert to Facture** | ⏳ Phase 4 | ⏳ Phase 4 | ❌ Forbidden |
+| **Auth & Profile Management** | ✅ All | ✅ Profile & Password | ✅ Profile & Password |
+| **User & Team Management** | ✅ Create/Update/Delete | ❌ Forbidden (HTTP 403) | ❌ Forbidden (HTTP 403) |
+| **Client Management** | ✅ Create/Update/Archive | ✅ Create/Update/Archive | ✅ Create/Update (No Archive) |
+| **Devis Management** | ✅ Create/Update/Status | ✅ Create/Update/Status | ✅ Create/Update/Status |
+| **Devis Archive / Delete** | ✅ Archive & Delete | ✅ Archive Only | ❌ Forbidden (HTTP 403) |
+| **Quote → Facture Conversion** | ✅ Allowed | ✅ Allowed | ❌ Forbidden (HTTP 403) |
+| **Facture Management** | ✅ Create/Update/Status | ✅ Create/Update/Status | ✅ View Only |
+| **Payment Recording & Reversal**| ✅ Allowed | ✅ Allowed | ❌ Forbidden (HTTP 403) |
+| **Facture Archive / Cancel** | ✅ Archive & Cancel | ✅ Archive & Cancel | ❌ Forbidden (HTTP 403) |
+| **Company Settings & Assets** | ✅ Update Profile/Upload Assets | 👁️ View Only | 👁️ View Only |
 
 ---
 
-## 🔄 Devis Status Workflow Transitions
+## 🔄 Document Workflow State Machines
 
+### 1. Devis Status Transitions
 ```text
-DRAFT → SENT
-DRAFT → ACCEPTED
-DRAFT → REJECTED
-SENT → ACCEPTED
-SENT → REJECTED
-SENT → EXPIRED
-REJECTED → DRAFT (Reopen as Draft)
+DRAFT ──► SENT ──► ACCEPTED
+  │         │
+  ▼         ▼
+REJECTED ◄──┴──────► EXPIRED
+  │
+  ▼
+DRAFT (Reopened)
 ```
 
-- Invalid status transitions return **HTTP 409 Conflict**.
-- Status timestamps (`sentAt`, `acceptedAt`, `rejectedAt`, `expiredAt`) are recorded automatically.
+### 2. Facture Lifecycle & Payment Status Transitions
+```text
+DRAFT ──► FINALIZED ──► CANCELLED (Credit Note)
+            │
+            ▼
+        UNPAID ──► PARTIALLY_PAID ──► PAID (FACTURE ACQUITTÉE)
+```
 
 ---
 
 ## 🔢 Document Numbering & Financial Calculations
 
 ### Numbering Format
-- **Format**: `DEV-YYYY-0001` (e.g., `DEV-2026-0001`)
+- **Devis Format**: `DEV-YYYY-0001` (e.g., `DEV-2026-0001`)
+- **Facture Format**: `FAC-YYYY-0001` (e.g., `FAC-2026-0001`)
 - **Sequence Generator**: Concurrency-safe atomic transaction using `DocumentSequence` table with annual calendar year reset.
 
 ### Financial Rules
 - **Precision**: Exact `decimal.js` / Prisma `Decimal` arithmetic rounded to 2 decimal places (`ROUND_HALF_UP`).
 - **Currency**: Displayed in Moroccan Dirham (`MAD`, e.g., `1 250,00 MAD`).
-- **Discounts**: Supports line-item discount rates (%) and global quote discounts (percentage or fixed MAD amount).
+- **Discounts**: Supports line-item discount rates (%) and global quote/invoice discounts (percentage or fixed MAD amount).
 - **TVA Rates**: 0%, 7%, 10%, 14%, 20%.
 
 ---
 
-## 📄 Client Snapshot Mechanism
+## 📄 Client & Company Snapshot Mechanism
 
-To prevent future client updates from silently altering historical devis:
-- At creation/update time, a frozen client snapshot (`clientSnapshot` JSON) is stored on the `Quote` record.
-- The A4 PDF generator uses `clientSnapshot` rather than the active client profile.
+To prevent future client or company parameter updates from silently altering historical devis and invoices:
+- At creation/update time, a frozen client snapshot (`clientSnapshot` JSON) and company snapshot (`companySnapshot` JSON) are stored on the `Quote` or `Invoice` record.
+- The A4 PDF generator uses `companySnapshot` or dynamically resolves missing parameters from PostgreSQL live `CompanySettings` (`singletonKey = 'DEFAULT'`) when rendering PDFs.
 
 ---
 
-## 🔌 Devis Module API Endpoints
+## 🔌 Complete API Endpoint Registry
 
+### Auth & User Module (`/api/auth`)
 | Method | Endpoint | Description | Role Access |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/quotes` | Paginated search, filtered & sorted devis list | All Roles |
-| `POST` | `/api/quotes` | Create new devis record (with client snapshot & sequence) | All Roles |
-| `GET` | `/api/quotes/:id` | Fetch devis detail profile with service items | All Roles |
-| `PATCH` | `/api/quotes/:id` | Update draft devis record | All Roles |
-| `POST` | `/api/quotes/:id/duplicate` | Duplicate existing devis into a new DRAFT | All Roles |
-| `POST` | `/api/quotes/:id/status` | Transition devis status (`SENT`, `ACCEPTED`, `REJECTED`, `DRAFT`) | All Roles |
-| `POST` | `/api/quotes/:id/archive` | Soft archive devis (`isArchived: true`) | Super Admin, Accountant |
-| `POST` | `/api/quotes/:id/restore` | Restore archived devis (`isArchived: false`) | Super Admin, Accountant |
-| `DELETE` | `/api/quotes/:id` | Permanently delete draft devis record | Super Admin Only |
-| `GET` | `/api/quotes/:id/pdf` | Stream A4 PDF document (`DEV-2026-0001.pdf`) | All Roles |
+| `POST` | `/api/auth/login` | Authenticate user & issue session cookie | Public |
+| `POST` | `/api/auth/logout` | Terminate active session | Authenticated |
+| `GET` | `/api/auth/me` | Fetch active user profile | Authenticated |
+
+### Client Module (`/api/clients`)
+| Method | Endpoint | Description | Role Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/clients` | Paginated search & list | All Roles |
+| `POST` | `/api/clients` | Create new client | All Roles |
+| `GET` | `/api/clients/:id` | Client profile detail | All Roles |
+| `PATCH` | `/api/clients` | Update client profile | All Roles |
+| `POST` | `/api/clients/:id/archive` | Soft archive client | Super Admin, Accountant |
+| `POST` | `/api/clients/:id/restore` | Restore archived client | Super Admin, Accountant |
+
+### Devis Module (`/api/quotes`)
+| Method | Endpoint | Description | Role Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/quotes` | Paginated search & filter devis | All Roles |
+| `POST` | `/api/quotes` | Create devis record | All Roles |
+| `GET` | `/api/quotes/:id` | Devis detail view | All Roles |
+| `PATCH` | `/api/quotes` | Update draft devis | All Roles |
+| `POST` | `/api/quotes/:id/duplicate` | Duplicate devis into new DRAFT | All Roles |
+| `POST` | `/api/quotes/:id/status` | Change devis status | All Roles |
+| `POST` | `/api/quotes/:id/convert-to-invoice` | Convert accepted quote to invoice | Super Admin, Accountant |
+| `POST` | `/api/quotes/:id/archive` | Archive devis | Super Admin, Accountant |
+| `POST` | `/api/quotes/:id/restore` | Restore devis | Super Admin, Accountant |
+| `DELETE` | `/api/quotes` | Delete draft devis | Super Admin Only |
+| `GET` | `/api/quotes/:id/pdf` | Stream A4 PDF | All Roles |
+
+### Facture Module (`/api/invoices`)
+| Method | Endpoint | Description | Role Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/invoices` | Paginated search & filter invoices | All Roles |
+| `POST` | `/api/invoices` | Create draft invoice | Super Admin, Accountant |
+| `GET` | `/api/invoices/:id` | Invoice detail view | All Roles |
+| `PATCH` | `/api/invoices` | Update draft invoice | Super Admin, Accountant |
+| `POST` | `/api/invoices/:id/finalize` | Finalize invoice & lock numbers | Super Admin, Accountant |
+| `POST` | `/api/invoices/:id/cancel` | Cancel invoice (Credit note) | Super Admin, Accountant |
+| `POST` | `/api/invoices/:id` | Record payment against invoice | Super Admin, Accountant |
+| `POST` | `/api/invoices/:id/payments/:paymentId/reverse` | Reverse recorded payment | Super Admin, Accountant |
+| `POST` | `/api/invoices/:id/archive` | Archive invoice | Super Admin, Accountant |
+| `POST` | `/api/invoices/:id/restore` | Restore invoice | Super Admin, Accountant |
+| `DELETE` | `/api/invoices` | Delete draft invoice | Super Admin Only |
+| `GET` | `/api/invoices/:id/pdf` | Stream A4 PDF | All Roles |
+
+### Company Settings & Asset Module (`/api/settings`)
+| Method | Endpoint | Description | Role Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/settings/company` | Fetch company profile & settings | All Roles |
+| `PATCH` | `/api/settings/company` | Update company settings | Super Admin Only |
+| `POST` | `/api/settings/assets/logo` | Upload company logo asset | Super Admin Only |
+| `POST` | `/api/settings/assets/signature` | Upload signature asset | Super Admin Only |
+| `POST` | `/api/settings/assets/stamp` | Upload stamp asset | Super Admin Only |
+| `GET` | `/api/settings/assets/:id` | Stream company asset file | All Roles |
+| `DELETE` | `/api/settings/assets/:id` | Delete asset | Super Admin Only |
 
 ---
 
@@ -109,6 +164,8 @@ Applied migrations:
 1. `20260813000131_init`
 2. `20260813003111_add_client_management`
 3. `20260813005738_add_quote_management`
+4. `20260814120000_add_invoice_management`
+5. `20260814130000_add_company_settings`
 
 ---
 
@@ -124,4 +181,37 @@ Applied migrations:
 | `pnpm format` | Format code using Prettier |
 | `pnpm prisma:migrate` | Run Prisma database migrations |
 | `pnpm db:seed` | Seed initial Super Admin account |
-| `pnpm test` | Run complete Vitest test suite (48 tests) |
+| `pnpm test` | Run complete Vitest test suite (81 tests passing) |
+
+---
+
+## 🧪 Test Suite Summary (15 Test Files, 81/81 Passing)
+
+1. `tests/auth.test.ts` (12 tests) — Argon2 hashing, login/logout, cookie session management, user management.
+2. `tests/client.validation.test.ts` (7 tests) — Moroccan ICE 15-digit validation, corporate vs individual client validation.
+3. `tests/client.api.test.ts` (6 tests) — CRUD API, search, archive/restore authorization.
+4. `tests/quote.calculation.test.ts` (10 tests) — `decimal.js` exact financial calculations, line & global discounts, TVA rates.
+5. `tests/quote.validation.test.ts` (4 tests) — Quote validation schema & item constraints.
+6. `tests/quote.sequence.test.ts` (2 tests) — Atomic sequential generator (`DEV-YYYY-0001`).
+7. `tests/quote.api.test.ts` (6 tests) — Quote status workflow, duplication, permissions.
+8. `tests/quote.pdf.test.ts` (3 tests) — PDFKit quote generation, single-page math, multi-page overflow.
+9. `tests/invoice.calculation.test.ts` (3 tests) — Invoice financial formulas, partial & full payment math.
+10. `tests/invoice.validation.test.ts` (5 tests) — Invoice payload schema validation.
+11. `tests/invoice.api.test.ts` (5 tests) — Invoice lifecycle, quote conversion, payment recording & reversal.
+12. `tests/invoice.pdf.test.ts` (3 tests) — PDFKit invoice rendering, `FACTURE ACQUITTÉE` status badges.
+13. `tests/companySettings.test.ts` (3 tests) — Singleton settings update, user data preservation safeguards.
+14. `tests/asset.test.ts` (5 tests) — Logo, signature, stamp asset upload, SHA-256 deduplication, state preservation.
+15. `tests/userManagement.test.ts` (7 tests) — Super admin user management & role restriction tests.
+
+---
+
+## 📝 Guidelines for Appending Future Phases (Phase 6+)
+
+When completing subsequent phases (e.g. Phase 6 Dashboard & Analytics, Phase 7 Export & Emailing):
+1. **Append Phase Audit**: Add a summary of the completed features, database schema additions, and new API routes to the **Executive Summary** and **API Endpoint Registry** sections in `README.md`.
+2. **Permission Matrix Update**: Add any new permission capabilities to the **Permission Matrix**.
+3. **Quality Gates**: Ensure that:
+   - `pnpm test` passes 100% (81+ tests).
+   - `pnpm typecheck` returns 0 errors.
+   - `pnpm build` compiles cleanly.
+4. **Data Protection**: Never delete or un-link live user database records or asset IDs.

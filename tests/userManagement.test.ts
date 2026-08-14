@@ -14,20 +14,18 @@ describe('User Management & Safeguards Unit Tests', () => {
   let accountantUserId: string
 
   beforeAll(async () => {
-    try {
-      const admin = await prisma.user.create({
-        data: {
-          name: 'Test Super Admin Main',
-          email: 'test.admin.main@atlasbites.ma',
-          passwordHash: 'hashed_secret',
-          role: Role.SUPER_ADMIN,
-          isActive: true
-        }
-      })
-      superAdminId = admin.id
-    } catch {
-      // ignore
-    }
+    const admin = await prisma.user.upsert({
+      where: { email: 'test.admin.main@atlasbites.ma' },
+      update: { role: Role.SUPER_ADMIN, isActive: true },
+      create: {
+        name: 'Test Super Admin Main',
+        email: 'test.admin.main@atlasbites.ma',
+        passwordHash: 'hashed_secret',
+        role: Role.SUPER_ADMIN,
+        isActive: true
+      }
+    })
+    superAdminId = admin.id
   })
 
   afterAll(async () => {
@@ -69,36 +67,39 @@ describe('User Management & Safeguards Unit Tests', () => {
   })
 
   it('should prevent deactivating the last active Super Admin', async () => {
-    // Temporarily deactivate any other active Super Admins so only superAdminId is active
-    const otherAdmins = await prisma.user.findMany({
-      where: { role: Role.SUPER_ADMIN, isActive: true, id: { not: superAdminId } }
-    })
-    const otherIds = otherAdmins.map((u) => u.id)
-    if (otherIds.length > 0) {
-      await prisma.user.updateMany({
-        where: { id: { in: otherIds } },
-        data: { isActive: false }
-      })
-    }
-
-    // Create a commercial actor to try deactivating the sole active super admin
     const actorUser = await prisma.user.create({
       data: {
         name: 'Actor User',
-        email: 'actor.user@atlasbites.ma',
+        email: `actor.${Date.now()}@atlasbites.ma`,
         passwordHash: 'hashed_secret',
         role: Role.COMMERCIAL,
         isActive: true
       }
     })
 
+    const otherAdmins = await prisma.user.findMany({
+      where: { role: Role.SUPER_ADMIN, isActive: true, id: { not: superAdminId } }
+    })
+    const otherAdminIds = otherAdmins.map((u) => u.id)
+
     try {
+      if (otherAdminIds.length > 0) {
+        await prisma.user.updateMany({
+          where: { id: { in: otherAdminIds } },
+          data: { isActive: false }
+        })
+      }
+      await prisma.user.update({
+        where: { id: superAdminId },
+        data: { isActive: true }
+      })
+
       await expect(deactivateUser(superAdminId, actorUser.id)).rejects.toThrow('Impossible de désactiver le dernier Super Administrateur actif')
     } finally {
       await prisma.user.delete({ where: { id: actorUser.id } })
-      if (otherIds.length > 0) {
+      if (otherAdminIds.length > 0) {
         await prisma.user.updateMany({
-          where: { id: { in: otherIds } },
+          where: { id: { in: otherAdminIds } },
           data: { isActive: true }
         })
       }

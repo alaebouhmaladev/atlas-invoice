@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { generateInvoicePdfBuffer } from '../server/services/invoicePdf.service'
 
+function getPdfPageCount(buffer: Buffer): number {
+  const matches = buffer.toString('binary').match(/\/Type\s*\/Page\b/g)
+  return matches ? matches.length : 0
+}
+
 describe('Invoice PDF Generation Service', () => {
   const baseClient = {
     displayName: 'Société Marocaine d\'Évènements',
@@ -15,7 +20,7 @@ describe('Invoice PDF Generation Service', () => {
 
   const baseCompany = {
     legalName: 'Atlas Bites SARL',
-    tradingName: 'Atlas Bites Traiteur',
+    tradingName: 'Services Traiteur & Restauration',
     address: '124 Boulevard Anfa',
     city: 'Casablanca',
     country: 'Maroc',
@@ -44,13 +49,13 @@ describe('Invoice PDF Generation Service', () => {
     }
   ]
 
-  it('generates a valid PDF buffer for a draft invoice', async () => {
+  it('generates a valid PDF buffer for a draft invoice fitting on exactly 1 page', async () => {
     const pdfBuffer = await generateInvoicePdfBuffer({
       id: 'test-draft-id-12345',
       status: 'DRAFT',
       paymentStatus: 'UNPAID',
       issueDate: new Date(),
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      dueDate: new Date(Date.now() + 30 * 86400000),
       clientSnapshot: baseClient,
       companySnapshot: baseCompany,
       subtotalHt: 25000,
@@ -65,11 +70,13 @@ describe('Invoice PDF Generation Service', () => {
 
     expect(pdfBuffer).toBeInstanceOf(Buffer)
     expect(pdfBuffer.length).toBeGreaterThan(1000)
-    // Check PDF magic header '%PDF-'
     expect(pdfBuffer.toString('utf8', 0, 5)).toBe('%PDF-')
+
+    const pageCount = getPdfPageCount(pdfBuffer)
+    expect(pageCount).toBe(1)
   })
 
-  it('generates a valid PDF buffer for a finalized paid invoice (FACTURE ACQUITTÉE)', async () => {
+  it('generates a valid PDF buffer for a finalized paid invoice (FACTURE ACQUITTÉE) on 1 page', async () => {
     const pdfBuffer = await generateInvoicePdfBuffer({
       id: 'test-finalized-id-67890',
       number: 'FAC-2026-0001',
@@ -100,6 +107,37 @@ describe('Invoice PDF Generation Service', () => {
 
     expect(pdfBuffer).toBeInstanceOf(Buffer)
     expect(pdfBuffer.length).toBeGreaterThan(1000)
-    expect(pdfBuffer.toString('utf8', 0, 5)).toBe('%PDF-')
+
+    const pageCount = getPdfPageCount(pdfBuffer)
+    expect(pageCount).toBe(1)
+  })
+
+  it('generates a valid PDF buffer for a cancelled invoice (FACTURE ANNULÉE) on 1 page', async () => {
+    const pdfBuffer = await generateInvoicePdfBuffer({
+      id: 'test-cancelled-id-99',
+      number: 'FAC-2026-0002',
+      status: 'CANCELLED',
+      paymentStatus: 'UNPAID',
+      cancellationReason: 'Évènement annulé par le client',
+      cancelledAt: new Date(),
+      issueDate: new Date(),
+      dueDate: new Date(),
+      clientSnapshot: baseClient,
+      companySnapshot: baseCompany,
+      subtotalHt: 25000,
+      discountAmount: 0,
+      totalNetHt: 25000,
+      totalVat: 5000,
+      totalTtc: 30000,
+      amountPaid: 0,
+      amountDue: 30000,
+      items: baseItems
+    })
+
+    expect(pdfBuffer).toBeInstanceOf(Buffer)
+    expect(pdfBuffer.length).toBeGreaterThan(1000)
+
+    const pageCount = getPdfPageCount(pdfBuffer)
+    expect(pageCount).toBe(1)
   })
 })

@@ -137,16 +137,32 @@
                 {{ formatMoney(invoice.amountDue) }}
               </td>
 
-              <td class="py-3.5 px-4 text-right">
+              <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+                <!-- 1. View Details -->
                 <NuxtLink
                   :to="`/factures/${invoice.id}`"
-                  class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
+                  title="Voir les détails"
+                  aria-label="Voir les détails de la facture"
                 >
-                  <span>Détails</span>
-                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 01-6 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 </NuxtLink>
+
+                <!-- 2. Preview PDF -->
+                <button
+                  type="button"
+                  @click="openPdfPreview(invoice)"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
+                  title="Prévisualiser le PDF"
+                  aria-label="Prévisualiser le PDF de la facture"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -164,6 +180,16 @@
         />
       </div>
     </div>
+
+    <!-- PDF Preview Modal -->
+    <DocumentPdfPreviewModal
+      :show="showPdfPreview"
+      :pdf-url="previewPdfUrl"
+      title="Aperçu du PDF — Facture"
+      :document-number="previewDocNumber"
+      :filename="`Facture_${previewDocNumber}.pdf`"
+      @close="showPdfPreview = false"
+    />
   </div>
 </template>
 
@@ -175,6 +201,7 @@ import InvoiceFilters from '~/components/invoices/InvoiceFilters.vue'
 import InvoiceStatusBadge from '~/components/invoices/InvoiceStatusBadge.vue'
 import PaymentStatusBadge from '~/components/invoices/PaymentStatusBadge.vue'
 import Pagination from '~/components/ui/Pagination.vue'
+import DocumentPdfPreviewModal from '~/components/ui/DocumentPdfPreviewModal.vue'
 
 definePageMeta({
   middleware: 'auth',
@@ -185,6 +212,17 @@ const { loading, error, invoices, pagination, fetchInvoices } = useInvoices()
 
 const clientsList = ref<Array<{ id: string; displayName: string }>>([])
 const activeFilters = ref<any>({})
+
+// PDF Preview Modal States
+const showPdfPreview = ref(false)
+const previewPdfUrl = ref('')
+const previewDocNumber = ref('')
+
+const openPdfPreview = (invoice: any) => {
+  previewPdfUrl.value = `/api/invoices/${invoice.id}/pdf`
+  previewDocNumber.value = invoice.number || `BROUILLON #${invoice.id.substring(0, 6).toUpperCase()}`
+  showPdfPreview.value = true
+}
 
 onMounted(async () => {
   try {

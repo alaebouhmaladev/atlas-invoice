@@ -3,9 +3,13 @@ import { getCompanySettings } from './companySettings.service'
 export interface CompanySnapshotData {
   legalName: string
   tradingName?: string | null
+  tradeName?: string | null
+  legalForm?: string | null
   address: string
+  addressLine2?: string | null
   addressComplement?: string | null
   city: string
+  postalCode?: string | null
   country: string
   ice: string
   taxId?: string | null

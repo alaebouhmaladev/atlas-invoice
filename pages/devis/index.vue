@@ -155,10 +155,12 @@
 
               <!-- Actions -->
               <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+                <!-- 1. View Details -->
                 <NuxtLink
                   :to="`/devis/${quote.id}`"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
-                  title="Voir le devis"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
+                  title="Voir les détails"
+                  aria-label="Voir les détails du devis"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 01-6 0z" />
@@ -166,45 +168,53 @@
                   </svg>
                 </NuxtLink>
 
-                <button
-                  type="button"
-                  @click="downloadPdf(quote.id, quote.number)"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
-                  title="Télécharger PDF"
-                >
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </button>
-
+                <!-- 2. Edit (Draft only) -->
                 <NuxtLink
                   v-if="quote.status === 'DRAFT'"
                   :to="`/devis/${quote.id}/edit`"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-colors"
-                  title="Modifier le brouillon"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
+                  title="Modifier"
+                  aria-label="Modifier le devis"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </NuxtLink>
 
+                <!-- 3. Preview PDF -->
+                <button
+                  type="button"
+                  @click="openPdfPreview(quote)"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
+                  title="Prévisualiser le PDF"
+                  aria-label="Prévisualiser le PDF du devis"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </button>
+
+                <!-- Duplicate -->
                 <button
                   type="button"
                   @click="handleDuplicate(quote)"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-colors"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
                   title="Dupliquer"
+                  aria-label="Dupliquer le devis"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 </button>
 
-                <!-- Archive / Restore (SUPER_ADMIN & ACCOUNTANT) -->
+                <!-- 4. Archive / Restore (SUPER_ADMIN & ACCOUNTANT) -->
                 <button
                   v-if="canArchiveRestore"
+                  type="button"
                   @click="openArchiveModal(quote)"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
                   :title="quote.isArchived ? 'Restaurer' : 'Archiver'"
+                  :aria-label="quote.isArchived ? 'Restaurer le devis' : 'Archiver le devis'"
                 >
                   <svg v-if="!quote.isArchived" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V8zm14 0l-4-4H9L5 8" />
@@ -214,12 +224,14 @@
                   </svg>
                 </button>
 
-                <!-- Delete (SUPER_ADMIN ONLY on DRAFT) -->
+                <!-- 5. Permanent Delete (SUPER_ADMIN ONLY on DRAFT) -->
                 <button
                   v-if="canDelete && quote.status === 'DRAFT'"
+                  type="button"
                   @click="openDeleteModal(quote)"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"
-                  title="Supprimer le brouillon"
+                  class="p-2 inline-flex items-center text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500/40 cursor-pointer"
+                  title="Supprimer définitivement"
+                  aria-label="Supprimer définitivement le devis brouillon"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -256,6 +268,16 @@
       @cancel="showConfirmModal = false"
     />
 
+    <!-- PDF Preview Modal -->
+    <DocumentPdfPreviewModal
+      :show="showPdfPreview"
+      :pdf-url="previewPdfUrl"
+      title="Aperçu du PDF — Devis"
+      :document-number="previewDocNumber"
+      :filename="`Devis_${previewDocNumber}.pdf`"
+      @close="showPdfPreview = false"
+    />
+
     <!-- Notification Toast -->
     <NotificationToast
       :show="showToast"
@@ -273,6 +295,7 @@ import QuoteStatusBadge from '~/components/quotes/QuoteStatusBadge.vue'
 import Pagination from '~/components/ui/Pagination.vue'
 import ConfirmDialog from '~/components/ui/ConfirmDialog.vue'
 import NotificationToast from '~/components/ui/NotificationToast.vue'
+import DocumentPdfPreviewModal from '~/components/ui/DocumentPdfPreviewModal.vue'
 import { formatMoney } from '~/server/utils/calculation'
 import type { QuoteStatus } from '@prisma/client'
 import type { QuoteWithRelations } from '~/composables/useQuotes'
@@ -289,6 +312,17 @@ const { quotes, pagination, loading, error, fetchQuotes, duplicateQuote, archive
 
 const canArchiveRestore = computed(() => ['SUPER_ADMIN', 'ACCOUNTANT'].includes(user.value?.role || ''))
 const canDelete = computed(() => user.value?.role === 'SUPER_ADMIN')
+
+// PDF Preview Modal States
+const showPdfPreview = ref(false)
+const previewPdfUrl = ref('')
+const previewDocNumber = ref('')
+
+function openPdfPreview(quote: QuoteWithRelations) {
+  previewPdfUrl.value = `/api/quotes/${quote.id}/pdf`
+  previewDocNumber.value = quote.number
+  showPdfPreview.value = true
+}
 
 const queryFilters = reactive<{
   search?: string

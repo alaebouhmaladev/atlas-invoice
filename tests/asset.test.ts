@@ -5,9 +5,19 @@ import { validateImageBinary, uploadCompanyAsset, removeCompanyAsset } from '../
 
 describe('Company Asset Security & Upload Unit Tests', () => {
   let userId: string
+  let savedLogoId: string | null = null
+  let savedSigId: string | null = null
+  let savedStampId: string | null = null
 
   beforeAll(async () => {
     try {
+      const origSettings = await prisma.companySettings.findUnique({ where: { singletonKey: 'DEFAULT' } })
+      if (origSettings) {
+        savedLogoId = origSettings.activeLogoAssetId
+        savedSigId = origSettings.activeSignatureAssetId
+        savedStampId = origSettings.activeStampAssetId
+      }
+
       const user = await prisma.user.create({
         data: {
           name: 'Test Asset Admin',
@@ -29,6 +39,15 @@ describe('Company Asset Security & Upload Unit Tests', () => {
         await prisma.auditLog.deleteMany({ where: { userId } })
         await prisma.user.deleteMany({ where: { id: userId } })
       }
+      // Restore original company asset settings so unit test run never wipes live user data!
+      await prisma.companySettings.update({
+        where: { singletonKey: 'DEFAULT' },
+        data: {
+          activeLogoAssetId: savedLogoId,
+          activeSignatureAssetId: savedSigId,
+          activeStampAssetId: savedStampId
+        }
+      })
     } catch {
       // ignore
     }
