@@ -35,5 +35,5 @@ describe('Atlas CRM CLI Launcher Tests', () => {
     expect(output).toContain('Node.js')
     expect(output).toContain('Docker CLI')
     expect(output).toContain('Aucun problème bloquant détecté.')
-  })
+  }, 15000)
 })

@@ -43,34 +43,41 @@ const isLoginPage = computed(() => route.path === '/login')
 
 const pageTitle = computed(() => {
   if (route.path === '/') return 'Tableau de bord'
-  if (route.path.startsWith('/activites')) return 'Journal d’activités & traçabilité'
+  if (route.path.startsWith('/activites')) return 'Activités'
   if (route.path.startsWith('/clients')) {
     if (route.path === '/clients/new') return 'Nouveau client'
     if (route.path.endsWith('/edit')) return 'Modifier le client'
     if (route.params.id) return 'Fiche client'
-    return 'Gestion des clients'
+    return 'Clients'
   }
   if (route.path.startsWith('/devis')) {
     if (route.path === '/devis/new') return 'Nouveau devis'
     if (route.path.endsWith('/edit')) return 'Modifier le devis'
     if (route.params.id) return 'Fiche devis'
-    return 'Gestion des devis'
+    return 'Devis'
   }
   if (route.path.startsWith('/factures')) {
     if (route.path === '/factures/new') return 'Nouvelle facture'
     if (route.path.endsWith('/edit')) return 'Modifier la facture'
     if (route.params.id) return 'Fiche facture'
-    return 'Gestion des factures'
+    return 'Factures'
   }
   if (route.path.startsWith('/rh')) {
     if (route.path === '/rh/employes/nouveau') return 'Nouveau collaborateur'
     if (route.path.endsWith('/modifier')) return 'Modifier la fiche employé'
     if (route.path.startsWith('/rh/employes/')) return 'Fiche employé'
-    if (route.path === '/rh/employes') return 'Annuaire des employés'
-    return 'Ressources Humaines'
+    if (route.path === '/rh/employes') return 'Employés'
+    return 'Vue d’ensemble RH'
   }
-  if (route.path.startsWith('/parametres')) return 'Paramètres de la société'
-  return 'Atlas Bites Facturation'
+  if (route.path.startsWith('/parametres')) return 'Paramètres'
+  return 'Atlas CRM'
+})
+
+useHead({
+  titleTemplate: (chunk) => {
+    if (!chunk || chunk === 'Atlas CRM') return 'Atlas CRM'
+    return `Atlas CRM — ${chunk}`
+  }
 })
 
 // Close mobile sidebar on route change

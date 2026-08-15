@@ -10,10 +10,10 @@
         <div
           class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 mb-4 font-bold text-2xl"
         >
-          AB
+          AC
         </div>
-        <h1 class="text-2xl font-bold text-slate-50 tracking-tight">Atlas Bites Facturation</h1>
-        <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Catering CRM • Portal Entry</p>
+        <h1 class="text-2xl font-bold text-slate-50 tracking-tight">Atlas CRM</h1>
+        <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">CRM · Facturation · Ressources humaines</p>
       </div>
 
       <!-- Error Alert -->
@@ -119,7 +119,7 @@
 
       <!-- Footer Note -->
       <div class="mt-8 text-center border-t border-slate-800/80 pt-4">
-        <p class="text-xs text-slate-400">Atlas Bites SARL • Moroccan Catering Management System</p>
+        <p class="text-xs text-slate-400">Atlas CRM • Plateforme de Gestion d’Entreprise</p>
       </div>
     </div>
   </div>

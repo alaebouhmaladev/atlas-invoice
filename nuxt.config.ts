@@ -17,7 +17,7 @@ export default defineNuxtConfig({
     superAdminPassword: process.env.SUPER_ADMIN_PASSWORD || '',
 
     public: {
-      appName: process.env.APP_NAME || 'Atlas Bites Facturation',
+      appName: process.env.APP_NAME || 'Atlas CRM',
       appUrl: process.env.APP_URL || 'http://localhost:3000'
     }
   },
@@ -30,11 +30,11 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Atlas Bites Facturation',
+      title: 'Atlas CRM',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Internal Invoicing CRM for Atlas Bites SARL' }
+        { name: 'description', content: 'Plateforme de gestion d’entreprise : CRM, Facturation et Ressources humaines' }
       ],
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }]
     }

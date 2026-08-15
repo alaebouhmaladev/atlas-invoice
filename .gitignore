@@ -25,6 +25,7 @@ pnpm-debug.log*
 *.sw?
 .vscode/
 .idea/
+.atlascrm.pid
 
 # Coverage
 coverage/
