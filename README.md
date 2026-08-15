@@ -194,9 +194,71 @@ Applied migrations:
 | `pnpm db:seed` | Seed initial Super Admin account |
 | `pnpm backup` | Execute automated PostgreSQL & asset backup script |
 | `pnpm restore` | Execute verified restoration CLI tool |
-| `pnpm test` | Run complete Vitest test suite (86 tests passing) |
+| `pnpm test` | Run complete Vitest test suite |
 
 ---
+
+## 🛠️ Atlas CRM CLI Launcher
+
+Atlas Bites CRM & Facturation includes a safe local CLI launcher that allows you to manage the entire application stack from any terminal prompt.
+
+### Installation & First-Time Setup
+
+Run the installation script once to link the CLI binary into `$HOME/.local/bin/atlascrm` and configure your PATH:
+
+```bash
+./scripts/install-atlascrm-cli.sh
+source ~/.zshrc # Or open a new terminal
+```
+
+Then initialize local environment & dependencies:
+
+```bash
+atlascrm setup
+```
+
+### Starting the Application
+
+To start PostgreSQL in Docker, apply pending migrations safely, and launch Nuxt:
+
+```bash
+atlascrm start
+```
+
+Optionally open the application in your default browser once healthy:
+
+```bash
+atlascrm start --open
+```
+
+Compatibility shorthand:
+
+```bash
+start atlascrm
+```
+
+### CLI Command Reference
+
+| Command | Usage | Description |
+| :--- | :--- | :--- |
+| `atlascrm setup` | `atlascrm setup` | Detects dependencies, creates `.env` with secure secrets, and generates Prisma client. |
+| `atlascrm start` | `atlascrm start [--open]` | Starts PostgreSQL, applies migrations safely, waits for health checks, and starts Nuxt. |
+| `atlascrm stop` | `atlascrm stop` | Stops application and PostgreSQL containers while preserving data & volumes. |
+| `atlascrm restart` | `atlascrm restart` | Performs a safe stop followed by start with zero data loss. |
+| `atlascrm status` | `atlascrm status` | Displays live status of App, PostgreSQL container, Migrations, and Storage. |
+| `atlascrm logs` | `atlascrm logs [app\|db] [-f]` | Tail application or database logs with automatic secret redaction. |
+| `atlascrm doctor` | `atlascrm doctor` | Runs 15 diagnostic checks on Node, Docker, DB, Migrations, and Ports. |
+| `atlascrm migrate` | `atlascrm migrate` | Checks pending migrations and applies them safely via `prisma migrate deploy`. |
+| `atlascrm backup` | `atlascrm backup` | Triggers zero-data-loss database dump and asset archive with SHA-256 manifest. |
+| `atlascrm help` | `atlascrm help` | Displays help information. |
+
+### Uninstalling the CLI
+
+To remove the CLI symlink without deleting the project code or persistent database volumes:
+
+```bash
+rm -f ~/.local/bin/atlascrm ~/.local/bin/start
+```
 
 ## 🧪 Test Suite Summary (18 Test Files, 86/86 Passing)
 

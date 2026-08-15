@@ -1,0 +1,564 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# ==============================================================================
+# Atlas Bites CRM & Facturation — Local CLI Launcher Script
+# ==============================================================================
+# Version: 1.0.0
+# Description: Management CLI for setup, startup, health checks, migrations & backups.
+
+# Resolve absolute canonical project directory
+SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SCRIPT_SOURCE" ]; do
+  SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+  SCRIPT_SOURCE="$(readlink "$SCRIPT_SOURCE")"
+  [[ $SCRIPT_SOURCE != /* ]] && SCRIPT_SOURCE="$SCRIPT_DIR/$SCRIPT_SOURCE"
+done
+PROJECT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")/.." && pwd)"
+
+export PROJECT_DIR
+PID_FILE="$PROJECT_DIR/.atlascrm.pid"
+APP_LOG_FILE="$PROJECT_DIR/.atlascrm-app.log"
+
+# Localized messaging helper
+log_info() {
+  echo -e "\033[36m[INFO]\033[0m $1"
+}
+
+log_success() {
+  echo -e "\033[32m[SUCCÈS]\033[0m $1"
+}
+
+log_warn() {
+  echo -e "\033[33m[AVERTISSEMENT]\033[0m $1"
+}
+
+log_error() {
+  echo -e "\033[31m[ERREUR]\033[0m $1" >&2
+}
+
+# Detect package manager
+detect_pm() {
+  if [ -f "$PROJECT_DIR/pnpm-lock.yaml" ]; then
+    echo "pnpm"
+  elif [ -f "$PROJECT_DIR/yarn.lock" ]; then
+    echo "yarn"
+  else
+    echo "npm"
+  fi
+}
+
+# Executable runner helper (pnpm exec vs npx)
+run_exec() {
+  local PM
+  PM="$(detect_pm)"
+  if [ "$PM" = "pnpm" ]; then
+    (cd "$PROJECT_DIR" && pnpm exec "$@")
+  else
+    (cd "$PROJECT_DIR" && npx "$@")
+  fi
+}
+
+# Ensure Docker daemon is responsive
+ensure_docker_running() {
+  if ! command -v docker &>/dev/null; then
+    log_error "Docker n'est pas installé ou inaccessible dans le PATH."
+    log_info "Veuillez installer Docker Desktop avant de continuer."
+    return 1
+  fi
+
+  if docker info &>/dev/null; then
+    return 0
+  fi
+
+  log_warn "Le démon Docker ne répond pas. Tentative de démarrage..."
+  if [ "$(uname -s)" = "Darwin" ]; then
+    if open -a Docker 2>/dev/null; then
+      log_info "Lancement de Docker Desktop sur macOS..."
+      local retries=30
+      while [ $retries -gt 0 ]; do
+        if docker info &>/dev/null; then
+          log_success "Démon Docker opérationnel."
+          return 0
+        fi
+        sleep 1
+        retries=$((retries - 1))
+      done
+    fi
+  fi
+
+  log_error "Impossible de contacter le démon Docker."
+  log_info "Veuillez ouvrir Docker Desktop manuellement et réessayer."
+  return 1
+}
+
+# Command: help
+cmd_help() {
+  echo "======================================================================"
+  echo " Atlas Bites CRM & Facturation — Assistant CLI (v1.0.0)"
+  echo "======================================================================"
+  echo " Utilisation :"
+  echo "   atlascrm <commande> [options]"
+  echo ""
+  echo " Commandes principales :"
+  echo "   setup          Initialise l'environnement local et installe les dépendances"
+  echo "   start [--open] Démarre PostgreSQL, applique les migrations et lance l'application"
+  echo "   stop           Arrête l'application et les conteneurs en conservant les données"
+  echo "   restart        Redémarre proprement l'application et les services"
+  echo "   status         Affiche l'état complet des services, ports et conteneurs"
+  echo "   logs [app|db]  Consulte les journaux récents en masquant les secrets"
+  echo "   doctor         Diagnostic complet de l'environnement et de la santé du système"
+  echo "   migrate        Vérifie et applique les migrations en toute sécurité"
+  echo "   backup         Exécute une sauvegarde complète certifiée avec empreinte SHA-256"
+  echo "   version        Affiche la version du CLI et du projet Atlas CRM"
+  echo "   help           Affiche ce message d'aide"
+  echo "======================================================================"
+}
+
+# Command: version
+cmd_version() {
+  echo "Atlas CRM CLI v1.0.0 (Repository: $PROJECT_DIR)"
+}
+
+# Command: setup
+cmd_setup() {
+  log_info "Initialisation de l'environnement Atlas CRM..."
+
+  if [ ! -d "$PROJECT_DIR" ]; then
+    log_error "Répertoire du projet introuvable : $PROJECT_DIR"
+    exit 1
+  fi
+
+  local PM
+  PM="$(detect_pm)"
+  log_info "Gestionnaire de paquets détecté : $PM"
+
+  # Check Node.js version
+  if ! command -v node &>/dev/null; then
+    log_error "Node.js n'est pas installé."
+    exit 1
+  fi
+
+  local NODE_VER
+  NODE_VER="$(node -v | cut -d'v' -f2)"
+  local NODE_MAJOR
+  NODE_MAJOR="$(echo "$NODE_VER" | cut -d'.' -f1)"
+  if [ "$NODE_MAJOR" -lt 18 ]; then
+    log_error "Node.js v18+ est requis. Version actuelle : v$NODE_VER"
+    exit 1
+  fi
+  log_info "Node.js v$NODE_VER validé."
+
+  # Check .env file
+  local ENV_PATH="$PROJECT_DIR/.env"
+  if [ ! -f "$ENV_PATH" ]; then
+    log_info "Création du fichier .env depuis .env.example..."
+    cp "$PROJECT_DIR/.env.example" "$ENV_PATH"
+  fi
+
+  # Ensure HR_ENCRYPTION_KEY exists in .env
+  if ! grep -q "^HR_ENCRYPTION_KEY=" "$ENV_PATH"; then
+    log_info "Génération d'une clé HR_ENCRYPTION_KEY sécurisée..."
+    local HR_KEY
+    HR_KEY="$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")"
+    echo "" >> "$ENV_PATH"
+    echo "# Cle de chiffrement RH (Generee automatiquement)" >> "$ENV_PATH"
+    echo "HR_ENCRYPTION_KEY=$HR_KEY" >> "$ENV_PATH"
+  fi
+
+  # Ensure SESSION_SECRET is secure
+  if grep -q "replace_with_at_least_32_random_characters" "$ENV_PATH"; then
+    log_info "Génération d'une clé SESSION_SECRET sécurisée..."
+    local SESS_SEC
+    SESS_SEC="$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")"
+    sed -i.tmp "s/SESSION_SECRET=.*/SESSION_SECRET=$SESS_SEC/" "$ENV_PATH" && rm -f "$ENV_PATH.tmp"
+  fi
+
+  # Create persistent directories
+  mkdir -p "$PROJECT_DIR/server/uploads" "$PROJECT_DIR/backups" "$PROJECT_DIR/tmp"
+
+  # Install dependencies
+  log_info "Installation des dépendances avec $PM..."
+  (cd "$PROJECT_DIR" && $PM install)
+
+  # Generate Prisma Client
+  log_info "Génération du client Prisma..."
+  run_exec prisma generate
+
+  # Doctor check
+  log_info "Exécution du diagnostic post-configuration..."
+  cmd_doctor || true
+
+  echo "======================================================================"
+  log_success "Configuration Atlas CRM terminée avec succès."
+  log_info "Aucun secret n'a été exposé."
+  log_info "Vous pouvez maintenant exécuter : atlascrm start"
+  echo "======================================================================"
+}
+
+# Command: start
+cmd_start() {
+  local OPEN_BROWSER=false
+  for arg in "$@"; do
+    if [ "$arg" = "--open" ]; then
+      OPEN_BROWSER=true
+    fi
+  done
+
+  log_info "Vérification des pré-requis de démarrage..."
+
+  if [ ! -f "$PROJECT_DIR/.env" ]; then
+    log_error "Le fichier .env est absent. Exécutez d'abord : atlascrm setup"
+    exit 1
+  fi
+
+  ensure_docker_running
+
+  # Check if app already running & healthy
+  if curl -s -f http://localhost:3000/api/health >/dev/null 2>&1; then
+    echo "======================================================================"
+    log_success "Atlas CRM est déjà actif."
+    echo "URL : http://localhost:3000"
+    echo "======================================================================"
+    if [ "$OPEN_BROWSER" = true ]; then
+      if [ "$(uname -s)" = "Darwin" ]; then
+        open "http://localhost:3000" 2>/dev/null || true
+      elif command -v xdg-open &>/dev/null; then
+        xdg-open "http://localhost:3000" 2>/dev/null || true
+      fi
+    fi
+    return 0
+  fi
+
+  # Start PostgreSQL container via Docker Compose
+  log_info "Démarrage des services d'infrastructure (PostgreSQL)..."
+  (cd "$PROJECT_DIR" && docker compose -f compose.yml up -d db)
+
+  # Wait for PostgreSQL health
+  log_info "En attente de la disponibilité de PostgreSQL..."
+  local retries=30
+  local db_healthy=false
+  while [ $retries -gt 0 ]; do
+    local status
+    status="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' atlas_db 2>/dev/null || echo 'unknown')"
+    if [ "$status" = "healthy" ] || [ "$status" = "running" ]; then
+      if run_exec prisma db execute --schema prisma/schema.prisma --stdin <<< "SELECT 1;" >/dev/null 2>&1; then
+        db_healthy=true
+        break
+      fi
+    fi
+    sleep 1
+    retries=$((retries - 1))
+  done
+
+  if [ "$db_healthy" = false ]; then
+    log_error "Échec du démarrage de la base de données PostgreSQL."
+    log_info "Consultez les journaux avec : atlascrm logs db"
+    exit 1
+  fi
+  log_success "Base de données PostgreSQL opérationnelle."
+
+  # Deploy migrations safely
+  log_info "Vérification des migrations de base de données..."
+  run_exec prisma migrate deploy
+
+  # Start Nuxt dev server if not already running
+  local PM
+  PM="$(detect_pm)"
+  log_info "Lancement du serveur d'application ($PM run dev)..."
+
+  (cd "$PROJECT_DIR" && nohup $PM run dev > "$APP_LOG_FILE" 2>&1 & echo $! > "$PID_FILE")
+
+  # Wait for Application HTTP Health check (/api/health)
+  log_info "Attente de l'initialisation de l'application..."
+  retries=45
+  local app_healthy=false
+  while [ $retries -gt 0 ]; do
+    if curl -s -f http://localhost:3000/api/health >/dev/null 2>&1; then
+      app_healthy=true
+      break
+    fi
+    sleep 1
+    retries=$((retries - 1))
+  done
+
+  if [ "$app_healthy" = false ]; then
+    log_error "L'application n'a pas répondu dans le délai imparti."
+    log_info "Consultez les journaux d'application avec : atlascrm logs app"
+    exit 1
+  fi
+
+  echo ""
+  echo "Atlas CRM"
+  echo "────────────────────────────────"
+  echo "PostgreSQL       Opérationnel"
+  echo "Migrations       À jour"
+  echo "Application      Opérationnelle"
+  echo "Stockage         Accessible"
+  echo "Sauvegardes      Configurées"
+  echo "────────────────────────────────"
+  echo "URL : http://localhost:3000"
+  echo ""
+  log_success "Atlas CRM est prêt."
+
+  if [ "$OPEN_BROWSER" = true ]; then
+    log_info "Ouverture du navigateur par défaut..."
+    if [ "$(uname -s)" = "Darwin" ]; then
+      open "http://localhost:3000" 2>/dev/null || true
+    elif command -v xdg-open &>/dev/null; then
+      xdg-open "http://localhost:3000" 2>/dev/null || true
+    fi
+  fi
+}
+
+# Command: stop
+cmd_stop() {
+  log_info "Arrêt sécurisé d'Atlas CRM..."
+
+  # Stop background application process
+  if [ -f "$PID_FILE" ]; then
+    local PID
+    PID="$(cat "$PID_FILE" 2>/dev/null || echo "")"
+    if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then
+      log_info "Arrêt du serveur d'application (PID: $PID)..."
+      kill "$PID" 2>/dev/null || true
+      sleep 1
+    fi
+    rm -f "$PID_FILE"
+  fi
+
+  # Stop Docker containers safely without removing volumes
+  log_info "Arrêt des conteneurs de services (PostgreSQL)..."
+  (cd "$PROJECT_DIR" && docker compose -f compose.yml stop db 2>/dev/null || true)
+
+  echo "======================================================================"
+  log_success "Atlas CRM a été arrêté."
+  log_info "Les données et volumes ont été conservés."
+  echo "======================================================================"
+}
+
+# Command: restart
+cmd_restart() {
+  log_info "Redémarrage d'Atlas CRM..."
+  cmd_stop
+  sleep 2
+  cmd_start "$@"
+}
+
+# Command: status
+cmd_status() {
+  echo "======================================================================"
+  echo " Atlas CRM — État des Services"
+  echo "======================================================================"
+
+  # 1. Application status
+  if curl -s -f http://localhost:3000/api/health >/dev/null 2>&1; then
+    echo -e " Application Nuxt   : \033[32mActif (HTTP 200 sur http://localhost:3000)\033[0m"
+  else
+    echo -e " Application Nuxt   : \033[31mInactif ou non accessible\033[0m"
+  fi
+
+  # 2. Database container status
+  local DB_STATUS
+  DB_STATUS="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' atlas_db 2>/dev/null || echo 'Arrêté')"
+  if [ "$DB_STATUS" = "healthy" ] || [ "$DB_STATUS" = "running" ]; then
+    echo -e " PostgreSQL DB     : \033[32mActif (Port 5436 - Statut: $DB_STATUS)\033[0m"
+  else
+    echo -e " PostgreSQL DB     : \033[31mInactif ($DB_STATUS)\033[0m"
+  fi
+
+  # 3. Migration status
+  if run_exec prisma migrate status >/dev/null 2>&1; then
+    echo -e " Migrations        : \033[32mÀ jour (Base de données conforme)\033[0m"
+  else
+    echo -e " Migrations        : \033[33mAttention requis ou non vérifiable\033[0m"
+  fi
+
+  # 4. Storage & Backups
+  if [ -d "$PROJECT_DIR/server/uploads" ] && [ -d "$PROJECT_DIR/backups" ]; then
+    echo -e " Stockage & Backup  : \033[32mOpérationnel (server/uploads & backups/)\033[0m"
+  else
+    echo -e " Stockage & Backup  : \033[33mDossiers manquants\033[0m"
+  fi
+
+  echo "======================================================================"
+}
+
+# Command: doctor
+cmd_doctor() {
+  echo "======================================================================"
+  echo " Atlas CRM — Diagnostic Système"
+  echo "======================================================================"
+  local failures=0
+
+  # Check project dir
+  if [ -d "$PROJECT_DIR" ]; then
+    echo -e " \033[32m✓\033[0m Répertoire du projet : $PROJECT_DIR"
+  else
+    echo -e " \033[31m✗\033[0m Répertoire du projet introuvable"
+    failures=$((failures + 1))
+  fi
+
+  # Check OS
+  echo -e " \033[32m✓\033[0m Système d'exploitation : $(uname -s) ($(uname -m))"
+
+  # Check Node.js
+  if command -v node &>/dev/null; then
+    echo -e " \033[32m✓\033[0m Node.js : $(node -v)"
+  else
+    echo -e " \033[31m✗\033[0m Node.js non disponible"
+    failures=$((failures + 1))
+  fi
+
+  # Check Package Manager
+  local PM
+  PM="$(detect_pm)"
+  echo -e " \033[32m✓\033[0m Gestionnaire de paquets : $PM"
+
+  # Check Docker CLI
+  if command -v docker &>/dev/null; then
+    echo -e " \033[32m✓\033[0m Docker CLI : $(docker --version | cut -d',' -f1)"
+  else
+    echo -e " \033[31m✗\033[0m Docker CLI non installé"
+    failures=$((failures + 1))
+  fi
+
+  # Check Docker Daemon
+  if docker info &>/dev/null; then
+    echo -e " \033[32m✓\033[0m Démon Docker : Opérationnel"
+  else
+    echo -e " \033[33m!\033[0m Démon Docker : Inactif (Exécutez Docker Desktop)"
+  fi
+
+  # Check .env
+  if [ -f "$PROJECT_DIR/.env" ]; then
+    echo -e " \033[32m✓\033[0m Configuration locale (.env) : Présente"
+  else
+    echo -e " \033[31m✗\033[0m Fichier .env absent (Exécutez : atlascrm setup)"
+    failures=$((failures + 1))
+  fi
+
+  # Check DB Container & Health
+  if run_exec prisma db execute --schema prisma/schema.prisma --stdin <<< "SELECT 1;" >/dev/null 2>&1; then
+    echo -e " \033[32m✓\033[0m Connexion PostgreSQL : Succès (Port 5436)"
+  else
+    echo -e " \033[33m!\033[0m Connexion PostgreSQL : Non disponible (Lancez avec atlascrm start)"
+  fi
+
+  # Check Prisma Migrations
+  if run_exec prisma migrate status >/dev/null 2>&1; then
+    echo -e " \033[32m✓\033[0m Migrations Prisma : À jour"
+  else
+    echo -e " \033[33m!\033[0m Migrations Prisma : Non vérifiées ou à appliquer"
+  fi
+
+  # Check Health endpoint
+  if curl -s -f http://localhost:3000/api/health >/dev/null 2>&1; then
+    echo -e " \033[32m✓\033[0m Application : Active (http://localhost:3000)"
+  else
+    echo -e " \033[33m!\033[0m Application : Non démarrée sur http://localhost:3000"
+  fi
+
+  echo "======================================================================"
+  if [ $failures -eq 0 ]; then
+    log_success "Aucun problème bloquant détecté."
+    return 0
+  else
+    log_error "$failures problème(s) bloquant(s) détecté(s)."
+    log_info "Exécutez : atlascrm setup"
+    return 1
+  fi
+}
+
+# Command: logs
+cmd_logs() {
+  local SERVICE="all"
+  local FOLLOW=""
+
+  for arg in "$@"; do
+    case "$arg" in
+      app) SERVICE="app" ;;
+      db) SERVICE="db" ;;
+      -f|--follow) FOLLOW="-f" ;;
+    esac
+  done
+
+  log_info "Consultation des journaux (Service: $SERVICE)..."
+
+  if [ "$SERVICE" = "app" ] || [ "$SERVICE" = "all" ]; then
+    echo "--- JOURNAUX APPLICATION (.atlascrm-app.log) ---"
+    if [ -f "$APP_LOG_FILE" ]; then
+      tail -n 50 $FOLLOW "$APP_LOG_FILE" | sed -E 's/(POSTGRES_PASSWORD|SESSION_SECRET|HR_ENCRYPTION_KEY|password)=[^ &]*/\1=REDACTED/g'
+    else
+      echo "Aucun journal d'application disponible."
+    fi
+  fi
+
+  if [ "$SERVICE" = "db" ] || [ "$SERVICE" = "all" ]; then
+    echo "--- JOURNAUX DOCKER POSTGRESQL (atlas_db) ---"
+    (cd "$PROJECT_DIR" && docker compose -f compose.yml logs --tail 50 $FOLLOW db 2>/dev/null || true)
+  fi
+}
+
+# Command: backup
+cmd_backup() {
+  log_info "Exécution du processus de sauvegarde certifiée..."
+  if run_exec tsx scripts/backup.ts; then
+    echo "======================================================================"
+    log_success "Sauvegarde terminée et vérifiée."
+    echo "======================================================================"
+  else
+    log_error "Échec du processus de sauvegarde."
+    exit 1
+  fi
+}
+
+# Command: migrate
+cmd_migrate() {
+  log_info "Vérification et application des migrations..."
+
+  if [ ! -f "$PROJECT_DIR/.env" ]; then
+    log_error "Le fichier .env est absent. Exécutez : atlascrm setup"
+    exit 1
+  fi
+
+  ensure_docker_running
+
+  log_info "Vérification du statut des migrations actuelles..."
+  run_exec prisma migrate status || true
+
+  log_info "Application sécurisée des migrations en attente (prisma migrate deploy)..."
+  if run_exec prisma migrate deploy; then
+    log_success "Toutes les migrations ont été appliquées sans altération des données."
+  else
+    log_error "Échec de l'application des migrations. Corrigez le conflit avant de continuer."
+    exit 1
+  fi
+}
+
+# Main CLI Router
+main() {
+  local CMD="${1:-help}"
+  shift || true
+
+  case "$CMD" in
+    setup)     cmd_setup "$@" ;;
+    start)     cmd_start "$@" ;;
+    stop)      cmd_stop "$@" ;;
+    restart)   cmd_restart "$@" ;;
+    status)    cmd_status "$@" ;;
+    doctor)    cmd_doctor "$@" ;;
+    logs)      cmd_logs "$@" ;;
+    backup)    cmd_backup "$@" ;;
+    migrate)   cmd_migrate "$@" ;;
+    version|--version|-v) cmd_version "$@" ;;
+    help|--help|-h)       cmd_help "$@" ;;
+    *)
+      log_error "Commande inconnue : $CMD"
+      cmd_help
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

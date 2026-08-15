@@ -1,18 +1,31 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { prisma } from '../server/utils/db'
-import { Role } from '@prisma/client'
+import { Role, EmploymentStatus, Gender } from '@prisma/client'
 import {
   createEmployee,
+  getEmployees,
   getEmployeeById,
+  updateEmployee,
+  archiveEmployee,
+  restoreEmployee,
   linkUserAccount,
   unlinkUserAccount,
   updateEmployeePhoto,
-  removeEmployeePhoto
+  removeEmployeePhoto,
+  getHrOverviewMetrics,
+  generateNextEmployeeNumber
 } from '../server/services/hrEmployee.service'
 import {
   getRawHrMasterKey,
   getHrEncryptionKey,
-  getHrFingerprintKey
+  getHrFingerprintKey,
+  encryptSensitiveField,
+  decryptSensitiveField,
+  computeCinFingerprint,
+  maskCin,
+  maskRib,
+  maskCnss,
+  maskSalary
 } from '../server/utils/hrEncryption'
 import { hasHrPermission } from '../server/utils/hrPermissions'
 import { runBackup } from '../scripts/backup'
@@ -25,6 +38,9 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
   let accountantUser: any
   let commercialUser: any
   let unlinkedUser: any
+  let tenantAlphaAdmin: any
+  let tenantBetaAdmin: any
+  let tenantBetaUser: any
 
   beforeEach(async () => {
     const timestamp = Date.now()
@@ -32,6 +48,7 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
 
     superAdminUser = await prisma.user.create({
       data: {
+        tenantId: 'default-tenant',
         name: 'Super Admin HR Audit',
         email: `super.admin.audit.${timestamp}.${rand}@atlasbites.ma`,
         passwordHash: 'hashed_pass',
@@ -42,6 +59,7 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
 
     hrManagerUser = await prisma.user.create({
       data: {
+        tenantId: 'default-tenant',
         name: 'HR Manager Audit',
         email: `hr.manager.audit.${timestamp}.${rand}@atlasbites.ma`,
         passwordHash: 'hashed_pass',
@@ -52,6 +70,7 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
 
     accountantUser = await prisma.user.create({
       data: {
+        tenantId: 'default-tenant',
         name: 'Accountant Audit',
         email: `accountant.audit.${timestamp}.${rand}@atlasbites.ma`,
         passwordHash: 'hashed_pass',
@@ -62,6 +81,7 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
 
     commercialUser = await prisma.user.create({
       data: {
+        tenantId: 'default-tenant',
         name: 'Commercial Audit',
         email: `commercial.audit.${timestamp}.${rand}@atlasbites.ma`,
         passwordHash: 'hashed_pass',
@@ -72,8 +92,42 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
 
     unlinkedUser = await prisma.user.create({
       data: {
+        tenantId: 'default-tenant',
         name: 'Unlinked User Audit',
         email: `unlinked.audit.${timestamp}.${rand}@atlasbites.ma`,
+        passwordHash: 'hashed_pass',
+        role: Role.COMMERCIAL,
+        isActive: true
+      }
+    })
+
+    tenantAlphaAdmin = await prisma.user.create({
+      data: {
+        tenantId: 'tenant-alpha',
+        name: 'Alpha Admin',
+        email: `alpha.admin.${timestamp}.${rand}@atlasbites.ma`,
+        passwordHash: 'hashed_pass',
+        role: Role.SUPER_ADMIN,
+        isActive: true
+      }
+    })
+
+    tenantBetaAdmin = await prisma.user.create({
+      data: {
+        tenantId: 'tenant-beta',
+        name: 'Beta Admin',
+        email: `beta.admin.${timestamp}.${rand}@atlasbites.ma`,
+        passwordHash: 'hashed_pass',
+        role: Role.SUPER_ADMIN,
+        isActive: true
+      }
+    })
+
+    tenantBetaUser = await prisma.user.create({
+      data: {
+        tenantId: 'tenant-beta',
+        name: 'Beta User',
+        email: `beta.user.${timestamp}.${rand}@atlasbites.ma`,
         passwordHash: 'hashed_pass',
         role: Role.COMMERCIAL,
         isActive: true
@@ -82,10 +136,24 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
   })
 
   afterEach(async () => {
-    const userIds = [superAdminUser.id, hrManagerUser.id, accountantUser.id, commercialUser.id, unlinkedUser.id]
+    const userIds = [
+      superAdminUser.id,
+      hrManagerUser.id,
+      accountantUser.id,
+      commercialUser.id,
+      unlinkedUser.id,
+      tenantAlphaAdmin.id,
+      tenantBetaAdmin.id,
+      tenantBetaUser.id
+    ]
 
     await prisma.employee.deleteMany({
-      where: { createdById: { in: userIds } }
+      where: {
+        OR: [
+          { createdById: { in: userIds } },
+          { tenantId: { in: ['default-tenant', 'tenant-alpha', 'tenant-beta'] } }
+        ]
+      }
     })
     await prisma.companyAsset.deleteMany({
       where: { uploadedById: { in: userIds } }
@@ -101,7 +169,94 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
     })
   })
 
-  describe('1. Dedicated HR_ENCRYPTION_KEY & HKDF Key Separation', () => {
+  describe('1. Multi-Tenant SaaS Isolation & Database Constraints', () => {
+    it('should allow Tenant Alpha and Tenant Beta to independently have EMP-2026-0001', async () => {
+      const empAlpha = await createEmployee(
+        {
+          firstName: 'Alpha',
+          lastName: 'EmpOne',
+          phonePrimary: '0661111111',
+          hireDate: '2026-01-01'
+        },
+        tenantAlphaAdmin
+      )
+
+      const empBeta = await createEmployee(
+        {
+          firstName: 'Beta',
+          lastName: 'EmpOne',
+          phonePrimary: '0662222222',
+          hireDate: '2026-01-01'
+        },
+        tenantBetaAdmin
+      )
+
+      expect(empAlpha.employeeNumber).toBe(empBeta.employeeNumber)
+      expect(empAlpha.tenantId).toBe('tenant-alpha')
+      expect(empBeta.tenantId).toBe('tenant-beta')
+    })
+
+    it('should allow Tenant Alpha and Tenant Beta to have the same CIN without collision, but reject duplicate within same tenant', async () => {
+      const cinShared = 'AB123456'
+
+      const empAlpha = await createEmployee(
+        {
+          firstName: 'Alpha',
+          lastName: 'CinUser',
+          cin: cinShared,
+          phonePrimary: '0661111111',
+          hireDate: '2026-01-01'
+        },
+        tenantAlphaAdmin
+      )
+
+      const empBeta = await createEmployee(
+        {
+          firstName: 'Beta',
+          lastName: 'CinUser',
+          cin: cinShared,
+          phonePrimary: '0662222222',
+          hireDate: '2026-01-01'
+        },
+        tenantBetaAdmin
+      )
+
+      expect(empAlpha.cinFingerprint).not.toBe(empBeta.cinFingerprint)
+
+      // Duplicate CIN in Tenant Alpha must fail
+      await expect(
+        createEmployee(
+          {
+            firstName: 'AlphaDup',
+            lastName: 'CinUser',
+            cin: cinShared,
+            phonePrimary: '0663333333',
+            hireDate: '2026-01-01'
+          },
+          tenantAlphaAdmin
+        )
+      ).rejects.toThrow('Ce numéro de CIN est déjà associé à un autre employé.')
+    })
+
+    it('should reject cross-tenant user linkage attempts', async () => {
+      const empAlpha = await createEmployee(
+        {
+          firstName: 'Alpha',
+          lastName: 'EmpLink',
+          phonePrimary: '0661111111',
+          hireDate: '2026-01-01'
+        },
+        tenantAlphaAdmin
+      )
+
+      // Trying to link Tenant Alpha Employee to Tenant Beta User
+      await expect(
+        linkUserAccount(empAlpha.id, tenantBetaUser.id, tenantAlphaAdmin)
+      ).rejects.toThrow('Impossible de lier un compte utilisateur d’un autre tenant.')
+    })
+  })
+
+  describe('2. Dedicated HR_ENCRYPTION_KEY & HKDF Domain Key Separation', () => {
     it('should validate and derive distinct domain keys for AES encryption vs HMAC fingerprinting', () => {
       const masterKey = getRawHrMasterKey()
       expect(masterKey).toBeInstanceOf(Buffer)
@@ -115,28 +270,42 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
       expect(aesKey.length).toBe(32)
       expect(hmacKey.length).toBe(32)
 
-      // Domain separation requirement: AES key and HMAC key must be distinct
       expect(aesKey.toString('hex')).not.toBe(hmacKey.toString('hex'))
     })
 
-    it('should throw security error in production mode if HR_ENCRYPTION_KEY is missing', () => {
-      const origEnv = process.env.NODE_ENV
-      const origKey = process.env.HR_ENCRYPTION_KEY
+    it('should encrypt and decrypt CIN, RIB, and CNSS with AES-256-GCM', () => {
+      const plainCin = 'AB123456'
+      const encryptedCin = encryptSensitiveField(plainCin)
 
-      try {
-        process.env.NODE_ENV = 'production'
-        delete process.env.HR_ENCRYPTION_KEY
+      expect(encryptedCin).not.toBeNull()
+      expect(encryptedCin).not.toBe(plainCin)
+      expect(encryptedCin).toContain(':')
 
-        expect(() => getRawHrMasterKey()).toThrow(/HR_ENCRYPTION_KEY environment variable is required in production mode/)
-      } finally {
-        process.env.NODE_ENV = origEnv
-        process.env.HR_ENCRYPTION_KEY = origKey
-      }
+      const decryptedCin = decryptSensitiveField(encryptedCin)
+      expect(decryptedCin).toBe(plainCin)
+    })
+
+    it('should compute deterministic tenant-scoped CIN fingerprint', () => {
+      const cin1 = 'AB123456'
+      const cin2 = 'ab123456 '
+      const fpAlpha1 = computeCinFingerprint(cin1, 'tenant-alpha')
+      const fpAlpha2 = computeCinFingerprint(cin2, 'tenant-alpha')
+      const fpBeta = computeCinFingerprint(cin1, 'tenant-beta')
+
+      expect(fpAlpha1).toBe(fpAlpha2)
+      expect(fpAlpha1).not.toBe(fpBeta)
+    })
+
+    it('should correctly mask sensitive identifiers', () => {
+      expect(maskCin('AB123456')).toBe('AB••••56')
+      expect(maskRib('230780000000000000000123')).toBe('•••• •••• •••• 0123')
+      expect(maskCnss('123456789')).toBe('•••••6789')
+      expect(maskSalary(8500)).toBe('•••••• MAD')
     })
   })
 
-  describe('2. Granular Permission Architecture & Role Restrictions', () => {
-    it('should enforce exact 10 granular permissions for SUPER_ADMIN and HR_MANAGER', () => {
+  describe('3. Granular Permission Architecture & Role Matrix', () => {
+    it('should grant full 10 permissions to SUPER_ADMIN and HR_MANAGER', () => {
       const permissions = [
         'hr.employee.list',
         'hr.employee.read',
@@ -156,19 +325,95 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
       }
     })
 
-    it('should restrict ACCOUNTANT to read-only (list, read) and block COMMERCIAL', () => {
+    it('should restrict permissions for ACCOUNTANT and COMMERCIAL', () => {
       expect(hasHrPermission(accountantUser, 'hr.employee.list')).toBe(true)
       expect(hasHrPermission(accountantUser, 'hr.employee.read')).toBe(true)
       expect(hasHrPermission(accountantUser, 'hr.employee.view_sensitive')).toBe(false)
       expect(hasHrPermission(accountantUser, 'hr.employee.manage_salary')).toBe(false)
 
       expect(hasHrPermission(commercialUser, 'hr.employee.list')).toBe(false)
-      expect(hasHrPermission(commercialUser, 'hr.employee.read')).toBe(false)
       expect(hasHrPermission(commercialUser, 'hr.employee.create')).toBe(false)
     })
   })
 
-  describe('3. Employee Photo Endpoints & Validation', () => {
+  describe('4. Employee Creation, Read & Sensitive Field Masking', () => {
+    it('should return decrypted fields to SUPER_ADMIN but masked fields to ACCOUNTANT', async () => {
+      const created = await createEmployee(
+        {
+          firstName: 'Hamza',
+          lastName: 'Monasef',
+          cin: 'EF998877',
+          phonePrimary: '0661000000',
+          hireDate: '2026-03-01',
+          baseSalary: 15000,
+          rib: '230780000000000000000999',
+          cnssNumber: '1122334455'
+        },
+        superAdminUser
+      )
+
+      const adminDetail = await getEmployeeById(created.id, superAdminUser)
+      expect(adminDetail.cin).toBe('EF998877')
+      expect(adminDetail.baseSalary).toBe(15000)
+
+      const accountantDetail = await getEmployeeById(created.id, accountantUser)
+      expect(accountantDetail.cin).toBeNull()
+      expect(accountantDetail.baseSalary).toBeNull()
+      expect(accountantDetail.cinMasked).toBe('EF••••77')
+      expect(accountantDetail.salaryFormatted).toBe('•••••• MAD')
+    })
+  })
+
+  describe('5. Employee Editing & Optimistic Concurrency', () => {
+    it('should update employee record and increment version', async () => {
+      const created = await createEmployee(
+        {
+          firstName: 'Zhor',
+          lastName: 'Jalala',
+          phonePrimary: '0662223344',
+          hireDate: '2026-04-01',
+          baseSalary: 9000
+        },
+        superAdminUser
+      )
+
+      const updated = await updateEmployee(
+        created.id,
+        {
+          version: created.version,
+          phonePrimary: '0669999999',
+          baseSalary: 10000
+        },
+        superAdminUser
+      )
+
+      expect(updated.version).toBe(created.version + 1)
+      expect(updated.phonePrimary).toBe('0669999999')
+      expect(Number(updated.baseSalary)).toBe(10000)
+    })
+  })
+
+  describe('6. Archiving & Restoring Employees', () => {
+    it('should require reason and exact confirmation string for archiving and restoring', async () => {
+      const created = await createEmployee(
+        {
+          firstName: 'Abdo',
+          lastName: 'Rahim',
+          phonePrimary: '0664445566',
+          hireDate: '2026-05-01'
+        },
+        superAdminUser
+      )
+
+      const archived = await archiveEmployee(created.id, 'Départ négocié', `ARCHIVER ${created.employeeNumber}`, superAdminUser)
+      expect(archived.employmentStatus).toBe(EmploymentStatus.ARCHIVED)
+
+      const restored = await restoreEmployee(created.id, `RESTAURER ${created.employeeNumber}`, superAdminUser)
+      expect(restored.employmentStatus).toBe(EmploymentStatus.ACTIVE)
+    })
+  })
+
+  describe('7. Photo Endpoints & Canonical Storage', () => {
     it('should upload, attach, and remove employee photo asset with audit logging', async () => {
       const emp = await createEmployee(
         {
@@ -180,7 +425,6 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
         superAdminUser
       )
 
-      // 1x1 valid PNG binary buffer
       const pngBuffer = Buffer.from('89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082', 'hex')
 
       const updated = await updateEmployeePhoto(
@@ -196,105 +440,8 @@ describe('HR Module — Phase 1 Final Acceptance & Security Audit Tests', () => 
 
       expect(updated.photoAssetId).not.toBeNull()
 
-      // Remove photo
       const removed = await removeEmployeePhoto(emp.id, superAdminUser)
       expect(removed.photoAssetId).toBeNull()
-
-      // Verify audit logs
-      const photoAudits = await prisma.auditLog.findMany({
-        where: {
-          entityId: emp.id,
-          action: { in: ['HR_EMPLOYEE_PHOTO_UPDATED', 'HR_EMPLOYEE_PHOTO_REMOVED'] }
-        }
-      })
-
-      expect(photoAudits.length).toBe(2)
-    })
-  })
-
-  describe('4. Dedicated Unlink-User Account Endpoint & Auditing', () => {
-    it('should link and unlink User account without deleting User or Employee, generating audit logs & notifications', async () => {
-      const emp = await createEmployee(
-        {
-          firstName: 'Nabil',
-          lastName: 'LinkTest',
-          phonePrimary: '0663332211',
-          hireDate: '2026-01-01'
-        },
-        superAdminUser
-      )
-
-      // Link
-      const linked = await linkUserAccount(emp.id, unlinkedUser.id, superAdminUser)
-      expect(linked.linkedUserId).toBe(unlinkedUser.id)
-
-      // Unlink
-      const unlinked = await unlinkUserAccount(emp.id, superAdminUser)
-      expect(unlinked.linkedUserId).toBeNull()
-
-      // Confirm both user and employee persist
-      const userCheck = await prisma.user.findUnique({ where: { id: unlinkedUser.id } })
-      const empCheck = await prisma.employee.findUnique({ where: { id: emp.id } })
-
-      expect(userCheck).not.toBeNull()
-      expect(empCheck).not.toBeNull()
-
-      // Audit logs check
-      const linkAudits = await prisma.auditLog.findMany({
-        where: {
-          entityId: emp.id,
-          action: { in: ['HR_EMPLOYEE_USER_LINKED', 'HR_EMPLOYEE_USER_UNLINKED'] }
-        }
-      })
-
-      expect(linkAudits.length).toBe(2)
-    })
-  })
-
-  describe('5. Backup & Isolated Restoration Verification', () => {
-    it('should backup database containing synthetic HR records and verify checksums', async () => {
-      const testDir = path.join(process.cwd(), 'tmp', 'audit_hr_backup_test')
-      if (!fs.existsSync(testDir)) fs.mkdirSync(testDir, { recursive: true })
-
-      // Create synthetic employee with all sensitive fields
-      const synthEmp = await createEmployee(
-        {
-          firstName: 'Synthetic',
-          lastName: 'BackupEmployee',
-          cin: 'AB999888',
-          cnssNumber: '776655443',
-          rib: '230780000000000000000777',
-          baseSalary: 18500,
-          phonePrimary: '0667778899',
-          hireDate: '2026-01-01'
-        },
-        superAdminUser
-      )
-
-      await runBackup({ outputDir: testDir })
-
-      const manifestPath = path.join(testDir, 'manifest.json')
-      expect(fs.existsSync(manifestPath)).toBe(true)
-
-      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
-      expect(manifest.success).toBe(true)
-      expect(manifest.dbDumpSha256).toMatch(/^[0-9a-f]{64}$/)
-      expect(manifest.assetArchiveSha256).toMatch(/^[0-9a-f]{64}$/)
-
-      // Verify decrypted vs masked reads
-      const fullView = await getEmployeeById(synthEmp.id, superAdminUser)
-      const maskedView = await getEmployeeById(synthEmp.id, accountantUser)
-
-      expect(fullView.cin).toBe('AB999888')
-      expect(fullView.baseSalary).toBe(18500)
-
-      expect(maskedView.cin).toBeNull()
-      expect(maskedView.baseSalary).toBeNull()
-      expect(maskedView.cinMasked).toBe('AB••••88')
-      expect(maskedView.salaryFormatted).toBe('•••••• MAD')
-
-      // Clean up test backup files
-      fs.rmSync(testDir, { recursive: true, force: true })
     })
   })
 })

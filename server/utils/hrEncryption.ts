@@ -106,9 +106,9 @@ export function decryptSensitiveField(encryptedPayload: string | null | undefine
 /**
  * Computes a deterministic keyed HMAC-SHA256 fingerprint for CIN uniqueness lookup using domain-separated HMAC subkey
  */
-export function computeCinFingerprint(cin: string | null | undefined): string | null {
+export function computeCinFingerprint(cin: string | null | undefined, tenantId: string = 'default-tenant'): string | null {
   if (!cin || !cin.trim()) return null
-  const normalized = cin.trim().toUpperCase()
+  const normalized = `${tenantId}:${cin.trim().toUpperCase()}`
   const hmacKey = getHrFingerprintKey()
   return crypto.createHmac('sha256', hmacKey).update(normalized).digest('hex')
 }

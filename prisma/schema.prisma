@@ -21,6 +21,7 @@ enum ClientType {
 
 model User {
   id                 String     @id @default(uuid())
+  tenantId           String     @default("default-tenant")
   name               String
   email              String     @unique
   passwordHash       String
@@ -58,6 +59,7 @@ model User {
   updatedEmployees  Employee[]        @relation("EmployeeUpdatedBy")
   archivedEmployees Employee[]        @relation("EmployeeArchivedBy")
 
+  @@index([tenantId])
   @@index([email])
   @@index([role])
 }
@@ -561,7 +563,8 @@ enum Gender {
 
 model Employee {
   id                           String           @id @default(uuid())
-  employeeNumber               String           @unique
+  tenantId                     String           @default("default-tenant")
+  employeeNumber               String
   firstName                    String
   lastName                     String
   displayName                  String
@@ -571,7 +574,7 @@ model Employee {
   birthPlace                   String?
   nationality                  String?          @default("Marocaine")
   cinEncrypted                  String?
-  cinFingerprint               String?          @unique
+  cinFingerprint               String?
   addressLine1                 String?
   addressLine2                 String?
   city                         String?
@@ -610,8 +613,12 @@ model Employee {
   updatedBy                    User?            @relation("EmployeeUpdatedBy", fields: [updatedById], references: [id])
   archivedBy                   User?            @relation("EmployeeArchivedBy", fields: [archivedById], references: [id])
 
-  @@index([employmentStatus])
-  @@index([archivedAt])
-  @@index([lastName, firstName])
-  @@index([hireDate])
+  @@unique([tenantId, employeeNumber])
+  @@unique([tenantId, cinFingerprint])
+  @@unique([tenantId, linkedUserId])
+  @@index([tenantId])
+  @@index([tenantId, employmentStatus])
+  @@index([tenantId, archivedAt])
+  @@index([tenantId, lastName, firstName])
+  @@index([tenantId, hireDate])
 }

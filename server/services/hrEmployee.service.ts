@@ -56,12 +56,13 @@ export interface UpdateEmployeeInput extends Partial<CreateEmployeeInput> {
 /**
  * Generates a unique, concurrency-safe employee number (e.g. EMP-2026-0001)
  */
-export async function generateNextEmployeeNumber(): Promise<string> {
+export async function generateNextEmployeeNumber(tenantId: string = 'default-tenant'): Promise<string> {
   const currentYear = new Date().getFullYear()
   const prefix = `EMP-${currentYear}-`
 
   const latestEmployee = await prisma.employee.findFirst({
     where: {
+      tenantId,
       employeeNumber: {
         startsWith: prefix
       }
@@ -157,13 +158,15 @@ export async function createEmployee(input: CreateEmployeeInput, actor: UserPubl
     throw err
   }
 
-  // CIN fingerprint uniqueness check
+  const tenantId = (actor as any)?.tenantId || 'default-tenant'
+
+  // CIN fingerprint uniqueness check per tenant
   let cinFingerprint: string | null = null
   if (input.cin && input.cin.trim()) {
-    cinFingerprint = computeCinFingerprint(input.cin)
+    cinFingerprint = computeCinFingerprint(input.cin, tenantId)
     if (cinFingerprint) {
-      const existingCin = await prisma.employee.findUnique({
-        where: { cinFingerprint }
+      const existingCin = await prisma.employee.findFirst({
+        where: { tenantId, cinFingerprint }
       })
       if (existingCin) {
         const err: any = new Error('Ce numéro de CIN est déjà associé à un autre employé.')
@@ -183,8 +186,13 @@ export async function createEmployee(input: CreateEmployeeInput, actor: UserPubl
       err.statusCode = 400
       throw err
     }
-    const existingLinked = await prisma.employee.findUnique({
-      where: { linkedUserId: input.linkedUserId }
+    if (targetUser.tenantId !== tenantId) {
+      const err: any = new Error('Impossible de lier un compte utilisateur d’un autre tenant.')
+      err.statusCode = 403
+      throw err
+    }
+    const existingLinked = await prisma.employee.findFirst({
+      where: { tenantId, linkedUserId: input.linkedUserId }
     })
     if (existingLinked) {
       const err: any = new Error('Ce compte utilisateur est déjà lié à un autre employé.')
@@ -193,10 +201,11 @@ export async function createEmployee(input: CreateEmployeeInput, actor: UserPubl
     }
   }
 
-  const employeeNumber = await generateNextEmployeeNumber()
+  const employeeNumber = await generateNextEmployeeNumber(tenantId)
 
   const employee = await prisma.employee.create({
     data: {
+      tenantId,
       employeeNumber,
       firstName,
       lastName,
@@ -808,6 +817,12 @@ export async function linkUserAccount(employeeId: string, userId: string, actor:
     throw err
   }
 
+  if (employee.tenantId !== targetUser.tenantId) {
+    const err: any = new Error('Impossible de lier un compte utilisateur d’un autre tenant.')
+    err.statusCode = 403
+    throw err
+  }
+
   const existingLink = await prisma.employee.findUnique({
     where: { linkedUserId: userId }
   })
@@ -942,6 +957,19 @@ export async function updateEmployeePhoto(employeeId: string, fileMeta: Uploaded
       uploadedById: actor.id
     }
   })
+
+  // Ensure file is saved to server/uploads directory for disk backup
+  try {
+    const fs = await import('node:fs')
+    const path = await import('node:path')
+    const uploadsDir = path.join(process.cwd(), 'server', 'uploads')
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
+    const ext = validated.mimeType.split('/')[1] || 'png'
+    const filePath = path.join(uploadsDir, `${asset.id}.${ext}`)
+    fs.writeFileSync(filePath, fileMeta.buffer)
+  } catch (err) {
+    console.warn('[HR] Warning: could not write photo asset to server/uploads disk:', err)
+  }
 
   const updated = await prisma.employee.update({
     where: { id: employeeId },

@@ -41,7 +41,7 @@ export async function runBackup(options: { outputDir?: string; dryRun?: boolean 
   const assetArchivePath = path.join(backupDir, assetArchiveFilename)
   const tmpDbPath = `${dbDumpPath}.tmp`
 
-  const databaseUrl = process.env.DATABASE_URL || 'postgresql://atlas_user:atlas_secure_password_2026@localhost:5436/atlas_bites_facturation?schema=public'
+  const databaseUrl = process.env.DATABASE_URL || 'postgresql://atlas_user:atlas_secure_rotated_pass_2026_sec@localhost:5436/atlas_bites_facturation?schema=public'
   const cleanPgUrl = databaseUrl.split('?')[0]
 
   let success = true
