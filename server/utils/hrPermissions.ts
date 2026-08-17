@@ -12,35 +12,55 @@ export type HrPermission =
   | 'hr.employee.manage_salary'
   | 'hr.employee.link_user'
   | 'hr.audit.read'
+  | 'hr.organization.manage_sites'
+  | 'hr.organization.manage_departments'
+  | 'hr.organization.manage_positions'
+  | 'hr.assignment.read'
+  | 'hr.assignment.manage'
+  | 'hr.contract.read'
+  | 'hr.contract.manage'
+  | 'hr.contract.view_salary'
+  | 'hr.document.read'
+  | 'hr.document.upload'
+  | 'hr.document.replace'
+  | 'hr.document.archive'
+  | 'hr.document.read_medical'
+
+const ALL_PHASE_2_PERMISSIONS: HrPermission[] = [
+  'hr.employee.list',
+  'hr.employee.read',
+  'hr.employee.create',
+  'hr.employee.update',
+  'hr.employee.archive',
+  'hr.employee.restore',
+  'hr.employee.view_sensitive',
+  'hr.employee.manage_salary',
+  'hr.employee.link_user',
+  'hr.audit.read',
+  'hr.organization.manage_sites',
+  'hr.organization.manage_departments',
+  'hr.organization.manage_positions',
+  'hr.assignment.read',
+  'hr.assignment.manage',
+  'hr.contract.read',
+  'hr.contract.manage',
+  'hr.contract.view_salary',
+  'hr.document.read',
+  'hr.document.upload',
+  'hr.document.replace',
+  'hr.document.archive',
+  'hr.document.read_medical'
+]
 
 const ROLE_HR_PERMISSIONS: Record<Role, HrPermission[]> = {
-  SUPER_ADMIN: [
-    'hr.employee.list',
-    'hr.employee.read',
-    'hr.employee.create',
-    'hr.employee.update',
-    'hr.employee.archive',
-    'hr.employee.restore',
-    'hr.employee.view_sensitive',
-    'hr.employee.manage_salary',
-    'hr.employee.link_user',
-    'hr.audit.read'
-  ],
-  HR_MANAGER: [
-    'hr.employee.list',
-    'hr.employee.read',
-    'hr.employee.create',
-    'hr.employee.update',
-    'hr.employee.archive',
-    'hr.employee.restore',
-    'hr.employee.view_sensitive',
-    'hr.employee.manage_salary',
-    'hr.employee.link_user',
-    'hr.audit.read'
-  ],
+  SUPER_ADMIN: ALL_PHASE_2_PERMISSIONS,
+  HR_MANAGER: ALL_PHASE_2_PERMISSIONS,
   ACCOUNTANT: [
     'hr.employee.list',
-    'hr.employee.read'
+    'hr.employee.read',
+    'hr.assignment.read',
+    'hr.contract.read',
+    'hr.document.read'
   ],
   COMMERCIAL: []
 }

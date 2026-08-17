@@ -2,6 +2,7 @@ import type { Role } from '@prisma/client'
 
 export interface UserPublic {
   id: string
+  tenantId?: string
   name: string
   email: string
   role: Role

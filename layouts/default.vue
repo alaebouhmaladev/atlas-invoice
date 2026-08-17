@@ -67,6 +67,12 @@ const pageTitle = computed(() => {
     if (route.path.endsWith('/modifier')) return 'Modifier la fiche employé'
     if (route.path.startsWith('/rh/employes/')) return 'Fiche employé'
     if (route.path === '/rh/employes') return 'Employés'
+    if (route.path.startsWith('/rh/organisation')) return 'Organisation'
+    if (route.path === '/rh/contrats/nouveau') return 'Nouveau contrat'
+    if (route.path.startsWith('/rh/contrats/')) return 'Détail du contrat'
+    if (route.path.startsWith('/rh/contrats')) return 'Contrats'
+    if (route.path === '/rh/documents/nouveau') return 'Nouveau document RH'
+    if (route.path.startsWith('/rh/documents')) return 'Documents RH'
     return 'Vue d’ensemble RH'
   }
   if (route.path.startsWith('/parametres')) return 'Paramètres'

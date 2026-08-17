@@ -85,7 +85,7 @@
         </div>
       </div>
 
-      <!-- Roadmap Placeholder Box -->
+      <!-- Roadmap Notice Box -->
       <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
         <div class="p-2 bg-amber-500/20 rounded-xl text-amber-400 shrink-0">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,9 +93,9 @@
           </svg>
         </div>
         <div class="text-xs space-y-1">
-          <h4 class="font-bold text-amber-300">Feuille de Route RH</h4>
+          <h4 class="font-bold text-amber-300">Phase 2 RH Activée</h4>
           <p class="text-slate-300 leading-relaxed">
-            Les contrats, horaires, présences, congés et bulletins de paie seront ajoutés dans les prochaines phases.
+            Les affectations historiques, contrats de travail et le coffre-fort documentaire sécurisé sont désormais opérationnels.
           </p>
         </div>
       </div>

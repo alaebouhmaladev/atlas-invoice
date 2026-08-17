@@ -159,7 +159,10 @@ const navGroups = computed<NavGroup[]>(() => [
     title: 'RESSOURCES HUMAINES',
     items: [
       { label: 'Vue d’ensemble', to: '/rh', icon: IconHrOverview, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
-      { label: 'Employés', to: '/rh/employes', icon: IconEmployees, roles: ['SUPER_ADMIN', 'HR_MANAGER'] }
+      { label: 'Employés', to: '/rh/employes', icon: IconEmployees, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
+      { label: 'Organisation', to: '/rh/organisation', icon: IconHrOverview, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
+      { label: 'Contrats', to: '/rh/contrats', icon: IconQuotes, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+      { label: 'Documents', to: '/rh/documents', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] }
     ]
   },
   {

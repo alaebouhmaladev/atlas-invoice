@@ -29,3 +29,13 @@ pnpm-debug.log*
 
 # Coverage
 coverage/
+
+# Atlas CRM private runtime uploads and derived asset cache
+server/uploads/*
+
+# Preserve an intentionally tracked placeholder, when present
+!server/uploads/.gitkeep
+
+# Local database and asset backup artifacts
+backups/
+tmp/test_hr_backups/
