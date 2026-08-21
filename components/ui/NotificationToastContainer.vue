@@ -9,12 +9,12 @@
         <div
           v-for="toast in toasts"
           :key="toast.id"
-          class="pointer-events-auto w-full bg-slate-900/95 backdrop-blur-md border rounded-2xl p-4 shadow-2xl transition-all duration-300 flex items-start gap-3.5"
+          class="pointer-events-auto w-full bg-panel border rounded-panel p-4 shadow-2xl transition-all duration-300 flex items-start gap-3.5"
           :class="getToastBorderClass(toast.type)"
         >
           <!-- Icon -->
           <div
-            class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border"
+            class="w-8 h-8 rounded-control flex items-center justify-center shrink-0 border"
             :class="getToastIconClass(toast.type)"
           >
             <!-- Success Icon -->
@@ -33,7 +33,7 @@
             </svg>
 
             <!-- Loading Spinner -->
-            <svg v-else-if="toast.type === 'loading'" class="animate-spin w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24">
+            <svg v-else-if="toast.type === 'loading'" class="animate-spin w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -46,14 +46,14 @@
 
           <!-- Text Body -->
           <div class="flex-1 min-w-0 text-xs leading-relaxed">
-            <strong class="block font-bold text-slate-100 mb-0.5 tracking-tight truncate">{{ toast.title }}</strong>
-            <span class="text-slate-300 block break-words">{{ toast.message }}</span>
+            <strong class="block font-bold text-main mb-0.5 tracking-tight truncate">{{ toast.title }}</strong>
+            <span class="text-secondary-custom block break-words">{{ toast.message }}</span>
           </div>
 
           <!-- Close Button -->
           <button
             @click="dismiss(toast.id)"
-            class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+            class="text-muted-custom hover:text-main p-1 rounded-control hover:bg-surface-hover transition-colors shrink-0 cursor-pointer"
             aria-label="Fermer la notification"
           >
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,32 +74,32 @@ const { toasts, dismiss } = useNotify()
 function getToastBorderClass(type: ToastType): string {
   switch (type) {
     case 'success':
-      return 'border-emerald-500/30 shadow-emerald-950/20'
+      return 'border-emerald-500/30'
     case 'error':
-      return 'border-rose-500/30 shadow-rose-950/20'
+      return 'border-rose-500/30'
     case 'warning':
-      return 'border-amber-500/30 shadow-amber-950/20'
+      return 'border-amber-500/30'
     case 'loading':
-      return 'border-blue-500/30 shadow-blue-950/20'
+      return 'border-blue-500/30'
     case 'info':
     default:
-      return 'border-slate-700 shadow-slate-950/20'
+      return 'border-custom'
   }
 }
 
 function getToastIconClass(type: ToastType): string {
   switch (type) {
     case 'success':
-      return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+      return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
     case 'error':
-      return 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+      return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
     case 'warning':
-      return 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+      return 'bg-brand-soft text-brand-strong border-brand-soft'
     case 'loading':
-      return 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
     case 'info':
     default:
-      return 'bg-slate-800 text-slate-300 border-slate-700'
+      return 'bg-panel-raised text-main border-custom'
   }
 }
 </script>

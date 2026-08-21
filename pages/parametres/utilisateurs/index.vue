@@ -4,25 +4,25 @@
     <div class="flex items-center justify-between">
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <NuxtLink to="/parametres" class="text-xs text-slate-400 hover:text-amber-400 transition-colors">Paramètres</NuxtLink>
-          <span class="text-slate-600 text-xs">/</span>
-          <span class="text-xs text-amber-400 font-semibold">Utilisateurs</span>
+          <NuxtLink to="/parametres" class="text-xs text-muted-custom hover:text-brand transition-colors">Paramètres</NuxtLink>
+          <span class="text-muted-custom text-xs">/</span>
+          <span class="text-xs text-brand font-bold">Utilisateurs</span>
         </div>
-        <h1 class="text-2xl font-bold text-slate-100 tracking-tight">Gestion des Utilisateurs</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Gérez les membres de votre équipe, leurs rôles et la sécurité d'accès au CRM.</p>
+        <h1 class="text-2xl font-extrabold text-main tracking-tight">Gestion des Utilisateurs</h1>
+        <p class="text-xs text-muted-custom mt-0.5">Gérez les membres de votre équipe, leurs rôles et la sécurité d'accès au CRM.</p>
       </div>
 
       <div class="flex items-center gap-3">
         <NuxtLink
           to="/parametres"
-          class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition-colors"
+          class="px-4 py-2 bg-panel-raised hover:bg-surface-hover text-main font-bold rounded-pill text-xs border border-custom transition-colors"
         >
           Retour
         </NuxtLink>
 
         <button
           @click="showCreateModal = true"
-          class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 cursor-pointer"
+          class="px-4 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -33,17 +33,17 @@
     </div>
 
     <!-- Alert Messages -->
-    <div v-if="successMsg" class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs">
+    <div v-if="successMsg" class="p-4 rounded-card bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-bold">
       {{ successMsg }}
     </div>
-    <div v-if="errorMsg" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+    <div v-if="errorMsg" class="p-4 rounded-card bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-bold">
       {{ errorMsg }}
     </div>
 
     <!-- Users Table Card -->
-    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
-      <table class="w-full text-left text-xs text-slate-300">
-        <thead class="bg-slate-950/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+    <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
+      <table class="w-full text-left text-xs text-main">
+        <thead class="bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider border-b border-custom">
           <tr>
             <th class="px-4 py-3">Utilisateur</th>
             <th class="px-4 py-3">Rôle</th>
@@ -53,16 +53,16 @@
             <th class="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-800/60">
-          <tr v-for="u in users" :key="u.id" class="hover:bg-slate-800/40 transition-colors">
+        <tbody class="divide-y divide-custom">
+          <tr v-for="u in users" :key="u.id" class="hover:bg-surface-hover transition-colors">
             <td class="px-4 py-3">
-              <div class="font-bold text-slate-100">{{ u.name }}</div>
-              <div class="text-[11px] text-slate-400">{{ u.email }}</div>
+              <div class="font-bold text-main">{{ u.name }}</div>
+              <div class="text-[11px] text-muted-custom">{{ u.email }}</div>
             </td>
 
             <td class="px-4 py-3">
               <span
-                class="px-2.5 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1"
+                class="px-2.5 py-1 rounded-pill text-[10px] font-bold inline-flex items-center gap-1"
                 :class="getRoleBadgeClass(u.role)"
               >
                 {{ getRoleLabel(u.role) }}
@@ -71,21 +71,21 @@
 
             <td class="px-4 py-3">
               <span
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
-                :class="u.isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'"
+                class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold"
+                :class="u.isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'"
               >
                 {{ u.isActive ? 'Actif' : 'Inactif' }}
               </span>
-              <span v-if="u.mustChangePassword" class="ml-2 text-[10px] text-amber-400 font-semibold" title="Mot de passe temporaire à changer">
+              <span v-if="u.mustChangePassword" class="ml-2 text-[10px] text-amber-600 dark:text-amber-400 font-bold" title="Mot de passe temporaire à changer">
                 ⚠️ MDP Temp
               </span>
             </td>
 
-            <td class="px-4 py-3 font-mono text-[11px] text-slate-400">
+            <td class="px-4 py-3 font-mono text-[11px] text-muted-custom font-bold">
               {{ u._count?.sessions || 0 }} session(s)
             </td>
 
-            <td class="px-4 py-3 text-[11px] text-slate-400">
+            <td class="px-4 py-3 text-[11px] text-muted-custom font-mono">
               {{ formatDate(u.createdAt) }}
             </td>
 
@@ -95,7 +95,7 @@
                   v-if="u.isActive"
                   @click="toggleUserStatus(u)"
                   title="Désactiver l'utilisateur"
-                  class="px-2.5 py-1 bg-slate-800 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 rounded-lg text-[11px] font-semibold transition-colors"
+                  class="px-2.5 py-1 bg-panel-raised hover:bg-rose-500/20 hover:text-rose-600 text-main rounded-control text-[11px] font-bold transition-colors cursor-pointer border border-custom"
                 >
                   Désactiver
                 </button>
@@ -103,7 +103,7 @@
                   v-else
                   @click="toggleUserStatus(u)"
                   title="Réactiver l'utilisateur"
-                  class="px-2.5 py-1 bg-slate-800 hover:bg-emerald-500/20 hover:text-emerald-300 text-slate-300 rounded-lg text-[11px] font-semibold transition-colors"
+                  class="px-2.5 py-1 bg-panel-raised hover:bg-emerald-500/20 hover:text-emerald-600 text-main rounded-control text-[11px] font-bold transition-colors cursor-pointer border border-custom"
                 >
                   Réactiver
                 </button>
@@ -111,7 +111,7 @@
                 <button
                   @click="openResetModal(u)"
                   title="Réinitialiser le mot de passe"
-                  class="px-2.5 py-1 bg-slate-800 hover:bg-amber-500/20 hover:text-amber-300 text-slate-300 rounded-lg text-[11px] font-semibold transition-colors"
+                  class="px-2.5 py-1 bg-panel-raised hover:bg-[#b49c80]/20 hover:text-[#987d61] text-main rounded-control text-[11px] font-bold transition-colors cursor-pointer border border-custom"
                 >
                   Reset MDP
                 </button>
@@ -119,7 +119,7 @@
                 <button
                   @click="handleRevokeSessions(u)"
                   title="Révoquer les sessions actives"
-                  class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 rounded-lg text-[11px] font-semibold transition-colors"
+                  class="px-2 py-1 bg-panel-raised hover:bg-surface-hover text-muted-custom hover:text-main rounded-control text-[11px] font-bold transition-colors cursor-pointer border border-custom"
                 >
                   Révoquer
                 </button>
@@ -132,22 +132,22 @@
 
     <!-- Create User Modal -->
     <div v-if="showCreateModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
-        <h2 class="text-lg font-bold text-slate-100">Créer un nouvel utilisateur</h2>
+      <div class="w-full max-w-md bg-panel border border-custom rounded-panel p-6 shadow-2xl space-y-4">
+        <h2 class="text-base font-bold text-main">Créer un nouvel utilisateur</h2>
         <form @submit.prevent="handleCreateUser" class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Nom complet *</label>
-            <input v-model="createForm.name" type="text" required placeholder="ex: Karim Benali" class="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40" />
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Nom complet *</label>
+            <input v-model="createForm.name" type="text" required placeholder="ex: Karim Benali" class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand" />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Adresse Email *</label>
-            <input v-model="createForm.email" type="email" required placeholder="karim@atlasbites.ma" class="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40" />
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Adresse Email *</label>
+            <input v-model="createForm.email" type="email" required placeholder="karim@atlasbites.ma" class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand" />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Rôle *</label>
-            <select v-model="createForm.role" required class="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40">
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Rôle *</label>
+            <select v-model="createForm.role" required class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand">
               <option value="COMMERCIAL">Commercial</option>
               <option value="ACCOUNTANT">Comptable</option>
               <option value="SUPER_ADMIN">Super Administrateur</option>
@@ -155,18 +155,18 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Mot de passe temporaire *</label>
-            <input v-model="createForm.password" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40" />
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Mot de passe temporaire *</label>
+            <input v-model="createForm.password" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand" />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Confirmer le mot de passe *</label>
-            <input v-model="createForm.confirmPassword" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40" />
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Confirmer le mot de passe *</label>
+            <input v-model="createForm.confirmPassword" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand" />
           </div>
 
-          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-            <button type="button" @click="showCreateModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Annuler</button>
-            <button type="submit" :disabled="modalLoading" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20">Créer l'utilisateur</button>
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-custom">
+            <button type="button" @click="showCreateModal = false" class="px-4 py-2 bg-panel-raised hover:bg-surface-hover text-main rounded-control text-xs font-semibold cursor-pointer border border-custom">Annuler</button>
+            <button type="submit" :disabled="modalLoading" class="px-5 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-control text-xs shadow-sm cursor-pointer">Créer l'utilisateur</button>
           </div>
         </form>
       </div>
@@ -174,24 +174,24 @@
 
     <!-- Admin Reset Password Modal -->
     <div v-if="showResetModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
-        <h2 class="text-lg font-bold text-slate-100">Réinitialiser le mot de passe</h2>
-        <p class="text-xs text-slate-400">Pour {{ selectedUser?.name }} ({{ selectedUser?.email }}). L'utilisateur devra obligatoirement le changer lors de sa prochaine connexion.</p>
+      <div class="w-full max-w-md bg-panel border border-custom rounded-panel p-6 shadow-2xl space-y-4">
+        <h2 class="text-base font-bold text-main">Réinitialiser le mot de passe</h2>
+        <p class="text-xs text-muted-custom">Pour {{ selectedUser?.name }} ({{ selectedUser?.email }}). L'utilisateur devra obligatoirement le changer lors de sa prochaine connexion.</p>
 
         <form @submit.prevent="handleAdminReset" class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Nouveau mot de passe temporaire *</label>
-            <input v-model="resetForm.newPassword" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40" />
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Nouveau mot de passe temporaire *</label>
+            <input v-model="resetForm.newPassword" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand" />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Confirmer le nouveau mot de passe *</label>
-            <input v-model="resetForm.confirmPassword" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40" />
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Confirmer le nouveau mot de passe *</label>
+            <input v-model="resetForm.confirmPassword" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand" />
           </div>
 
-          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-            <button type="button" @click="showResetModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Annuler</button>
-            <button type="submit" :disabled="modalLoading" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20">Réinitialiser le MDP</button>
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-custom">
+            <button type="button" @click="showResetModal = false" class="px-4 py-2 bg-panel-raised hover:bg-surface-hover text-main rounded-control text-xs font-semibold cursor-pointer border border-custom">Annuler</button>
+            <button type="submit" :disabled="modalLoading" class="px-5 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-control text-xs shadow-sm cursor-pointer">Réinitialiser le MDP</button>
           </div>
         </form>
       </div>
@@ -200,6 +200,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue'
+
 definePageMeta({
   middleware: 'auth',
   layout: 'default'
@@ -242,9 +244,9 @@ const fetchUsersList = async () => {
 onMounted(fetchUsersList)
 
 const getRoleBadgeClass = (role: string) => {
-  if (role === 'SUPER_ADMIN') return 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-  if (role === 'ACCOUNTANT') return 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-  return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+  if (role === 'SUPER_ADMIN') return 'bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0] border border-[#b49c80]/30'
+  if (role === 'ACCOUNTANT') return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+  return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
 }
 
 const getRoleLabel = (role: string) => {

@@ -3,13 +3,13 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-slate-100 tracking-tight">Documents RH</h1>
-        <p class="text-xs text-slate-400 mt-1">Gérez les documents administratifs sécurisés des employés.</p>
+        <h1 class="text-2xl font-extrabold text-main tracking-tight">Documents RH</h1>
+        <p class="text-xs text-muted-custom mt-1">Gérez les documents administratifs sécurisés des employés.</p>
       </div>
 
       <button
         @click="openUploadModal"
-        class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-lg shadow-amber-500/10 flex items-center gap-2 self-start sm:self-auto"
+        class="px-4 py-2.5 bg-brand hover:opacity-90 text-slate-950 text-xs font-bold rounded-pill transition-all shadow-sm flex items-center gap-2 self-start sm:self-auto cursor-pointer"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -19,19 +19,19 @@
     </div>
 
     <!-- Filters & Search Toolbar -->
-    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-4">
+    <div class="bg-panel border border-custom rounded-panel p-4 space-y-4 shadow-soft">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <!-- Search Input -->
         <div>
-          <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Recherche par titre</label>
+          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche par titre</label>
           <div class="relative">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="CIN, Contrat, CNSS, titre..."
-              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 pl-9 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+              class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 pl-9 text-xs text-main placeholder-muted-custom focus:outline-none focus:border-brand transition-colors"
             />
-            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-muted-custom absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -39,10 +39,10 @@
 
         <!-- Category Filter -->
         <div>
-          <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Catégorie</label>
+          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Catégorie</label>
           <select
             v-model="categoryFilter"
-            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500 transition-colors"
+            class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 text-xs text-main focus:outline-none focus:border-brand transition-colors"
           >
             <option value="">Toutes les catégories</option>
             <option value="CIN">CIN / Pièce d'identité</option>
@@ -61,10 +61,10 @@
 
         <!-- Expiration Filter -->
         <div>
-          <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Expiration sous</label>
+          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Expiration sous</label>
           <select
             v-model="expiringFilter"
-            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500 transition-colors"
+            class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 text-xs text-main focus:outline-none focus:border-brand transition-colors"
           >
             <option value="">Toutes les expirations</option>
             <option value="30">30 jours</option>
@@ -76,25 +76,25 @@
     </div>
 
     <!-- Documents Table -->
-    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
       <div v-if="loading" class="flex justify-center py-16">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
       </div>
 
       <div v-else-if="documents.length === 0" class="text-center py-16 space-y-3">
-        <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center mx-auto">
+        <div class="w-12 h-12 rounded-full bg-panel-raised text-muted-custom flex items-center justify-center mx-auto border border-custom">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
         </div>
-        <p class="text-xs font-semibold text-slate-400">Aucun document RH trouvé</p>
-        <p class="text-[11px] text-slate-500 max-w-sm mx-auto">Modifiez les filtres de recherche ou ajoutez un nouveau document administratif.</p>
+        <p class="text-xs font-bold text-main">Aucun document RH trouvé</p>
+        <p class="text-[11px] text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou ajoutez un nouveau document administratif.</p>
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-slate-800 bg-slate-950/40 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <tr class="border-b border-custom bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider">
               <th class="py-3.5 px-4">Employé</th>
               <th class="py-3.5 px-4">Titre du document</th>
               <th class="py-3.5 px-4">Catégorie</th>
@@ -104,47 +104,47 @@
               <th class="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800/60 text-xs">
-            <tr v-for="d in documents" :key="d.id" class="hover:bg-slate-800/30 transition-colors">
+          <tbody class="divide-y divide-custom text-xs">
+            <tr v-for="d in documents" :key="d.id" class="hover:bg-surface-hover transition-colors">
               <!-- Employé -->
               <td class="py-3 px-4">
-                <NuxtLink :to="`/rh/employes/${d.employeeId}`" class="font-bold text-slate-200 hover:text-amber-400 block">
+                <NuxtLink :to="`/rh/employes/${d.employeeId}`" class="font-bold text-main hover:text-brand block">
                   {{ d.employee?.displayName || '-' }}
                 </NuxtLink>
-                <span class="text-[10px] font-mono text-slate-500 block">{{ d.employee?.employeeNumber }}</span>
+                <span class="text-[10px] font-mono text-muted-custom block">{{ d.employee?.employeeNumber }}</span>
               </td>
 
               <!-- Titre -->
-              <td class="py-3 px-4 font-medium text-slate-200">
+              <td class="py-3 px-4 font-bold text-main">
                 {{ d.title }}
               </td>
 
               <!-- Catégorie -->
               <td class="py-3 px-4">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-block" :class="getDocumentCategoryBadgeClass(d.category)">
+                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold inline-block" :class="getDocumentCategoryBadgeClass(d.category)">
                   {{ formatDocumentCategory(d.category) }}
                 </span>
               </td>
 
               <!-- Version -->
               <td class="py-3 px-4 font-mono">
-                <span v-if="d.currentVersion" class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded-md text-[10px] font-bold border border-slate-700">
+                <span v-if="d.currentVersion" class="px-2 py-0.5 bg-panel-raised text-main rounded-control text-[10px] font-bold border border-custom">
                   v{{ d.currentVersion.versionNumber }}
                 </span>
-                <span v-else class="text-slate-500 italic text-[11px]">Aucun fichier</span>
+                <span v-else class="text-muted-custom italic text-[11px]">Aucun fichier</span>
               </td>
 
               <!-- Expiration -->
-              <td class="py-3 px-4 text-slate-300">
+              <td class="py-3 px-4 text-secondary-custom font-mono">
                 {{ formatHrDate(d.expirationDate) }}
               </td>
 
               <!-- Confidentialité -->
               <td class="py-3 px-4">
-                <span v-if="d.isConfidential" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span v-if="d.isConfidential" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30">
                   Confidentiel
                 </span>
-                <span v-else class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                <span v-else class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-panel-raised text-muted-custom border border-custom">
                   Public interne
                 </span>
               </td>
@@ -156,7 +156,7 @@
                     v-if="d.currentVersion"
                     :href="`/api/rh/documents/versions/${d.currentVersion.id}/download`"
                     target="_blank"
-                    class="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-amber-400 rounded-lg transition-colors flex items-center gap-1 font-bold text-xs"
+                    class="p-1.5 hover:bg-panel-raised text-muted-custom hover:text-brand rounded-control transition-colors flex items-center gap-1 font-bold text-xs"
                     title="Visionner le document"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,7 +169,7 @@
                   <button
                     v-else
                     disabled
-                    class="p-1.5 text-slate-600 cursor-not-allowed flex items-center gap-1 font-semibold text-xs opacity-50"
+                    class="p-1.5 text-muted-custom cursor-not-allowed flex items-center gap-1 font-semibold text-xs opacity-50"
                     title="Aucune version téléversée"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

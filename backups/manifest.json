@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-08-15T22:18:17.249Z",
+  "timestamp": "2026-08-20T11:11:31.992Z",
   "appVersion": "1.0.0",
-  "dbDumpFilename": "atlas-bites-db-2026-08-15T22-18-16.dump",
-  "assetArchiveFilename": "atlas-bites-assets-2026-08-15T22-18-16.tar.gz",
-  "dbDumpSize": 574185,
-  "assetArchiveSize": 1255,
-  "dbDumpSha256": "e37794be5f47a16d6cc797b9f6bbacf60945d38047fb483037ac126e35dc9e2e",
-  "assetArchiveSha256": "a74e27642103ba783c68ed57e3fab46690ed26fbfacff7cdd5b399d5b6c641af",
+  "dbDumpFilename": "atlas-bites-db-2026-08-20T11-11-30.dump",
+  "assetArchiveFilename": "atlas-bites-assets-2026-08-20T11-11-30.tar.gz",
+  "dbDumpSize": 2074590,
+  "assetArchiveSize": 20978,
+  "dbDumpSha256": "15142fbf92f95d49f7b1206f45a217b8de08108a8dd106ecf434790efadb16bd",
+  "assetArchiveSha256": "0b5b2aa418022e03aca854980d477a43b2c2e4798c0aa83cff1a382cdb84e659",
   "postgresVersion": "PostgreSQL 16",
   "success": true
 }

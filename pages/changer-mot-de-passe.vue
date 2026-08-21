@@ -1,69 +1,69 @@
 <template>
-  <div class="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
+  <div class="min-h-full flex items-center justify-center p-4 py-12">
+    <div class="w-full max-w-md bg-panel border border-custom rounded-panel p-6 shadow-soft">
       <!-- Icon & Header -->
       <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto mb-3">
+        <div class="w-12 h-12 rounded-panel bg-[#b49c80]/15 border border-[#b49c80]/30 text-[#987d61] dark:text-[#d0baa0] flex items-center justify-center mx-auto mb-3">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
-        <h1 class="text-xl font-bold text-slate-100">Modification du mot de passe</h1>
-        <p v-if="user?.mustChangePassword" class="text-xs text-amber-400 font-semibold mt-1">
+        <h1 class="text-xl font-extrabold text-main tracking-tight">Modification du mot de passe</h1>
+        <p v-if="user?.mustChangePassword" class="text-xs text-amber-600 dark:text-amber-400 font-bold mt-1">
           Vous devez modifier votre mot de passe temporaire pour continuer.
         </p>
-        <p v-else class="text-xs text-slate-400 mt-1">
+        <p v-else class="text-xs text-muted-custom mt-1">
           Définissez un nouveau mot de passe sécurisé pour votre compte.
         </p>
       </div>
 
       <!-- Error alert -->
-      <div v-if="errorMessage" class="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+      <div v-if="errorMessage" class="mb-4 p-3 rounded-card bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-bold">
         {{ errorMessage }}
       </div>
 
       <!-- Form -->
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Mot de passe actuel</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Mot de passe actuel</label>
           <input
             v-model="form.currentPassword"
             type="password"
             required
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-3.5 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Nouveau mot de passe</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Nouveau mot de passe</label>
           <input
             v-model="form.newPassword"
             type="password"
             required
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-3.5 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           />
-          <p class="text-[11px] text-slate-500 mt-1">
+          <p class="text-[11px] text-muted-custom mt-1">
             Au moins 12 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
           </p>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Confirmer le nouveau mot de passe</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Confirmer le nouveau mot de passe</label>
           <input
             v-model="form.confirmPassword"
             type="password"
             required
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-3.5 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           />
         </div>
 
         <button
           type="submit"
           :disabled="loading"
-          class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-6"
+          class="w-full py-3 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-6"
         >
           <svg v-if="loading" class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -77,9 +77,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive } from 'vue'
+
 definePageMeta({
   middleware: 'auth',
-  layout: false
+  layout: 'default'
 })
 
 const { user, fetchUser } = useAuth()

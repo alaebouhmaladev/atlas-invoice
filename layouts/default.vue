@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-900 flex">
+  <div class="min-h-screen bg-canvas text-main font-sans antialiased flex flex-col justify-center p-0 sm:p-3 md:p-5 transition-colors">
     <!-- Global Toast Container -->
     <NotificationToastContainer />
 
@@ -10,74 +10,81 @@
       </main>
     </template>
 
-    <!-- Authenticated CRM layout -->
+    <!-- Authenticated 4-Layer Shell Architecture -->
     <template v-else>
-      <AppSidebar
-        :mobile-open="mobileSidebarOpen"
-        @close-mobile="mobileSidebarOpen = false"
-      />
+      <div class="w-full max-w-[1920px] mx-auto min-h-[calc(100vh-2.5rem)] bg-shell border border-custom rounded-shell shadow-soft flex overflow-hidden transition-colors relative">
+        <!-- Mobile Sidebar Drawer Overlay -->
+        <div
+          v-if="mobileSidebarOpen"
+          @click="mobileSidebarOpen = false"
+          class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+        ></div>
 
-      <div class="flex-1 flex flex-col min-w-0 lg:pl-64">
-        <AppHeader
-          :title="pageTitle"
-          @toggle-mobile="mobileSidebarOpen = !mobileSidebarOpen"
+        <!-- Layer 1: Compact Primary Icon Rail (Desktop) -->
+        <AppIconRail
+          :selected-module="activeModule"
+          @select-module="handleSelectModule"
+          class="hidden lg:flex"
         />
 
-        <main class="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
-          <slot />
-        </main>
+        <!-- Layer 2: Contextual Sub-Navigation Sidebar (Desktop & Mobile Drawer) -->
+        <AppContextSidebar
+          :selected-module="activeModule"
+          class="hidden lg:flex"
+          :class="mobileSidebarOpen ? '!flex fixed left-0 top-0 bottom-0 z-50 w-64 shadow-2xl !bg-sidebar' : ''"
+        />
+
+        <!-- Layer 3 & 4: Workspace Column (Top Bar + Main Workspace Surface) -->
+        <div class="flex-1 flex flex-col min-w-0 bg-shell">
+          <!-- Layer 3: Shell Top Header Bar -->
+          <AppTopBar
+            @toggle-mobile="mobileSidebarOpen = !mobileSidebarOpen"
+          />
+
+          <!-- Layer 4: Large Rounded Main Workspace Surface -->
+          <main class="flex-1 p-4 sm:p-6 md:p-8 m-3 sm:m-4 md:m-5 bg-workspace border border-custom rounded-workspace shadow-sm overflow-y-auto transition-colors">
+            <slot />
+          </main>
+        </div>
       </div>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import AppSidebar from '~/components/layout/AppSidebar.vue'
-import AppHeader from '~/components/layout/AppHeader.vue'
+import { ref, computed, watch } from 'vue'
+import { useRoute, useHead, navigateTo } from '#imports'
+import AppIconRail from '~/components/layout/AppIconRail.vue'
+import AppContextSidebar from '~/components/layout/AppContextSidebar.vue'
+import AppTopBar from '~/components/layout/AppTopBar.vue'
 import NotificationToastContainer from '~/components/ui/NotificationToastContainer.vue'
 
 const route = useRoute()
 const mobileSidebarOpen = ref(false)
 
-const isLoginPage = computed(() => route.path === '/login')
+const isLoginPage = computed(() => route.path === '/login' || route.path === '/connexion')
 
-const pageTitle = computed(() => {
-  if (route.path === '/') return 'Tableau de bord'
-  if (route.path.startsWith('/activites')) return 'Activités'
-  if (route.path.startsWith('/clients')) {
-    if (route.path === '/clients/new') return 'Nouveau client'
-    if (route.path.endsWith('/edit')) return 'Modifier le client'
-    if (route.params.id) return 'Fiche client'
-    return 'Clients'
-  }
-  if (route.path.startsWith('/devis')) {
-    if (route.path === '/devis/new') return 'Nouveau devis'
-    if (route.path.endsWith('/edit')) return 'Modifier le devis'
-    if (route.params.id) return 'Fiche devis'
-    return 'Devis'
-  }
-  if (route.path.startsWith('/factures')) {
-    if (route.path === '/factures/new') return 'Nouvelle facture'
-    if (route.path.endsWith('/edit')) return 'Modifier la facture'
-    if (route.params.id) return 'Fiche facture'
-    return 'Factures'
-  }
-  if (route.path.startsWith('/rh')) {
-    if (route.path === '/rh/employes/nouveau') return 'Nouveau collaborateur'
-    if (route.path.endsWith('/modifier')) return 'Modifier la fiche employé'
-    if (route.path.startsWith('/rh/employes/')) return 'Fiche employé'
-    if (route.path === '/rh/employes') return 'Employés'
-    if (route.path.startsWith('/rh/organisation')) return 'Organisation'
-    if (route.path === '/rh/contrats/nouveau') return 'Nouveau contrat'
-    if (route.path.startsWith('/rh/contrats/')) return 'Détail du contrat'
-    if (route.path.startsWith('/rh/contrats')) return 'Contrats'
-    if (route.path === '/rh/documents/nouveau') return 'Nouveau document RH'
-    if (route.path.startsWith('/rh/documents')) return 'Documents RH'
-    return 'Vue d’ensemble RH'
-  }
-  if (route.path.startsWith('/parametres')) return 'Paramètres'
-  return 'Atlas CRM'
+// Active Module Detection based on current route path
+const activeModule = computed(() => {
+  const p = route.path
+  if (p.startsWith('/clients')) return 'crm'
+  if (p.startsWith('/devis') || p.startsWith('/factures')) return 'facturation'
+  if (p.startsWith('/rh')) return 'rh'
+  if (p.startsWith('/utilisateurs') || p.startsWith('/parametres')) return 'admin'
+  return 'pilotage'
 })
+
+function handleSelectModule(moduleId: string) {
+  const defaultRoutes: Record<string, string> = {
+    pilotage: '/',
+    crm: '/clients',
+    facturation: '/devis',
+    rh: '/rh',
+    admin: '/parametres'
+  }
+  const target = defaultRoutes[moduleId] || '/'
+  navigateTo(target)
+}
 
 useHead({
   titleTemplate: (chunk) => {

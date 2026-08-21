@@ -3,14 +3,14 @@
     <!-- Breadcrumb & Header -->
     <div class="flex items-center justify-between">
       <div>
-        <NuxtLink to="/devis" class="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold mb-1">
+        <NuxtLink to="/devis" class="inline-flex items-center gap-1 text-xs text-[#987d61] dark:text-[#d0baa0] hover:text-brand font-bold mb-1">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
           <span>Retour aux devis</span>
         </NuxtLink>
-        <h2 class="text-2xl font-bold text-slate-100 tracking-tight">Nouveau devis</h2>
-        <p class="text-xs text-slate-400 mt-1">Créez un nouveau devis de prestation traiteur pour un client.</p>
+        <h2 class="text-2xl font-bold text-main tracking-tight">Nouveau devis</h2>
+        <p class="text-xs text-muted-custom mt-1">Créez un nouveau devis de prestation traiteur pour un client.</p>
       </div>
     </div>
 

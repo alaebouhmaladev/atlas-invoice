@@ -4,29 +4,29 @@
     <div
       v-if="mobileOpen"
       @click="$emit('close-mobile')"
-      class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden"
+      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden"
     ></div>
 
     <!-- Sidebar Container -->
     <aside
-      class="fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0"
+      class="fixed top-0 bottom-0 left-0 z-50 w-64 bg-sidebar border-r border-custom flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0"
       :class="mobileOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <!-- Brand Logo Header -->
-      <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
-        <NuxtLink to="/" class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-bold flex items-center justify-center shadow-md shadow-amber-500/20 text-base">
-            AC
+      <div class="h-16 px-5 flex items-center justify-between border-b border-custom">
+        <NuxtLink to="/" class="flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#987d61] to-[#b49c80] text-slate-950 font-extrabold flex items-center justify-center shadow-sm text-sm tracking-tighter">
+            AB
           </div>
           <div>
-            <span class="font-bold text-slate-100 tracking-tight text-base block leading-tight">Atlas CRM</span>
-            <span class="text-[9px] text-amber-400 font-semibold uppercase tracking-wider block">PLATEFORME DE GESTION</span>
+            <span class="font-bold text-main tracking-tight text-base block leading-tight group-hover:text-[#b49c80] transition-colors">Atlas CRM</span>
+            <span class="text-[9px] text-muted-custom font-semibold uppercase tracking-wider block">Atlas Bites SARL</span>
           </div>
         </NuxtLink>
 
         <button
           @click="$emit('close-mobile')"
-          class="lg:hidden text-slate-400 hover:text-white p-1"
+          class="lg:hidden text-muted-custom hover:text-main p-1.5 rounded-lg transition-colors"
           aria-label="Fermer le menu"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,9 +36,9 @@
       </div>
 
       <!-- Navigation Groups -->
-      <nav class="flex-1 px-4 py-4 space-y-6 overflow-y-auto">
+      <nav class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
         <div v-for="group in filteredNavGroups" :key="group.title" class="space-y-1">
-          <div class="px-3.5 text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">
+          <div class="px-3 text-[10px] font-semibold text-muted-custom uppercase tracking-widest mb-1.5">
             {{ group.title }}
           </div>
 
@@ -46,8 +46,8 @@
             v-for="item in group.items"
             :key="item.to"
             :to="item.to"
-            class="flex items-center justify-between px-3.5 py-2 rounded-xl text-sm font-medium transition-colors"
-            :class="isItemActive(item.to) ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'"
+            class="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150"
+            :class="isItemActive(item.to) ? 'bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0] font-semibold border-l-2 border-[#b49c80]' : 'text-secondary-custom hover:bg-surface-hover hover:text-main'"
           >
             <div class="flex items-center gap-3">
               <component :is="item.icon" class="w-5 h-5" />
@@ -58,7 +58,7 @@
       </nav>
 
       <!-- Footer Info -->
-      <div class="p-4 border-t border-slate-800/80 text-xs text-slate-500 text-center">
+      <div class="p-4 border-t border-custom text-xs text-muted-custom text-center">
         {{ identity.copyright }}
       </div>
     </aside>
@@ -66,8 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, computed } from 'vue'
+import { useRoute } from '#imports'
 import { useAppIdentity } from '~/composables/useAppIdentity'
+import { useAuth } from '~/composables/useAuth'
 
 defineProps<{
   mobileOpen: boolean
@@ -86,6 +88,10 @@ const IconDashboard = () => h('svg', { class: 'w-5 h-5', fill: 'none', viewBox: 
 
 const IconActivities = () => h('svg', { class: 'w-5 h-5', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' })
+])
+
+const IconNotifications = () => h('svg', { class: 'w-5 h-5', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
+  h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' })
 ])
 
 const IconClients = () => h('svg', { class: 'w-5 h-5', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' }, [
@@ -138,7 +144,8 @@ const navGroups = computed<NavGroup[]>(() => [
     title: 'PILOTAGE',
     items: [
       { label: 'Tableau de bord', to: '/', icon: IconDashboard },
-      { label: 'Activités', to: '/activites', icon: IconActivities, roles: ['SUPER_ADMIN'] }
+      { label: 'Activités', to: '/activites', icon: IconActivities, roles: ['SUPER_ADMIN'] },
+      { label: 'Notifications', to: '/notifications', icon: IconNotifications }
     ]
   },
   {
@@ -162,13 +169,18 @@ const navGroups = computed<NavGroup[]>(() => [
       { label: 'Employés', to: '/rh/employes', icon: IconEmployees, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
       { label: 'Organisation', to: '/rh/organisation', icon: IconHrOverview, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
       { label: 'Contrats', to: '/rh/contrats', icon: IconQuotes, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
-      { label: 'Documents', to: '/rh/documents', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] }
+      { label: 'Documents', to: '/rh/documents', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+      { label: 'Planning', to: '/rh/planning', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+      { label: 'Pointage', to: '/rh/pointage', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+      { label: 'Présences', to: '/rh/presences', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+      { label: 'Anomalies', to: '/rh/pointage/anomalies', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
+      { label: 'Corrections', to: '/rh/pointage/corrections', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER'] }
     ]
   },
   {
     title: 'ADMINISTRATION',
     items: [
-      { label: 'Utilisateurs', to: '/parametres/utilisateurs', icon: IconUsers, roles: ['SUPER_ADMIN'] },
+      { label: 'Utilisateurs', to: '/utilisateurs', icon: IconUsers, roles: ['SUPER_ADMIN'] },
       { label: 'Paramètres', to: '/parametres', icon: IconSettings, roles: ['SUPER_ADMIN'] }
     ]
   }

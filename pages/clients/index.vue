@@ -3,13 +3,13 @@
     <!-- Page Header & Action Button -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-slate-100 tracking-tight">Clients</h2>
-        <p class="text-xs text-slate-400 mt-1">Gérez le répertoire des clients entreprises et particuliers d'Atlas Bites SARL.</p>
+        <h2 class="text-2xl font-extrabold text-main tracking-tight">Clients</h2>
+        <p class="text-xs text-muted-custom mt-1">Gérez le répertoire des clients entreprises et particuliers d'Atlas Bites SARL.</p>
       </div>
 
       <NuxtLink
         to="/clients/new"
-        class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
+        class="px-4 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -30,28 +30,28 @@
     <!-- Error Display -->
     <div
       v-if="error"
-      class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3"
+      class="p-4 rounded-card bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center justify-between gap-3"
       role="alert"
     >
       <div class="flex items-center gap-3">
-        <svg class="w-5 h-5 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span>{{ error }}</span>
       </div>
       <button
         @click="loadClients"
-        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 rounded-lg font-semibold text-[11px] transition-colors"
+        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-600 dark:text-rose-300 rounded-control font-semibold text-[11px] transition-colors"
       >
         Réessayer
       </button>
     </div>
 
     <!-- Main Table Container -->
-    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+    <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
       <!-- Loading State Overlay -->
-      <div v-if="loading && clients.length === 0" class="p-12 text-center text-slate-400">
-        <svg class="animate-spin h-8 w-8 text-amber-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+      <div v-if="loading && clients.length === 0" class="p-12 text-center text-muted-custom">
+        <svg class="animate-spin h-8 w-8 text-[#b49c80] mx-auto mb-3" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -60,19 +60,19 @@
 
       <!-- Empty State -->
       <div v-else-if="!loading && clients.length === 0" class="p-12 text-center space-y-3">
-        <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-500 flex items-center justify-center mx-auto">
+        <div class="w-12 h-12 rounded-card bg-panel-raised text-muted-custom flex items-center justify-center mx-auto">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         </div>
-        <h3 class="text-sm font-bold text-slate-200">Aucun client trouvé</h3>
-        <p class="text-xs text-slate-400 max-w-sm mx-auto">
+        <h3 class="text-sm font-bold text-main">Aucun client trouvé</h3>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">
           {{ queryFilters.search || queryFilters.type || queryFilters.city ? 'Aucun client ne correspond aux critères de recherche.' : 'Aucun client enregistré pour le moment.' }}
         </p>
         <div class="pt-2">
           <NuxtLink
             to="/clients/new"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-colors"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs transition-colors"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -86,7 +86,7 @@
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider font-semibold">
+            <tr class="border-b border-custom bg-panel-raised text-muted-custom uppercase tracking-wider font-bold">
               <th class="py-3.5 px-4">Client</th>
               <th class="py-3.5 px-4">Type</th>
               <th class="py-3.5 px-4">ICE / IF</th>
@@ -97,19 +97,19 @@
               <th class="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800/60">
+          <tbody class="divide-y divide-custom">
             <tr
               v-for="client in clients"
               :key="client.id"
-              class="hover:bg-slate-800/30 transition-colors"
-              :class="{ 'opacity-60 bg-slate-950/40': client.isArchived }"
+              class="hover:bg-surface-hover transition-colors"
+              :class="{ 'opacity-60 bg-panel-raised': client.isArchived }"
             >
               <!-- Name & Company -->
               <td class="py-3.5 px-4">
-                <NuxtLink :to="`/clients/${client.id}`" class="font-bold text-slate-100 hover:text-amber-400 transition-colors block">
+                <NuxtLink :to="`/clients/${client.id}`" class="font-bold text-main hover:text-[#b49c80] transition-colors block">
                   {{ client.displayName }}
                 </NuxtLink>
-                <span v-if="client.type === 'COMPANY' && client.contactName" class="text-[11px] text-slate-400 block truncate">
+                <span v-if="client.type === 'COMPANY' && client.contactName" class="text-[11px] text-muted-custom block truncate">
                   Contact: {{ client.contactName }}
                 </span>
               </td>
@@ -120,28 +120,28 @@
               </td>
 
               <!-- ICE / TaxId -->
-              <td class="py-3.5 px-4 font-mono text-slate-300">
+              <td class="py-3.5 px-4 font-mono text-secondary-custom">
                 <div v-if="client.ice" class="text-xs">ICE: {{ client.ice }}</div>
-                <div v-if="client.taxId" class="text-[11px] text-slate-400">IF: {{ client.taxId }}</div>
-                <span v-if="!client.ice && !client.taxId" class="text-slate-500">—</span>
+                <div v-if="client.taxId" class="text-[11px] text-muted-custom">IF: {{ client.taxId }}</div>
+                <span v-if="!client.ice && !client.taxId" class="text-muted-custom">—</span>
               </td>
 
               <!-- Phone & Email -->
-              <td class="py-3.5 px-4 text-slate-300">
+              <td class="py-3.5 px-4 text-secondary-custom">
                 <div v-if="client.phone" class="flex items-center gap-1">
-                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-3.5 h-3.5 text-muted-custom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h32a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
                   </svg>
                   <span>{{ client.phone }}</span>
                 </div>
-                <div v-if="client.email" class="text-[11px] text-slate-400 truncate max-w-[160px]">
+                <div v-if="client.email" class="text-[11px] text-muted-custom truncate max-w-[160px]">
                   {{ client.email }}
                 </div>
-                <span v-if="!client.phone && !client.email" class="text-slate-500">—</span>
+                <span v-if="!client.phone && !client.email" class="text-muted-custom">—</span>
               </td>
 
               <!-- City -->
-              <td class="py-3.5 px-4 text-slate-300">
+              <td class="py-3.5 px-4 text-secondary-custom">
                 {{ client.city || '—' }}
               </td>
 
@@ -151,7 +151,7 @@
               </td>
 
               <!-- Created At -->
-              <td class="py-3.5 px-4 text-slate-400 text-[11px]">
+              <td class="py-3.5 px-4 text-muted-custom text-[11px]">
                 {{ formatDate(client.createdAt) }}
               </td>
 
@@ -159,18 +159,18 @@
               <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
                 <NuxtLink
                   :to="`/clients/${client.id}`"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-main hover:bg-surface-hover rounded-control transition-colors"
                   title="Voir la fiche"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 01-6 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 </NuxtLink>
 
                 <NuxtLink
                   :to="`/clients/${client.id}/edit`"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-colors"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-[#b49c80] hover:bg-surface-hover rounded-control transition-colors"
                   title="Modifier"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -182,13 +182,13 @@
                 <button
                   v-if="canArchiveRestore"
                   @click="openArchiveModal(client)"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-amber-500 hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
                   :title="client.isArchived ? 'Restaurer' : 'Archiver'"
                 >
                   <svg v-if="!client.isArchived" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V8zm14 0l-4-4H9L5 8" />
                   </svg>
-                  <svg v-else class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg v-else class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                 </button>
@@ -197,7 +197,7 @@
                 <button
                   v-if="canDelete"
                   @click="openDeleteModal(client)"
-                  class="p-1.5 inline-flex items-center text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-rose-500 hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
                   title="Supprimer définitivement"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,7 +211,7 @@
       </div>
 
       <!-- Pagination Container -->
-      <div v-if="clients.length > 0" class="p-4 bg-slate-950/40">
+      <div v-if="clients.length > 0" class="p-4 bg-panel-raised border-t border-custom">
         <Pagination
           :page="pagination.page"
           :page-size="pagination.pageSize"
@@ -247,6 +247,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
+import { definePageMeta, useRoute, useRouter, useAsyncData, useAuth, useClients } from '#imports'
 import ClientFilters from '~/components/clients/ClientFilters.vue'
 import ClientTypeBadge from '~/components/clients/ClientTypeBadge.vue'
 import ClientStatusBadge from '~/components/clients/ClientStatusBadge.vue'
@@ -304,7 +306,7 @@ const confirmModalTitle = computed(() => {
 const confirmModalMessage = computed(() => {
   if (!targetClient.value) return ''
   if (modalActionType.value === 'delete') {
-    return `Êtes-vous sûr de vouloir supprimer définitivement "${targetClient.value.displayName}" ? Cette action est irréversible et supprimera l'ensemble de ses informations.`
+    return `Êtes-vous sûr de vouloir supprimer définitivement "${targetClient.value.displayName}" ? Cette action est irréversible.`
   }
   if (modalActionType.value === 'archive') {
     return `Voulez-vous archiver le client "${targetClient.value.displayName}" ? Il sera masqué de la liste des clients actifs.`

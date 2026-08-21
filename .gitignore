@@ -38,4 +38,4 @@ server/uploads/*
 
 # Local database and asset backup artifacts
 backups/
-tmp/test_hr_backups/
+tmp/

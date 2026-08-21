@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
-    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
-      <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-        <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <div class="bg-panel border border-custom rounded-panel p-5 shadow-soft space-y-4">
+    <div class="flex items-center justify-between border-b border-custom pb-3">
+      <h3 class="text-xs font-bold text-main uppercase tracking-wider flex items-center gap-2">
+        <svg class="w-4 h-4 text-brand-strong" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         Historique & Traçabilité du document
@@ -11,7 +11,7 @@
       <button
         @click="fetchEntityLogs"
         :disabled="loading"
-        class="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+        class="text-xs text-muted-custom hover:text-main flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 font-bold"
       >
         <svg class="w-3.5 h-3.5" :class="{ 'animate-spin': loading }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -20,16 +20,16 @@
       </button>
     </div>
 
-    <div v-if="loading && logs.length === 0" class="py-6 text-center text-xs text-slate-500">
+    <div v-if="loading && logs.length === 0" class="py-6 text-center text-xs text-muted-custom">
       Chargement de l’historique...
     </div>
 
-    <div v-else-if="logs.length === 0" class="py-6 text-center text-xs text-slate-500">
+    <div v-else-if="logs.length === 0" class="py-6 text-center text-xs text-muted-custom font-semibold">
       Aucune activité enregistrée sur cette fiche.
     </div>
 
     <!-- Timeline list -->
-    <div v-else class="relative border-l border-slate-800 ml-3 pl-4 space-y-4 text-xs">
+    <div v-else class="relative border-l border-custom ml-3 pl-4 space-y-4 text-xs">
       <div
         v-for="log in logs"
         :key="log.id"
@@ -37,29 +37,29 @@
       >
         <!-- Timeline node marker -->
         <span
-          class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border border-slate-900"
-          :class="log.result === 'SUCCESS' ? 'bg-amber-400' : 'bg-rose-500'"
+          class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border border-panel"
+          :class="log.result === 'SUCCESS' ? 'bg-brand' : 'bg-rose-500'"
         ></span>
 
         <div>
           <div class="flex items-center justify-between gap-2">
-            <span class="font-bold text-slate-200">
+            <span class="font-bold text-main">
               {{ formatActionLabel(log.action) }}
             </span>
-            <span class="text-[10px] text-slate-500">
+            <span class="text-[10px] text-muted-custom font-semibold">
               {{ formatDate(log.createdAt) }}
             </span>
           </div>
 
-          <p class="text-slate-400 mt-0.5 text-[11px]">
-            Par <strong class="text-slate-300 font-semibold">{{ log.actorDisplayNameSnapshot || log.user?.name || 'Système' }}</strong>
-            <span v-if="log.actorRoleSnapshot || log.user?.role" class="text-slate-500"> ({{ formatRole(log.actorRoleSnapshot || log.user?.role) }})</span>
+          <p class="text-secondary-custom mt-0.5 text-[11px]">
+            Par <strong class="text-main font-bold">{{ log.actorDisplayNameSnapshot || log.user?.name || 'Système' }}</strong>
+            <span v-if="log.actorRoleSnapshot || log.user?.role" class="text-muted-custom"> ({{ formatRole(log.actorRoleSnapshot || log.user?.role) }})</span>
           </p>
 
           <!-- Safe metadata description if available -->
-          <div v-if="log.metadata && Object.keys(log.metadata).length > 0" class="mt-1 bg-slate-950/60 p-2 rounded-xl border border-slate-800/50 text-[10px] font-mono text-slate-400">
+          <div v-if="log.metadata && Object.keys(log.metadata).length > 0" class="mt-1 bg-panel-raised p-2 rounded-control border border-custom text-[10px] font-mono text-secondary-custom">
             <span v-for="(val, key) in log.metadata" :key="key" class="mr-3 inline-block">
-              <span class="text-slate-500">{{ key }}:</span> {{ val }}
+              <span class="text-muted-custom">{{ key }}:</span> {{ val }}
             </span>
           </div>
         </div>

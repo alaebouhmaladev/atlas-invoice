@@ -3,7 +3,7 @@
     <!-- Bell Icon Trigger -->
     <button
       @click="toggleDropdown"
-      class="relative p-2 text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 rounded-xl transition-all focus:outline-none cursor-pointer"
+      class="relative p-2 text-muted-custom hover:text-main hover:bg-surface-hover rounded-control transition-all focus:outline-none cursor-pointer"
       aria-label="Centre de notifications"
     >
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -13,7 +13,7 @@
       <!-- Unread Count Badge -->
       <span
         v-if="unreadCount > 0"
-        class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-amber-500 text-slate-950 font-extrabold text-[10px] rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 animate-pulse"
+        class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-brand text-slate-950 font-black text-[10px] rounded-pill flex items-center justify-center shadow-sm animate-pulse"
       >
         {{ unreadCount > 99 ? '99+' : unreadCount }}
       </span>
@@ -23,13 +23,13 @@
     <Transition name="fade-slide">
       <div
         v-if="isOpen"
-        class="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]"
+        class="absolute right-0 mt-2 w-80 sm:w-96 bg-panel border border-custom rounded-panel shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]"
       >
         <!-- Popover Header -->
-        <div class="px-4 py-3 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/90 backdrop-blur-sm">
+        <div class="px-4 py-3 border-b border-custom flex items-center justify-between bg-panel-raised">
           <div class="flex items-center gap-2">
-            <h3 class="text-xs font-bold text-slate-100 uppercase tracking-wider">Notifications</h3>
-            <span v-if="unreadCount > 0" class="px-2 py-0.5 bg-amber-500/10 text-amber-400 text-[10px] font-bold rounded-full border border-amber-500/20">
+            <h3 class="text-xs font-bold text-main uppercase tracking-wider">Notifications</h3>
+            <span v-if="unreadCount > 0" class="px-2 py-0.5 bg-brand-soft text-brand-strong text-[10px] font-bold rounded-pill border border-brand-soft">
               {{ unreadCount }} non lue{{ unreadCount > 1 ? 's' : '' }}
             </span>
           </div>
@@ -38,36 +38,36 @@
             v-if="unreadCount > 0"
             @click="handleMarkAllRead"
             :disabled="marking"
-            class="text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors disabled:opacity-50 cursor-pointer"
+            class="text-[11px] font-bold text-brand-strong hover:text-brand transition-colors disabled:opacity-50 cursor-pointer"
           >
             Tout marquer comme lu
           </button>
         </div>
 
         <!-- Severity Filter Pills -->
-        <div class="px-3 py-2 border-b border-slate-800/50 bg-slate-950/40 flex items-center gap-1.5 overflow-x-auto text-[11px]">
+        <div class="px-3 py-2 border-b border-custom bg-panel-raised flex items-center gap-1.5 overflow-x-auto text-[11px]">
           <button
             v-for="filter in severityFilters"
             :key="filter.value || 'all'"
             @click="activeFilter = filter.value"
-            class="px-2.5 py-1 rounded-lg font-medium transition-all shrink-0 cursor-pointer"
-            :class="activeFilter === filter.value ? 'bg-amber-500/10 text-amber-400 font-semibold border border-amber-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'"
+            class="px-2.5 py-1 rounded-pill font-semibold transition-all shrink-0 cursor-pointer text-xs"
+            :class="activeFilter === filter.value ? 'bg-brand-soft text-brand-strong font-bold border border-brand-soft' : 'text-muted-custom hover:text-main hover:bg-surface-hover'"
           >
             {{ filter.label }}
           </button>
         </div>
 
         <!-- Notification List -->
-        <div class="flex-1 overflow-y-auto divide-y divide-slate-800/50">
-          <div v-if="loading" class="p-8 text-center text-xs text-slate-500 flex flex-col items-center gap-2">
-            <svg class="animate-spin h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24">
+        <div class="flex-1 overflow-y-auto divide-y divide-custom">
+          <div v-if="loading" class="p-8 text-center text-xs text-muted-custom flex flex-col items-center gap-2">
+            <svg class="animate-spin h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             Chargement...
           </div>
 
-          <div v-else-if="filteredNotifications.length === 0" class="p-8 text-center text-xs text-slate-500">
+          <div v-else-if="filteredNotifications.length === 0" class="p-8 text-center text-xs text-muted-custom font-semibold">
             Aucune notification pour le moment.
           </div>
 
@@ -76,18 +76,18 @@
             v-for="item in filteredNotifications"
             :key="item.id"
             @click="handleNotificationClick(item)"
-            class="p-3.5 hover:bg-slate-800/40 transition-colors flex items-start gap-3 cursor-pointer group relative"
-            :class="!item.isRead ? 'bg-slate-900/60' : 'opacity-75'"
+            class="p-3.5 hover:bg-surface-hover transition-colors flex items-start gap-3 cursor-pointer group relative"
+            :class="!item.isRead ? 'bg-panel-raised' : 'opacity-75'"
           >
             <!-- Unread Indicator Dot -->
             <span
               v-if="!item.isRead"
-              class="absolute left-1.5 top-5 w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"
+              class="absolute left-1.5 top-5 w-1.5 h-1.5 rounded-full bg-brand shadow-sm"
             ></span>
 
             <!-- Severity Icon -->
             <div
-              class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border mt-0.5"
+              class="w-7 h-7 rounded-control flex items-center justify-center shrink-0 border mt-0.5"
               :class="getSeverityClass(item.severity)"
             >
               <svg v-if="item.severity === 'SUCCESS'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,14 +107,14 @@
             <!-- Content -->
             <div class="flex-1 min-w-0 text-xs">
               <div class="flex items-center justify-between gap-2 mb-0.5">
-                <h4 class="font-bold text-slate-200 group-hover:text-amber-400 transition-colors truncate">
+                <h4 class="font-bold text-main group-hover:text-brand transition-colors truncate">
                   {{ item.title }}
                 </h4>
-                <span class="text-[10px] text-slate-500 shrink-0">
+                <span class="text-[10px] text-muted-custom shrink-0">
                   {{ formatTimeAgo(item.createdAt) }}
                 </span>
               </div>
-              <p class="text-slate-400 line-clamp-2 text-[11px] leading-relaxed">
+              <p class="text-secondary-custom line-clamp-2 text-[11px] leading-relaxed">
                 {{ item.message }}
               </p>
             </div>
@@ -211,14 +211,14 @@ async function handleNotificationClick(item: AppNotificationItem) {
 function getSeverityClass(severity: string): string {
   switch (severity) {
     case 'SUCCESS':
-      return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+      return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
     case 'CRITICAL':
-      return 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+      return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
     case 'WARNING':
-      return 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+      return 'bg-brand-soft text-brand-strong border-brand-soft'
     case 'INFO':
     default:
-      return 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
   }
 }
 

@@ -139,3 +139,11 @@ export function useNotify() {
     clearAll
   }
 }
+
+export function useNotificationToast() {
+  const notify = useNotify()
+  return {
+    showSuccess: (message: string, title: string = 'Succès') => notify.notifySuccess(message, title),
+    showError: (message: string, title: string = 'Erreur') => notify.notifyError(message, title)
+  }
+}

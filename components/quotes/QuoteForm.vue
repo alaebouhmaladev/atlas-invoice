@@ -3,23 +3,23 @@
     <!-- General Error Banner -->
     <div
       v-if="generalError"
-      class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-3"
+      class="p-4 rounded-card bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs flex items-start gap-3 font-bold"
       role="alert"
     >
-      <svg class="w-5 h-5 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg class="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
       <div>{{ generalError }}</div>
     </div>
 
     <!-- SECTION 1: Informations Générales -->
-    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 space-y-5">
-      <div class="border-b border-slate-800 pb-3">
-        <h3 class="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
-          <span class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs">1</span>
+    <div class="bg-panel border border-custom rounded-panel p-6 space-y-5 shadow-soft">
+      <div class="border-b border-custom pb-3">
+        <h3 class="text-sm font-bold text-main uppercase tracking-wider flex items-center gap-2">
+          <span class="w-6 h-6 rounded-control bg-brand-soft text-brand-strong flex items-center justify-center text-xs font-bold border border-brand-soft">1</span>
           Informations Générales du Devis
         </h3>
-        <p class="text-xs text-slate-400 mt-1">Sélectionnez le client et définissez les dates d'émission et de validité.</p>
+        <p class="text-xs text-muted-custom mt-1">Sélectionnez le client et définissez les dates d'émission et de validité.</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -33,96 +33,96 @@
 
         <!-- Subject / Objet -->
         <div>
-          <label for="quote-subject" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Objet du devis</label>
+          <label for="quote-subject" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Objet du devis</label>
           <input
             id="quote-subject"
             v-model="form.subject"
             type="text"
             placeholder="ex: Prestation Traiteur Cocktail Dînatoire"
-            class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           />
         </div>
 
         <!-- Issue Date -->
         <div>
-          <label for="issueDate" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Date d'émission *</label>
+          <label for="issueDate" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Date d'émission *</label>
           <input
             id="issueDate"
             v-model="form.issueDate"
             type="date"
             required
-            class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.issueDate }"
           />
-          <p v-if="fieldErrors.issueDate" class="text-rose-400 text-[11px] mt-1">{{ fieldErrors.issueDate }}</p>
+          <p v-if="fieldErrors.issueDate" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.issueDate }}</p>
         </div>
 
         <!-- Valid Until Date -->
         <div>
-          <label for="validUntil" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Date de validité *</label>
+          <label for="validUntil" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Date de validité *</label>
           <input
             id="validUntil"
             v-model="form.validUntil"
             type="date"
             required
-            class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.validUntil }"
           />
-          <p v-if="fieldErrors.validUntil" class="text-rose-400 text-[11px] mt-1">{{ fieldErrors.validUntil }}</p>
+          <p v-if="fieldErrors.validUntil" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.validUntil }}</p>
         </div>
 
         <!-- Payment Terms -->
         <div class="md:col-span-2">
-          <label for="paymentTerms" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Conditions de paiement</label>
+          <label for="paymentTerms" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Conditions de paiement</label>
           <input
             id="paymentTerms"
             v-model="form.paymentTerms"
             type="text"
             placeholder="ex: 50% d'acompte à la commande, solde à la livraison"
-            class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           />
         </div>
       </div>
     </div>
 
     <!-- SECTION 2: Lignes de Prestations -->
-    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6">
+    <div class="bg-panel border border-custom rounded-panel p-6 shadow-soft">
       <QuoteItemsEditor v-model:items="form.items" />
-      <p v-if="fieldErrors.items" class="text-rose-400 text-[11px] mt-2">{{ fieldErrors.items }}</p>
+      <p v-if="fieldErrors.items" class="text-rose-600 dark:text-rose-400 text-[11px] mt-2 font-bold">{{ fieldErrors.items }}</p>
     </div>
 
     <!-- SECTION 3: Remise globale & Récapitulatif -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Global Discount Options -->
-      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-800 pb-2">
+      <div class="bg-panel border border-custom rounded-panel p-6 space-y-4 shadow-soft">
+        <h3 class="text-xs font-bold text-main uppercase tracking-wider border-b border-custom pb-2">
           Remise Globale (Optionnelle)
         </h3>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-2">Type de remise globale</label>
+          <label class="block text-xs font-bold text-muted-custom mb-2">Type de remise globale</label>
           <div class="grid grid-cols-3 gap-2">
             <button
               type="button"
               @click="setGlobalDiscount(null)"
-              class="py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-center"
-              :class="!form.discountType ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'"
+              class="py-2 px-3 rounded-control border text-xs font-bold transition-all cursor-pointer text-center"
+              :class="!form.discountType ? 'bg-brand-soft border-brand text-brand-strong' : 'bg-panel-raised border-custom text-muted-custom hover:text-main'"
             >
               Aucune
             </button>
             <button
               type="button"
               @click="setGlobalDiscount('PERCENTAGE')"
-              class="py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-center"
-              :class="form.discountType === 'PERCENTAGE' ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'"
+              class="py-2 px-3 rounded-control border text-xs font-bold transition-all cursor-pointer text-center"
+              :class="form.discountType === 'PERCENTAGE' ? 'bg-brand-soft border-brand text-brand-strong' : 'bg-panel-raised border-custom text-muted-custom hover:text-main'"
             >
               Pourcentage %
             </button>
             <button
               type="button"
               @click="setGlobalDiscount('FIXED')"
-              class="py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-center"
-              :class="form.discountType === 'FIXED' ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'"
+              class="py-2 px-3 rounded-control border text-xs font-bold transition-all cursor-pointer text-center"
+              :class="form.discountType === 'FIXED' ? 'bg-brand-soft border-brand text-brand-strong' : 'bg-panel-raised border-custom text-muted-custom hover:text-main'"
             >
               Montant Fixe (MAD)
             </button>
@@ -130,7 +130,7 @@
         </div>
 
         <div v-if="form.discountType">
-          <label for="discountValue" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+          <label for="discountValue" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">
             Valeur de la remise {{ form.discountType === 'PERCENTAGE' ? '(%)' : '(MAD HT)' }}
           </label>
           <input
@@ -141,7 +141,7 @@
             min="0"
             :max="form.discountType === 'PERCENTAGE' ? 100 : undefined"
             placeholder="0"
-            class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           />
         </div>
       </div>
@@ -151,35 +151,35 @@
     </div>
 
     <!-- SECTION 4: Notes (Visibles et Internes) -->
-    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 space-y-5">
-      <div class="border-b border-slate-800 pb-3">
-        <h3 class="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
-          <span class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs">3</span>
+    <div class="bg-panel border border-custom rounded-panel p-6 space-y-5 shadow-soft">
+      <div class="border-b border-custom pb-3">
+        <h3 class="text-sm font-bold text-main uppercase tracking-wider flex items-center gap-2">
+          <span class="w-6 h-6 rounded-control bg-brand-soft text-brand-strong flex items-center justify-center text-xs font-bold border border-brand-soft">3</span>
           Notes et Observations
         </h3>
-        <p class="text-xs text-slate-400 mt-1">Saisissez les remarques destinées au client et les notes internes confidentielles.</p>
+        <p class="text-xs text-muted-custom mt-1">Saisissez les remarques destinées au client et les notes internes confidentielles.</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label for="publicNotes" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Notes visibles sur le devis (PDF)</label>
+          <label for="publicNotes" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Notes visibles sur le devis (PDF)</label>
           <textarea
             id="publicNotes"
             v-model="form.publicNotes"
             rows="3"
             placeholder="Remarques affichées au client sur le document PDF..."
-            class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 resize-y"
+            class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand resize-y"
           ></textarea>
         </div>
 
         <div>
-          <label for="internalNotes" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Notes internes (Non visibles sur le PDF)</label>
+          <label for="internalNotes" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Notes internes (Non visibles sur le PDF)</label>
           <textarea
             id="internalNotes"
             v-model="form.internalNotes"
             rows="3"
             placeholder="Informations confidentielles pour l'équipe commerciale et cuisine..."
-            class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 resize-y"
+            class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand resize-y"
           ></textarea>
         </div>
       </div>
@@ -189,7 +189,7 @@
     <div class="flex items-center justify-end gap-4 pt-4">
       <NuxtLink
         to="/devis"
-        class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold border border-slate-800 transition-colors"
+        class="px-5 py-2.5 bg-panel-raised hover:bg-surface-hover text-main rounded-control text-xs font-semibold border border-custom transition-colors"
       >
         Annuler
       </NuxtLink>
@@ -197,7 +197,7 @@
       <button
         type="submit"
         :disabled="loading"
-        class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+        class="px-6 py-2.5 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs shadow-sm focus:outline-none transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
       >
         <svg v-if="loading" class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -210,6 +210,7 @@
 </template>
 
 <script setup lang="ts">
+import { reactive, computed, watch } from 'vue'
 import ClientSearchSelect from '~/components/quotes/ClientSearchSelect.vue'
 import QuoteItemsEditor, { type EditableItem } from '~/components/quotes/QuoteItemsEditor.vue'
 import QuoteTotals from '~/components/quotes/QuoteTotals.vue'

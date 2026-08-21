@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss'],
+  css: ['~/assets/css/main.css'],
 
   typescript: {
     strict: true,
@@ -36,7 +37,13 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Plateforme de gestion d’entreprise : CRM, Facturation et Ressources humaines' }
       ],
-      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }]
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+      script: [
+        {
+          innerHTML: `(function(){try{var t=localStorage.getItem("atlas_theme")||(document.cookie.match(/atlas_theme=([^;]+)/)||[])[1]||"system";if(t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark");}else{document.documentElement.classList.remove("dark");}}catch(e){}})();`,
+          type: 'text/javascript'
+        }
+      ]
     }
   }
 })

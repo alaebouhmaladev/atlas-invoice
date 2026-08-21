@@ -3,13 +3,13 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-slate-100 tracking-tight">Factures</h2>
-        <p class="text-xs text-slate-400 mt-1">Gérez l'émission, la finalisation et le suivi des encaissements factures.</p>
+        <h2 class="text-2xl font-extrabold text-main tracking-tight">Factures</h2>
+        <p class="text-xs text-muted-custom mt-1">Gérez l'émission, la finalisation et le suivi des encaissements factures.</p>
       </div>
 
       <NuxtLink
         to="/factures/new"
-        class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
+        class="px-4 py-2 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -19,28 +19,28 @@
     </div>
 
     <!-- Filter Tabs (Actifs, Archivés, Tous) -->
-    <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+    <div class="flex items-center gap-2 border-b border-custom pb-2">
       <button
         type="button"
         @click="setArchivedStatus('active')"
-        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
-        :class="activeArchivedStatus === 'active' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+        class="px-3.5 py-1.5 rounded-pill text-xs font-bold transition-colors cursor-pointer"
+        :class="activeArchivedStatus === 'active' ? 'bg-brand-soft text-brand-strong border border-brand-soft' : 'text-muted-custom hover:text-main'"
       >
         Actifs
       </button>
       <button
         type="button"
         @click="setArchivedStatus('archived')"
-        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
-        :class="activeArchivedStatus === 'archived' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+        class="px-3.5 py-1.5 rounded-pill text-xs font-bold transition-colors cursor-pointer"
+        :class="activeArchivedStatus === 'archived' ? 'bg-brand-soft text-brand-strong border border-brand-soft' : 'text-muted-custom hover:text-main'"
       >
         Archivés
       </button>
       <button
         type="button"
         @click="setArchivedStatus('all')"
-        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
-        :class="activeArchivedStatus === 'all' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-slate-200'"
+        class="px-3.5 py-1.5 rounded-pill text-xs font-bold transition-colors cursor-pointer"
+        :class="activeArchivedStatus === 'all' ? 'bg-brand-soft text-brand-strong border border-brand-soft' : 'text-muted-custom hover:text-main'"
       >
         Tous
       </button>
@@ -67,28 +67,28 @@
     <!-- Error message alert -->
     <div
       v-if="error"
-      class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3"
+      class="p-4 rounded-card bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center justify-between gap-3"
       role="alert"
     >
       <div class="flex items-center gap-3">
-        <svg class="w-5 h-5 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span>{{ error }}</span>
       </div>
       <button
         @click="() => fetchInvoices()"
-        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 rounded-lg font-semibold text-[11px] transition-colors"
+        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-600 dark:text-rose-300 rounded-control font-semibold text-[11px] transition-colors"
       >
         Réessayer
       </button>
     </div>
 
     <!-- Main Table Container -->
-    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+    <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
       <!-- Loading State -->
-      <div v-if="loading && invoices.length === 0" class="p-12 text-center text-slate-400">
-        <svg class="animate-spin h-8 w-8 text-amber-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+      <div v-if="loading && invoices.length === 0" class="p-12 text-center text-muted-custom">
+        <svg class="animate-spin h-8 w-8 text-brand mx-auto mb-3" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -97,19 +97,19 @@
 
       <!-- Empty State -->
       <div v-else-if="!loading && invoices.length === 0" class="p-12 text-center space-y-3">
-        <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-500 flex items-center justify-center mx-auto">
+        <div class="w-12 h-12 rounded-card bg-panel-raised text-muted-custom flex items-center justify-center mx-auto">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
-        <h3 class="text-sm font-bold text-slate-200">Aucune facture trouvée</h3>
-        <p class="text-xs text-slate-400 max-w-sm mx-auto">
+        <h3 class="text-sm font-bold text-main">Aucune facture trouvée</h3>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">
           Ajustez vos filtres de recherche ou créez votre première facture.
         </p>
         <div class="pt-2">
           <NuxtLink
             to="/factures/new"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-colors"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs transition-colors"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -123,13 +123,13 @@
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider font-semibold">
+            <tr class="border-b border-custom bg-panel-raised text-muted-custom uppercase tracking-wider font-bold">
               <th v-if="isSuperAdmin" class="py-3.5 px-4 w-10">
                 <input
                   type="checkbox"
                   :checked="isCurrentPageAllSelected"
                   @change="toggleSelectCurrentPage"
-                  class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/40 cursor-pointer"
+                  class="rounded bg-panel-raised border-custom text-brand focus:ring-brand/40 cursor-pointer"
                 />
               </th>
               <th class="py-3.5 px-4">Numéro</th>
@@ -142,51 +142,51 @@
               <th class="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800/60">
+          <tbody class="divide-y divide-custom">
             <tr
               v-for="invoice in invoices"
               :key="invoice.id"
-              class="hover:bg-slate-800/30 transition-colors"
-              :class="{ 'opacity-60 bg-slate-950/40': invoice.isArchived, 'bg-amber-500/5': isSelected(invoice.id) }"
+              class="hover:bg-surface-hover transition-colors"
+              :class="{ 'opacity-60 bg-panel-raised': invoice.isArchived, 'bg-brand-soft': isSelected(invoice.id) }"
             >
               <td v-if="isSuperAdmin" class="py-3.5 px-4">
                 <input
                   type="checkbox"
                   :checked="isSelected(invoice.id)"
                   @change="toggleSelectRow(invoice.id)"
-                  class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/40 cursor-pointer"
+                  class="rounded bg-panel-raised border-custom text-brand focus:ring-brand/40 cursor-pointer"
                 />
               </td>
 
               <td class="py-3.5 px-4 font-mono font-bold">
                 <div class="flex items-center gap-1.5">
-                  <NuxtLink :to="`/factures/${invoice.id}`" class="text-amber-400 hover:text-amber-300 transition-colors">
+                  <NuxtLink :to="`/factures/${invoice.id}`" class="text-brand-strong hover:underline transition-colors">
                     {{ invoice.number || `BROUILLON #${invoice.id.substring(0, 6).toUpperCase()}` }}
                   </NuxtLink>
-                  <span v-if="invoice.isArchived" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <span v-if="invoice.isArchived" class="px-1.5 py-0.5 rounded-pill text-[10px] font-bold bg-brand-soft text-brand-strong border border-brand-soft">
                     ARCHIVÉ
                   </span>
                 </div>
-                <div v-if="invoice.sourceQuote" class="text-[11px] text-slate-500 font-sans font-normal">
+                <div v-if="invoice.sourceQuote" class="text-[11px] text-muted-custom font-sans font-normal">
                   Devis : {{ invoice.sourceQuote.number }}
                 </div>
               </td>
 
               <td class="py-3.5 px-4">
-                <NuxtLink v-if="invoice.clientId" :to="`/clients/${invoice.clientId}`" class="font-semibold text-slate-200 hover:text-amber-400 transition-colors block">
+                <NuxtLink v-if="invoice.clientId" :to="`/clients/${invoice.clientId}`" class="font-bold text-main hover:text-brand transition-colors block">
                   {{ invoice.clientSnapshot?.displayName || invoice.client?.displayName || 'Client' }}
                 </NuxtLink>
-                <div v-else class="font-semibold text-slate-200">
+                <div v-else class="font-bold text-main">
                   {{ invoice.clientSnapshot?.displayName || 'Client' }}
                 </div>
-                <div class="text-[11px] text-slate-400">
+                <div class="text-[11px] text-muted-custom">
                   {{ invoice.clientSnapshot?.city || 'Maroc' }}
                 </div>
               </td>
 
               <td class="py-3.5 px-4">
-                <div class="text-slate-300 font-mono">{{ formatDate(invoice.issueDate) }}</div>
-                <div class="text-slate-500 text-[11px]">Échéance : {{ formatDate(invoice.dueDate) }}</div>
+                <div class="text-secondary-custom font-mono">{{ formatDate(invoice.issueDate) }}</div>
+                <div class="text-muted-custom text-[11px]">Échéance : {{ formatDate(invoice.dueDate) }}</div>
               </td>
 
               <td class="py-3.5 px-4">
@@ -197,11 +197,11 @@
                 <PaymentStatusBadge :status="invoice.paymentStatus" :is-overdue="invoice.isOverdue" />
               </td>
 
-              <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-100">
+              <td class="py-3.5 px-4 text-right font-mono font-bold text-main">
                 {{ formatMoney(invoice.totalTtc) }}
               </td>
 
-              <td class="py-3.5 px-4 text-right font-mono font-bold" :class="Number(invoice.amountDue) > 0 ? 'text-rose-400' : 'text-emerald-400'">
+              <td class="py-3.5 px-4 text-right font-mono font-bold" :class="Number(invoice.amountDue) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'">
                 {{ formatMoney(invoice.amountDue) }}
               </td>
 
@@ -209,12 +209,12 @@
                 <!-- 1. View Details -->
                 <NuxtLink
                   :to="`/factures/${invoice.id}`"
-                  class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-main hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
                   title="Voir les détails"
                   aria-label="Voir les détails de la facture"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 01-6 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 </NuxtLink>
@@ -223,7 +223,7 @@
                 <button
                   type="button"
                   @click="openPdfPreview(invoice)"
-                  class="p-2 inline-flex items-center text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-[#b49c80] hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
                   title="Prévisualiser le PDF"
                   aria-label="Prévisualiser le PDF de la facture"
                 >
@@ -238,7 +238,7 @@
                     v-if="invoice.isArchived"
                     type="button"
                     @click="openSingleAction(invoice, 'RESTORE')"
-                    class="p-2 inline-flex items-center text-emerald-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                    class="p-1.5 inline-flex items-center text-emerald-600 dark:text-emerald-400 hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
                     title="Restaurer"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -249,7 +249,7 @@
                     v-else
                     type="button"
                     @click="openSingleAction(invoice, 'ARCHIVE')"
-                    class="p-2 inline-flex items-center text-amber-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                    class="p-1.5 inline-flex items-center text-amber-500 hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
                     title="Archiver"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -264,7 +264,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="invoices.length > 0" class="p-4 bg-slate-950/40 border-t border-slate-800">
+      <div v-if="invoices.length > 0" class="p-4 bg-panel-raised border-t border-custom">
         <Pagination
           :page="pagination.page"
           :page-size="pagination.pageSize"

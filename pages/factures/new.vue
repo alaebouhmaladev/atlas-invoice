@@ -3,21 +3,21 @@
     <div class="flex items-center gap-3">
       <NuxtLink
         to="/factures"
-        class="p-2 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-xl transition-colors"
+        class="p-2 text-muted-custom hover:text-main bg-panel-raised border border-custom rounded-control transition-colors"
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </NuxtLink>
       <div>
-        <h2 class="text-2xl font-bold text-slate-100 tracking-tight">Nouvelle Facture Directe</h2>
-        <p class="text-xs text-slate-400">Création d'une facture directe en mode brouillon.</p>
+        <h2 class="text-2xl font-bold text-main tracking-tight">Nouvelle Facture Directe</h2>
+        <p class="text-xs text-muted-custom">Création d'une facture directe en mode brouillon.</p>
       </div>
     </div>
 
     <div
       v-if="error"
-      class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between"
+      class="p-4 rounded-card bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs flex items-center justify-between font-bold"
     >
       <span>{{ error }}</span>
     </div>

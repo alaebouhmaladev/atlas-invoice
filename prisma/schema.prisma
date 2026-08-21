@@ -76,6 +76,32 @@ model User {
   archivedDocuments        EmployeeDocument[]        @relation("DocumentArchivedBy")
   uploadedDocumentVersions EmployeeDocumentVersion[] @relation("DocumentVersionUploadedBy")
 
+  createdShiftTemplates     ShiftTemplate[]               @relation("ShiftTemplateCreatedBy")
+  updatedShiftTemplates     ShiftTemplate[]               @relation("ShiftTemplateUpdatedBy")
+  archivedShiftTemplates    ShiftTemplate[]               @relation("ShiftTemplateArchivedBy")
+  publishedSchedules        WorkSchedule[]                @relation("SchedulePublishedBy")
+  createdSchedules          WorkSchedule[]                @relation("ScheduleCreatedBy")
+  updatedSchedules          WorkSchedule[]                @relation("ScheduleUpdatedBy")
+  createdShifts             ScheduledShift[]              @relation("ShiftCreatedBy")
+  updatedShifts             ScheduledShift[]              @relation("ShiftUpdatedBy")
+  createdStaffingReqs       StaffingRequirement[]         @relation("StaffingReqCreatedBy")
+  createdAvailabilities     EmployeeAvailability[]        @relation("AvailabilityCreatedBy")
+  scheduleChanges           ScheduleChangeHistory[]       @relation("ScheduleChangeBy")
+  updatedSchedulePolicies   SiteSchedulePolicy[]          @relation("SchedulePolicyUpdatedBy")
+  createdAttendancePolicies AttendancePolicy[]            @relation("AttendancePolicyCreatedBy")
+  updatedAttendancePolicies AttendancePolicy[]            @relation("AttendancePolicyUpdatedBy")
+  createdTerminals          AttendanceTerminal[]          @relation("TerminalCreatedBy")
+  updatedTerminals          AttendanceTerminal[]          @relation("TerminalUpdatedBy")
+  revokedTerminals          AttendanceTerminal[]          @relation("TerminalRevokedBy")
+  createdAttendanceEvents   AttendanceEvent[]             @relation("AttendanceEventCreatedBy")
+  resolvedAnomalies         AttendanceAnomaly[]           @relation("AnomalyResolvedBy")
+  requestedCorrections      AttendanceCorrectionRequest[] @relation("CorrectionRequestedBy")
+  reviewedCorrections       AttendanceCorrectionRequest[] @relation("CorrectionReviewedBy")
+  correctionHistories       AttendanceCorrectionHistory[] @relation("CorrectionHistoryActor")
+  createdValidations        AttendanceValidation[]        @relation("ValidationCreatedBy")
+  lockedPeriods             AttendancePeriodLock[]        @relation("PeriodLockedBy")
+  unlockedPeriods           AttendancePeriodLock[]        @relation("PeriodUnlockedBy")
+
   @@index([tenantId])
   @@index([email])
   @@index([role])
@@ -616,6 +642,7 @@ model Employee {
   ribEncrypted                 String?
   cnssNumberEncrypted          String?
   internalNotes                String?
+  attendancePinHash            String?
   linkedUserId                 String?          @unique
   createdById                  String
   updatedById                  String?
@@ -631,13 +658,19 @@ model Employee {
   updatedBy  User? @relation("EmployeeUpdatedBy", fields: [updatedById], references: [id])
   archivedBy User? @relation("EmployeeArchivedBy", fields: [archivedById], references: [id])
 
-  managedSites       WorkSite[]           @relation("WorkSiteManager")
-  managedDepartments Department[]         @relation("DepartmentManager")
-  assignments        EmployeeAssignment[] @relation("EmployeeAssignments")
-  managedAssignments EmployeeAssignment[] @relation("AssignmentManager")
-  contracts          EmploymentContract[] @relation("EmployeeContracts")
-  managedContracts   EmploymentContract[] @relation("ContractManager")
-  documents          EmployeeDocument[]   @relation("EmployeeDocuments")
+  managedSites        WorkSite[]                    @relation("WorkSiteManager")
+  managedDepartments  Department[]                  @relation("DepartmentManager")
+  assignments         EmployeeAssignment[]          @relation("EmployeeAssignments")
+  managedAssignments  EmployeeAssignment[]          @relation("AssignmentManager")
+  contracts           EmploymentContract[]          @relation("EmployeeContracts")
+  managedContracts    EmploymentContract[]          @relation("ContractManager")
+  documents           EmployeeDocument[]            @relation("EmployeeDocuments")
+  scheduledShifts     ScheduledShift[]              @relation("EmployeeScheduledShifts")
+  availabilities      EmployeeAvailability[]
+  attendanceEvents    AttendanceEvent[]
+  attendanceDays      AttendanceDay[]
+  attendanceAnomalies AttendanceAnomaly[]
+  correctionRequests  AttendanceCorrectionRequest[]
 
   @@unique([tenantId, employeeNumber])
   @@unique([tenantId, cinFingerprint])
@@ -731,8 +764,21 @@ model WorkSite {
   updatedBy       User?     @relation("WorkSiteUpdatedBy", fields: [updatedById], references: [id])
   archivedBy      User?     @relation("WorkSiteArchivedBy", fields: [archivedById], references: [id])
 
-  assignments EmployeeAssignment[]
-  contracts   EmploymentContract[]
+  assignments           EmployeeAssignment[]
+  contracts             EmploymentContract[]
+  shiftTemplates        ShiftTemplate[]
+  schedules             WorkSchedule[]
+  scheduledShifts       ScheduledShift[]
+  staffingRequirements  StaffingRequirement[]
+  schedulePolicy        SiteSchedulePolicy?
+  attendancePolicies    AttendancePolicy[]
+  attendanceTerminals   AttendanceTerminal[]
+  attendanceEvents      AttendanceEvent[]
+  attendanceDays        AttendanceDay[]
+  attendanceAnomalies   AttendanceAnomaly[]
+  correctionRequests    AttendanceCorrectionRequest[]
+  attendanceValidations AttendanceValidation[]
+  attendancePeriodLocks AttendancePeriodLock[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -801,8 +847,10 @@ model Position {
   updatedBy  User?      @relation("PositionUpdatedBy", fields: [updatedById], references: [id])
   archivedBy User?      @relation("PositionArchivedBy", fields: [archivedById], references: [id])
 
-  assignments EmployeeAssignment[]
-  contracts   EmploymentContract[]
+  assignments          EmployeeAssignment[]
+  contracts            EmploymentContract[]
+  scheduledShifts      ScheduledShift[]
+  staffingRequirements StaffingRequirement[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -831,13 +879,14 @@ model EmployeeAssignment {
   updatedAt         DateTime       @updatedAt
   version           Int            @default(1)
 
-  employee        Employee   @relation("EmployeeAssignments", fields: [employeeId], references: [id], onDelete: Cascade)
-  site            WorkSite   @relation(fields: [siteId], references: [id])
-  department      Department @relation(fields: [departmentId], references: [id])
-  position        Position   @relation(fields: [positionId], references: [id])
-  managerEmployee Employee?  @relation("AssignmentManager", fields: [managerEmployeeId], references: [id], onDelete: SetNull)
-  createdBy       User       @relation("AssignmentCreatedBy", fields: [createdById], references: [id])
-  endedBy         User?      @relation("AssignmentEndedBy", fields: [endedById], references: [id])
+  employee        Employee         @relation("EmployeeAssignments", fields: [employeeId], references: [id], onDelete: Cascade)
+  site            WorkSite         @relation(fields: [siteId], references: [id])
+  department      Department       @relation(fields: [departmentId], references: [id])
+  position        Position         @relation(fields: [positionId], references: [id])
+  managerEmployee Employee?        @relation("AssignmentManager", fields: [managerEmployeeId], references: [id], onDelete: SetNull)
+  createdBy       User             @relation("AssignmentCreatedBy", fields: [createdById], references: [id])
+  endedBy         User?            @relation("AssignmentEndedBy", fields: [endedById], references: [id])
+  scheduledShifts ScheduledShift[]
 
   @@index([tenantId])
   @@index([tenantId, employeeId, isPrimary])
@@ -927,13 +976,14 @@ model EmployeeDocument {
   updatedAt        DateTime         @updatedAt
   version          Int              @default(1)
 
-  employee       Employee                  @relation("EmployeeDocuments", fields: [employeeId], references: [id], onDelete: Cascade)
-  contract       EmploymentContract?       @relation(fields: [contractId], references: [id], onDelete: SetNull)
-  currentVersion EmployeeDocumentVersion?  @relation("CurrentDocumentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
-  versions       EmployeeDocumentVersion[] @relation("DocumentVersions")
-  createdBy      User                      @relation("DocumentCreatedBy", fields: [createdById], references: [id])
-  updatedBy      User?                     @relation("DocumentUpdatedBy", fields: [updatedById], references: [id])
-  archivedBy     User?                     @relation("DocumentArchivedBy", fields: [archivedById], references: [id])
+  employee           Employee                      @relation("EmployeeDocuments", fields: [employeeId], references: [id], onDelete: Cascade)
+  contract           EmploymentContract?           @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  currentVersion     EmployeeDocumentVersion?      @relation("CurrentDocumentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+  versions           EmployeeDocumentVersion[]     @relation("DocumentVersions")
+  createdBy          User                          @relation("DocumentCreatedBy", fields: [createdById], references: [id])
+  updatedBy          User?                         @relation("DocumentUpdatedBy", fields: [updatedById], references: [id])
+  archivedBy         User?                         @relation("DocumentArchivedBy", fields: [archivedById], references: [id])
+  correctionRequests AttendanceCorrectionRequest[]
 
   @@index([tenantId])
   @@index([tenantId, employeeId])
@@ -966,4 +1016,588 @@ model EmployeeDocumentVersion {
   @@index([tenantId])
   @@index([tenantId, documentId])
   @@index([tenantId, sha256])
+}
+
+enum ShiftSegmentType {
+  WORK
+  PAID_BREAK
+  UNPAID_BREAK
+}
+
+enum ScheduleStatus {
+  DRAFT
+  PUBLISHED
+  LOCKED
+  ARCHIVED
+}
+
+enum ScheduledShiftStatus {
+  PLANNED
+  PUBLISHED
+  CHANGED
+  CANCELLED
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  UNAVAILABLE
+  PREFERRED
+}
+
+model ShiftTemplate {
+  id           String    @id @default(uuid())
+  tenantId     String    @default("default-tenant")
+  siteId       String
+  code         String
+  name         String
+  color        String    @default("#f97316")
+  description  String?
+  isDayOff     Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  archivedAt   DateTime?
+  archivedById String?
+  createdById  String
+  updatedById  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  version      Int       @default(1)
+
+  site       WorkSite               @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdBy  User                   @relation("ShiftTemplateCreatedBy", fields: [createdById], references: [id])
+  updatedBy  User?                  @relation("ShiftTemplateUpdatedBy", fields: [updatedById], references: [id])
+  archivedBy User?                  @relation("ShiftTemplateArchivedBy", fields: [archivedById], references: [id])
+  segments   ShiftTemplateSegment[]
+  shifts     ScheduledShift[]
+
+  @@unique([tenantId, siteId, code])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+}
+
+model ShiftTemplateSegment {
+  id             String           @id @default(uuid())
+  templateId     String
+  order          Int              @default(1)
+  startLocalTime String
+  endLocalTime   String
+  endsNextDay    Boolean          @default(false)
+  segmentType    ShiftSegmentType @default(WORK)
+
+  template ShiftTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, order])
+  @@index([templateId])
+}
+
+model WorkSchedule {
+  id                String         @id @default(uuid())
+  tenantId          String         @default("default-tenant")
+  siteId            String
+  periodStart       DateTime
+  periodEnd         DateTime
+  status            ScheduleStatus @default(DRAFT)
+  timezone          String         @default("Africa/Casablanca")
+  publishedAt       DateTime?
+  publishedByUserId String?
+  lockedAt          DateTime?
+  createdByUserId   String
+  updatedByUserId   String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  version           Int            @default(1)
+
+  site            WorkSite         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  publishedByUser User?            @relation("SchedulePublishedBy", fields: [publishedByUserId], references: [id])
+  createdByUser   User             @relation("ScheduleCreatedBy", fields: [createdByUserId], references: [id])
+  updatedByUser   User?            @relation("ScheduleUpdatedBy", fields: [updatedByUserId], references: [id])
+  shifts          ScheduledShift[]
+
+  @@unique([tenantId, siteId, periodStart])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+  @@index([tenantId, siteId, status])
+}
+
+model ScheduledShift {
+  id                    String               @id @default(uuid())
+  tenantId              String               @default("default-tenant")
+  scheduleId            String
+  employeeId            String
+  siteId                String
+  positionId            String
+  assignmentId          String?
+  workDate              DateTime
+  timezone              String               @default("Africa/Casablanca")
+  status                ScheduledShiftStatus @default(PLANNED)
+  templateId            String?
+  templateNameSnapshot  String?
+  templateColorSnapshot String?
+  totalWorkMinutes      Int                  @default(0)
+  notes                 String?
+  createdByUserId       String
+  updatedByUserId       String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  version               Int                  @default(1)
+
+  schedule       WorkSchedule            @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee       Employee                @relation("EmployeeScheduledShifts", fields: [employeeId], references: [id], onDelete: Cascade)
+  site           WorkSite                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  position       Position                @relation(fields: [positionId], references: [id])
+  assignment     EmployeeAssignment?     @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  template       ShiftTemplate?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  createdByUser  User                    @relation("ShiftCreatedBy", fields: [createdByUserId], references: [id])
+  updatedByUser  User?                   @relation("ShiftUpdatedBy", fields: [updatedByUserId], references: [id])
+  segments       ScheduledShiftSegment[]
+  changes        ScheduleChangeHistory[]
+  attendanceDays AttendanceDay[]
+
+  @@index([tenantId])
+  @@index([tenantId, scheduleId])
+  @@index([tenantId, employeeId, workDate])
+  @@index([tenantId, siteId, workDate])
+}
+
+model ScheduledShiftSegment {
+  id             String           @id @default(uuid())
+  shiftId        String
+  order          Int              @default(1)
+  startLocalTime String
+  endLocalTime   String
+  endsNextDay    Boolean          @default(false)
+  segmentType    ShiftSegmentType @default(WORK)
+  startUtc       DateTime
+  endUtc         DateTime
+
+  shift ScheduledShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@unique([shiftId, order])
+  @@index([shiftId])
+}
+
+model StaffingRequirement {
+  id                 String    @id @default(uuid())
+  tenantId           String    @default("default-tenant")
+  siteId             String
+  positionId         String
+  dayOfWeek          Int
+  startLocalTime     String
+  endLocalTime       String
+  minEmployees       Int       @default(1)
+  preferredEmployees Int?
+  effectiveFrom      DateTime  @default(now())
+  effectiveTo        DateTime?
+  createdById        String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  site      WorkSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  position  Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  createdBy User     @relation("StaffingReqCreatedBy", fields: [createdById], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, siteId, dayOfWeek])
+}
+
+model EmployeeAvailability {
+  id             String             @id @default(uuid())
+  tenantId       String             @default("default-tenant")
+  employeeId     String
+  dayOfWeek      Int?
+  specificDate   DateTime?
+  startLocalTime String?
+  endLocalTime   String?
+  status         AvailabilityStatus @default(UNAVAILABLE)
+  reason         String?
+  effectiveFrom  DateTime           @default(now())
+  effectiveTo    DateTime?
+  createdById    String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  employee  Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdBy User     @relation("AvailabilityCreatedBy", fields: [createdById], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, employeeId])
+}
+
+model ScheduleChangeHistory {
+  id             String   @id @default(uuid())
+  tenantId       String   @default("default-tenant")
+  shiftId        String
+  changeReason   String
+  beforeSnapshot Json
+  afterSnapshot  Json
+  changedById    String
+  changedAt      DateTime @default(now())
+
+  shift     ScheduledShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  changedBy User           @relation("ScheduleChangeBy", fields: [changedById], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, shiftId])
+}
+
+model SiteSchedulePolicy {
+  id                         String   @id @default(uuid())
+  tenantId                   String   @default("default-tenant")
+  siteId                     String   @unique
+  timezone                   String   @default("Africa/Casablanca")
+  weekStartsOn               Int      @default(1)
+  defaultDailyTargetMinutes  Int      @default(480)
+  defaultWeeklyTargetMinutes Int      @default(2640)
+  minimumRestMinutes         Int      @default(660)
+  maximumConsecutiveDays     Int      @default(6)
+  maximumDailyMinutes        Int      @default(600)
+  maximumWeeklyMinutes       Int      @default(2880)
+  maximumSplitGapMinutes     Int      @default(240)
+  allowOvernightShifts       Boolean  @default(true)
+  updatedById                String?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  site      WorkSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  updatedBy User?    @relation("SchedulePolicyUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([tenantId])
+}
+
+enum AttendanceEventType {
+  CLOCK_IN
+  BREAK_START
+  BREAK_END
+  CLOCK_OUT
+}
+
+enum AttendanceEventSource {
+  EMPLOYEE_WEB
+  SITE_TERMINAL
+  MANUAL
+  ADMIN_CORRECTION
+  SYSTEM
+}
+
+enum AttendanceDayStatus {
+  OPEN
+  COMPLETE
+  INCOMPLETE
+  ABSENT
+  REST_DAY
+  HOLIDAY
+  ON_LEAVE
+  VALIDATED
+  LOCKED
+}
+
+enum AttendanceAnomalyType {
+  LATE_ARRIVAL
+  EARLY_DEPARTURE
+  MISSING_CLOCK_IN
+  MISSING_CLOCK_OUT
+  MISSING_BREAK_END
+  UNSCHEDULED_ATTENDANCE
+  OUTSIDE_ALLOWED_SITE
+  OVERLAPPING_ATTENDANCE
+  EXCESSIVE_BREAK
+  INSUFFICIENT_REST
+  OVERTIME
+  MANUAL_CORRECTION
+}
+
+enum AttendanceAnomalySeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AttendanceValidationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  LOCKED
+}
+
+enum CorrectionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model AttendancePolicy {
+  id                             String   @id @default(uuid())
+  tenantId                       String   @default("default-tenant")
+  siteId                         String?
+  name                           String   @default("Politique de Pointage Par Défaut")
+  timezone                       String   @default("Africa/Casablanca")
+  earlyClockInToleranceMinutes   Int      @default(15)
+  lateArrivalToleranceMinutes    Int      @default(10)
+  earlyDepartureToleranceMinutes Int      @default(10)
+  maxAllowedBreakMinutes         Int      @default(60)
+  maxDailyWorkMinutes            Int      @default(600)
+  overtimeThresholdMinutes       Int      @default(480)
+  minRestMinutes                 Int      @default(660)
+  allowUnscheduledClockIn        Boolean  @default(true)
+  requireTerminal                Boolean  @default(false)
+  requireManagerApproval         Boolean  @default(true)
+  enableLocationVerification     Boolean  @default(false)
+  autoClockOutPolicy             String   @default("NEVER")
+  gracePeriodMinutes             Int      @default(5)
+  paidBreakCountsAsCoverage      Boolean  @default(false)
+  createdById                    String
+  updatedById                    String?
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+  version                        Int      @default(1)
+
+  site      WorkSite? @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdBy User      @relation("AttendancePolicyCreatedBy", fields: [createdById], references: [id])
+  updatedBy User?     @relation("AttendancePolicyUpdatedBy", fields: [updatedById], references: [id])
+
+  @@unique([tenantId, siteId])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+}
+
+model AttendanceTerminal {
+  id          String    @id @default(uuid())
+  tenantId    String    @default("default-tenant")
+  siteId      String
+  code        String
+  name        String
+  secretHash  String
+  pinHash     String?
+  isActive    Boolean   @default(true)
+  revokedAt   DateTime?
+  revokedById String?
+  lastPingAt  DateTime?
+  createdById String
+  updatedById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+
+  site      WorkSite          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdBy User              @relation("TerminalCreatedBy", fields: [createdById], references: [id])
+  updatedBy User?             @relation("TerminalUpdatedBy", fields: [updatedById], references: [id])
+  revokedBy User?             @relation("TerminalRevokedBy", fields: [revokedById], references: [id])
+  events    AttendanceEvent[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+  @@index([tenantId, isActive])
+}
+
+model AttendanceEvent {
+  id               String                @id @default(uuid())
+  tenantId         String                @default("default-tenant")
+  employeeId       String
+  siteId           String
+  terminalId       String?
+  eventType        AttendanceEventType
+  eventSource      AttendanceEventSource @default(EMPLOYEE_WEB)
+  timestamp        DateTime
+  localDate        String
+  localTime        String
+  idempotencyKey   String?
+  latitude         Float?
+  longitude        Float?
+  locationVerified Boolean               @default(false)
+  notes            String?
+  createdById      String?
+  createdAt        DateTime              @default(now())
+
+  employee  Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  site      WorkSite            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  terminal  AttendanceTerminal? @relation(fields: [terminalId], references: [id], onDelete: SetNull)
+  createdBy User?               @relation("AttendanceEventCreatedBy", fields: [createdById], references: [id])
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId])
+  @@index([tenantId, employeeId, timestamp])
+  @@index([tenantId, siteId, localDate])
+}
+
+model AttendanceDay {
+  id                    String                     @id @default(uuid())
+  tenantId              String                     @default("default-tenant")
+  employeeId            String
+  siteId                String
+  workDate              DateTime
+  status                AttendanceDayStatus        @default(OPEN)
+  scheduledShiftId      String?
+  plannedMinutes        Int                        @default(0)
+  actualPresenceMinutes Int                        @default(0)
+  paidBreakMinutes      Int                        @default(0)
+  unpaidBreakMinutes    Int                        @default(0)
+  netWorkedMinutes      Int                        @default(0)
+  lateMinutes           Int                        @default(0)
+  earlyDepartureMinutes Int                        @default(0)
+  overtimeMinutes       Int                        @default(0)
+  missingMinutes        Int                        @default(0)
+  differenceMinutes     Int                        @default(0)
+  firstClockIn          DateTime?
+  lastClockOut          DateTime?
+  policySnapshot        Json?
+  scheduleSnapshot      Json?
+  validationStatus      AttendanceValidationStatus @default(PENDING)
+  validationId          String?
+  createdAt             DateTime                   @default(now())
+  updatedAt             DateTime                   @updatedAt
+  version               Int                        @default(1)
+
+  employee       Employee              @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  site           WorkSite              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  scheduledShift ScheduledShift?       @relation(fields: [scheduledShiftId], references: [id], onDelete: SetNull)
+  validation     AttendanceValidation? @relation(fields: [validationId], references: [id], onDelete: SetNull)
+
+  anomalies           AttendanceAnomaly[]
+  correctionRequests  AttendanceCorrectionRequest[]
+  correctionHistories AttendanceCorrectionHistory[]
+
+  @@unique([tenantId, employeeId, workDate])
+  @@index([tenantId])
+  @@index([tenantId, employeeId])
+  @@index([tenantId, siteId, workDate])
+  @@index([tenantId, status])
+  @@index([tenantId, validationStatus])
+}
+
+model AttendanceAnomaly {
+  id               String                    @id @default(uuid())
+  tenantId         String                    @default("default-tenant")
+  employeeId       String
+  siteId           String
+  attendanceDayId  String?
+  anomalyType      AttendanceAnomalyType
+  severity         AttendanceAnomalySeverity @default(WARNING)
+  message          String
+  deduplicationKey String
+  isResolved       Boolean                   @default(false)
+  resolvedAt       DateTime?
+  resolvedById     String?
+  resolutionNote   String?
+  createdById      String?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+
+  employee      Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  site          WorkSite       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  attendanceDay AttendanceDay? @relation(fields: [attendanceDayId], references: [id], onDelete: SetNull)
+  resolvedBy    User?          @relation("AnomalyResolvedBy", fields: [resolvedById], references: [id])
+
+  @@unique([tenantId, deduplicationKey])
+  @@index([tenantId])
+  @@index([tenantId, employeeId])
+  @@index([tenantId, siteId])
+  @@index([tenantId, isResolved])
+  @@index([tenantId, severity])
+}
+
+model AttendanceCorrectionRequest {
+  id                    String                  @id @default(uuid())
+  tenantId              String                  @default("default-tenant")
+  employeeId            String
+  siteId                String
+  attendanceDayId       String?
+  workDate              DateTime
+  requestType           String                  @default("TIME_CORRECTION")
+  status                CorrectionRequestStatus @default(PENDING)
+  reason                String
+  documentId            String?
+  requestedClockIn      DateTime?
+  requestedClockOut     DateTime?
+  requestedBreakStart   DateTime?
+  requestedBreakEnd     DateTime?
+  requestedChanges      Json
+  beforeSnapshot        Json
+  proposedAfterSnapshot Json
+  requestedById         String
+  reviewerId            String?
+  reviewedAt            DateTime?
+  reviewNote            String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  version               Int                     @default(1)
+
+  employee      Employee                      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  site          WorkSite                      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  attendanceDay AttendanceDay?                @relation(fields: [attendanceDayId], references: [id], onDelete: SetNull)
+  document      EmployeeDocument?             @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  requestedBy   User                          @relation("CorrectionRequestedBy", fields: [requestedById], references: [id])
+  reviewer      User?                         @relation("CorrectionReviewedBy", fields: [reviewerId], references: [id])
+  histories     AttendanceCorrectionHistory[]
+
+  @@index([tenantId])
+  @@index([tenantId, employeeId])
+  @@index([tenantId, siteId])
+  @@index([tenantId, status])
+}
+
+model AttendanceCorrectionHistory {
+  id                  String   @id @default(uuid())
+  tenantId            String   @default("default-tenant")
+  correctionRequestId String
+  attendanceDayId     String?
+  action              String
+  beforeSnapshot      Json
+  afterSnapshot       Json
+  actorId             String
+  timestamp           DateTime @default(now())
+
+  correctionRequest AttendanceCorrectionRequest @relation(fields: [correctionRequestId], references: [id], onDelete: Cascade)
+  attendanceDay     AttendanceDay?              @relation(fields: [attendanceDayId], references: [id], onDelete: SetNull)
+  actor             User                        @relation("CorrectionHistoryActor", fields: [actorId], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, correctionRequestId])
+}
+
+model AttendanceValidation {
+  id              String                     @id @default(uuid())
+  tenantId        String                     @default("default-tenant")
+  siteId          String
+  periodStart     DateTime
+  periodEnd       DateTime
+  status          AttendanceValidationStatus @default(APPROVED)
+  validatorUserId String
+  validatedAt     DateTime                   @default(now())
+  summarySnapshot Json
+  notes           String?
+
+  site           WorkSite        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  validatorUser  User            @relation("ValidationCreatedBy", fields: [validatorUserId], references: [id])
+  attendanceDays AttendanceDay[]
+
+  @@unique([tenantId, siteId, periodStart, periodEnd])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+}
+
+model AttendancePeriodLock {
+  id                     String    @id @default(uuid())
+  tenantId               String    @default("default-tenant")
+  siteId                 String
+  periodStart            DateTime
+  periodEnd              DateTime
+  isLocked               Boolean   @default(true)
+  lockedAt               DateTime  @default(now())
+  lockedById             String
+  lockConfirmationString String    @default("VERROUILLER POINTAGE")
+  unlockedAt             DateTime?
+  unlockedById           String?
+  unlockReason           String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  site       WorkSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  lockedBy   User     @relation("PeriodLockedBy", fields: [lockedById], references: [id])
+  unlockedBy User?    @relation("PeriodUnlockedBy", fields: [unlockedById], references: [id])
+
+  @@unique([tenantId, siteId, periodStart])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+  @@index([tenantId, isLocked])
 }

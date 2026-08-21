@@ -1,11 +1,11 @@
 <template>
   <div class="space-y-1 relative">
     <div class="flex items-center justify-between">
-      <label for="client-select" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Client *</label>
+      <label for="client-select" class="block text-xs font-bold text-muted-custom uppercase tracking-wider">Client *</label>
       <NuxtLink
         to="/clients/new"
         target="_blank"
-        class="text-[11px] text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1"
+        class="text-[11px] text-brand-strong hover:text-brand font-bold flex items-center gap-1"
       >
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -20,7 +20,7 @@
         id="client-select"
         v-model="selectedClientId"
         required
-        class="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+        class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
         :class="{ 'border-rose-500': error }"
       >
         <option value="" disabled>Sélectionner un client dans la liste...</option>
@@ -29,11 +29,12 @@
         </option>
       </select>
     </div>
-    <p v-if="error" class="text-rose-400 text-[11px] mt-1">{{ error }}</p>
+    <p v-if="error" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ error }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import type { ClientWithUser } from '~/composables/useClients'
 
 const props = defineProps<{

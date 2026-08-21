@@ -1,28 +1,28 @@
 <template>
-  <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
-    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-800 pb-2">
+  <div class="bg-panel border border-custom rounded-card p-5 space-y-3 shadow-soft">
+    <h3 class="text-xs font-bold text-main uppercase tracking-wider border-b border-custom pb-2">
       Récapitulatif Financier (Calcul en Direct)
     </h3>
 
     <div class="space-y-2 text-xs">
-      <div class="flex justify-between text-slate-400">
+      <div class="flex justify-between text-muted-custom">
         <span>Sous-total HT :</span>
-        <span class="font-mono text-slate-200">{{ formatMoney(totals.subtotalHt) }}</span>
+        <span class="font-mono font-bold text-main">{{ formatMoney(totals.subtotalHt) }}</span>
       </div>
 
-      <div v-if="hasLineDiscounts" class="flex justify-between text-amber-400">
+      <div v-if="hasLineDiscounts" class="flex justify-between text-brand-strong">
         <span>Remises sur les lignes :</span>
-        <span class="font-mono">- {{ formatMoney(totals.lineDiscountsTotal) }}</span>
+        <span class="font-mono font-bold">- {{ formatMoney(totals.lineDiscountsTotal) }}</span>
       </div>
 
-      <div v-if="hasGlobalDiscount" class="flex justify-between text-amber-400">
+      <div v-if="hasGlobalDiscount" class="flex justify-between text-brand-strong">
         <span>Remise globale :</span>
-        <span class="font-mono">- {{ formatMoney(totals.globalDiscountTotal) }}</span>
+        <span class="font-mono font-bold">- {{ formatMoney(totals.globalDiscountTotal) }}</span>
       </div>
 
-      <div class="flex justify-between text-slate-200 font-semibold border-t border-slate-800/80 pt-2">
+      <div class="flex justify-between text-main font-bold border-t border-custom pt-2">
         <span>Total Net HT :</span>
-        <span class="font-mono">{{ formatMoney(totals.totalNetHt) }}</span>
+        <span class="font-mono text-base">{{ formatMoney(totals.totalNetHt) }}</span>
       </div>
 
       <!-- TVA Breakdown per rate -->
@@ -30,28 +30,29 @@
         <div
           v-for="vat in totals.vatBreakdown"
           :key="vat.rate"
-          class="flex justify-between text-slate-400 text-[11px]"
+          class="flex justify-between text-muted-custom text-[11px]"
         >
           <span>TVA {{ Number(vat.rate) }}% (sur {{ formatMoney(vat.netAmountHt) }}) :</span>
-          <span class="font-mono text-slate-300">+ {{ formatMoney(vat.vatAmount) }}</span>
+          <span class="font-mono text-main font-bold">+ {{ formatMoney(vat.vatAmount) }}</span>
         </div>
       </div>
 
-      <div class="flex justify-between text-slate-400">
+      <div class="flex justify-between text-muted-custom">
         <span>TVA Total :</span>
-        <span class="font-mono text-slate-200">{{ formatMoney(totals.totalVat) }}</span>
+        <span class="font-mono font-bold text-main">{{ formatMoney(totals.totalVat) }}</span>
       </div>
 
       <!-- Total TTC Highlight Box -->
-      <div class="flex justify-between items-center bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/40 p-3 rounded-xl text-amber-400 font-bold text-sm mt-3">
+      <div class="flex justify-between items-center bg-brand-soft border border-brand-soft p-3.5 rounded-control text-brand-strong font-bold text-sm mt-3">
         <span>Total TTC :</span>
-        <span class="font-mono text-lg">{{ formatMoney(totals.totalTtc) }}</span>
+        <span class="font-mono text-lg font-black text-main">{{ formatMoney(totals.totalTtc) }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { formatMoney, type CalculatedQuoteTotals } from '~/server/utils/calculation'
 
 const props = defineProps<{

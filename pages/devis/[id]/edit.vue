@@ -3,45 +3,45 @@
     <!-- Breadcrumb & Header -->
     <div class="flex items-center justify-between">
       <div>
-        <NuxtLink :to="`/devis/${route.params.id}`" class="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold mb-1">
+        <NuxtLink :to="`/devis/${route.params.id}`" class="inline-flex items-center gap-1 text-xs text-[#987d61] dark:text-[#d0baa0] hover:text-brand font-bold mb-1">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
           <span>Retour au devis</span>
         </NuxtLink>
-        <h2 class="text-2xl font-bold text-slate-100 tracking-tight">Modifier le devis</h2>
-        <p class="text-xs text-slate-400 mt-1">Mettez à jour les prestations et montants du devis {{ quote?.number || '' }}.</p>
+        <h2 class="text-2xl font-bold text-main tracking-tight">Modifier le devis</h2>
+        <p class="text-xs text-muted-custom mt-1">Mettez à jour les prestations et montants du devis {{ quote?.number || '' }}.</p>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div v-if="pageLoading" class="p-12 text-center text-slate-400">
-      <svg class="animate-spin h-8 w-8 text-amber-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+    <div v-if="pageLoading" class="p-12 text-center text-muted-custom">
+      <svg class="animate-spin h-8 w-8 text-[#b49c80] mx-auto mb-3" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-      <p class="text-xs">Chargement du devis...</p>
+      <p class="text-xs font-semibold">Chargement du devis...</p>
     </div>
 
     <!-- Devis Not Found or Immutable Error -->
-    <div v-else-if="!quote" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-      <h3 class="text-base font-bold text-slate-100">Devis introuvable</h3>
-      <NuxtLink to="/devis" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold">
+    <div v-else-if="!quote" class="bg-panel border border-custom rounded-panel p-8 text-center space-y-4 shadow-soft">
+      <h3 class="text-base font-bold text-main">Devis introuvable</h3>
+      <NuxtLink to="/devis" class="inline-flex items-center gap-2 px-4 py-2 bg-panel-raised text-main border border-custom rounded-control text-xs font-bold">
         Retour à la liste
       </NuxtLink>
     </div>
 
-    <div v-else-if="quote.status !== 'DRAFT'" class="bg-slate-900/60 border border-rose-500/30 rounded-2xl p-8 text-center space-y-4">
-      <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto">
+    <div v-else-if="quote.status !== 'DRAFT'" class="bg-panel border border-rose-500/30 rounded-panel p-8 text-center space-y-4 shadow-soft">
+      <div class="w-12 h-12 rounded-control bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>
-      <h3 class="text-base font-bold text-slate-100">Devis non modifiable</h3>
-      <p class="text-xs text-slate-400 max-w-md mx-auto">
+      <h3 class="text-base font-bold text-main">Devis non modifiable</h3>
+      <p class="text-xs text-muted-custom max-w-md mx-auto">
         Seuls les devis en statut <strong>Brouillon</strong> peuvent être modifiés. Le statut actuel de ce devis est <strong>{{ quote.status }}</strong>.
       </p>
-      <NuxtLink :to="`/devis/${quote.id}`" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold">
+      <NuxtLink :to="`/devis/${quote.id}`" class="inline-flex items-center gap-2 px-4 py-2 bg-panel-raised text-main border border-custom rounded-control text-xs font-bold">
         Voir la fiche du devis
       </NuxtLink>
     </div>
@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import QuoteForm from '~/components/quotes/QuoteForm.vue'
 import type { QuoteWithRelations } from '~/composables/useQuotes'
 

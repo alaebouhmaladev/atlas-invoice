@@ -25,8 +25,34 @@ export type HrPermission =
   | 'hr.document.replace'
   | 'hr.document.archive'
   | 'hr.document.read_medical'
+  | 'hr.schedule.list'
+  | 'hr.schedule.read'
+  | 'hr.schedule.create'
+  | 'hr.schedule.update'
+  | 'hr.schedule.publish'
+  | 'hr.schedule.lock'
+  | 'hr.schedule.archive'
+  | 'hr.shift.create'
+  | 'hr.shift.update'
+  | 'hr.shift.cancel'
+  | 'hr.template.manage'
+  | 'hr.coverage.manage'
+  | 'hr.availability.manage'
+  | 'hr.schedule.override_warning'
+  | 'hr.attendance.read'
+  | 'hr.attendance.clock'
+  | 'hr.attendance.manage'
+  | 'hr.attendance.correct_request'
+  | 'hr.attendance.correct_review'
+  | 'hr.attendance.validate'
+  | 'hr.attendance.lock'
+  | 'hr.attendance.unlock'
+  | 'hr.attendance.policy.manage'
+  | 'hr.attendance.terminal.manage'
+  | 'hr.attendance.export'
+  | 'hr.attendance.anomaly.resolve'
 
-const ALL_PHASE_2_PERMISSIONS: HrPermission[] = [
+const ALL_PHASE_4_PERMISSIONS: HrPermission[] = [
   'hr.employee.list',
   'hr.employee.read',
   'hr.employee.create',
@@ -49,18 +75,48 @@ const ALL_PHASE_2_PERMISSIONS: HrPermission[] = [
   'hr.document.upload',
   'hr.document.replace',
   'hr.document.archive',
-  'hr.document.read_medical'
+  'hr.document.read_medical',
+  'hr.schedule.list',
+  'hr.schedule.read',
+  'hr.schedule.create',
+  'hr.schedule.update',
+  'hr.schedule.publish',
+  'hr.schedule.lock',
+  'hr.schedule.archive',
+  'hr.shift.create',
+  'hr.shift.update',
+  'hr.shift.cancel',
+  'hr.template.manage',
+  'hr.coverage.manage',
+  'hr.availability.manage',
+  'hr.schedule.override_warning',
+  'hr.attendance.read',
+  'hr.attendance.clock',
+  'hr.attendance.manage',
+  'hr.attendance.correct_request',
+  'hr.attendance.correct_review',
+  'hr.attendance.validate',
+  'hr.attendance.lock',
+  'hr.attendance.unlock',
+  'hr.attendance.policy.manage',
+  'hr.attendance.terminal.manage',
+  'hr.attendance.export',
+  'hr.attendance.anomaly.resolve'
 ]
 
 const ROLE_HR_PERMISSIONS: Record<Role, HrPermission[]> = {
-  SUPER_ADMIN: ALL_PHASE_2_PERMISSIONS,
-  HR_MANAGER: ALL_PHASE_2_PERMISSIONS,
+  SUPER_ADMIN: ALL_PHASE_4_PERMISSIONS,
+  HR_MANAGER: ALL_PHASE_4_PERMISSIONS,
   ACCOUNTANT: [
     'hr.employee.list',
     'hr.employee.read',
     'hr.assignment.read',
     'hr.contract.read',
-    'hr.document.read'
+    'hr.document.read',
+    'hr.schedule.list',
+    'hr.schedule.read',
+    'hr.attendance.read',
+    'hr.attendance.export'
   ],
   COMMERCIAL: []
 }
@@ -72,8 +128,11 @@ export function hasHrPermission(user: UserPublic | null | undefined, permission:
 }
 
 export async function requireHrPermission(event: any, permission: HrPermission): Promise<UserPublic> {
-  const { getUserFromEvent } = await import('./auth')
-  const user = await getUserFromEvent(event)
+  const user = event?.context?.user || (await (async () => {
+    const { getUserFromEvent } = await import('./auth')
+    return getUserFromEvent(event)
+  })())
+
   if (!user) {
     const err: any = new Error('Authentication is required to access this resource')
     err.statusCode = 401
@@ -119,5 +178,49 @@ export async function requireHrPermission(event: any, permission: HrPermission):
     }
     throw err
   }
+  return user
+}
+
+export async function requireSiteManagerPermission(event: any, siteId: string, permission: HrPermission): Promise<UserPublic> {
+  const user = await requireHrPermission(event, permission)
+
+  if (user.role === 'SUPER_ADMIN' || user.role === 'HR_MANAGER') {
+    return user
+  }
+
+  // Verify if user is linked to an Employee who is assigned as manager of target siteId
+  const { prisma } = await import('./db')
+  const emp = await prisma.employee.findFirst({
+    where: {
+      tenantId: user.tenantId || 'default-tenant',
+      linkedUserId: user.id,
+      archivedAt: null,
+      managedSites: { some: { id: siteId } }
+    }
+  })
+
+  if (!emp) {
+    try {
+      const { createAuditEntry } = await import('../services/audit.service')
+      await createAuditEntry({
+        userId: user.id,
+        action: 'HR_PHASE3_UNAUTHORIZED_ACCESS_ATTEMPT',
+        category: 'SECURITY',
+        result: 'FAILURE',
+        entityType: 'WorkSite',
+        entityId: siteId,
+        entityReference: permission,
+        metadata: { attemptedPermission: permission, targetSiteId: siteId }
+      })
+    } catch {
+      // Ignore audit failures
+    }
+
+    const err: any = new Error(`Accès non autorisé au site de travail (${siteId}).`)
+    err.statusCode = 403
+    err.data = { code: 'FORBIDDEN_SITE_SCOPE', message: `Accès non autorisé au site de travail.` }
+    throw err
+  }
+
   return user
 }
