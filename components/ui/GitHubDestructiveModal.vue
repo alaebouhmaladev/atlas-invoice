@@ -124,7 +124,7 @@
             :disabled="!canSubmit || loading"
             @click="confirm"
             class="px-4 py-2 rounded-control text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :class="actionType === 'RESTORE' ? 'bg-brand hover:opacity-90 text-slate-950' : 'bg-rose-600 hover:bg-rose-700 text-white'"
+            :class="actionType === 'RESTORE' ? 'bg-brand text-on-brand hover:bg-brand-strong' : 'bg-rose-600 hover:bg-rose-700 text-white'"
           >
             <svg v-if="loading" class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

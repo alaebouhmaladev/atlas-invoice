@@ -9,7 +9,7 @@
 
       <button
         @click="openUploadModal"
-        class="px-4 py-2.5 bg-brand hover:opacity-90 text-slate-950 text-xs font-bold rounded-pill transition-all shadow-sm flex items-center gap-2 self-start sm:self-auto cursor-pointer"
+        class="px-4 py-2.5 bg-brand text-on-brand hover:bg-brand-strong text-xs font-bold rounded-pill transition-all shadow-sm flex items-center gap-2 self-start sm:self-auto cursor-pointer"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />

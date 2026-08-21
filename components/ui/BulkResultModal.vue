@@ -113,7 +113,7 @@
           <button
             type="button"
             @click="close"
-            class="px-5 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs transition-colors cursor-pointer"
+            class="px-5 py-2 bg-brand text-on-brand hover:bg-brand-strong font-bold rounded-pill text-xs transition-colors cursor-pointer"
           >
             Fermer
           </button>

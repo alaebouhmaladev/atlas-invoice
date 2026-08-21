@@ -12,7 +12,7 @@
       <button
         type="button"
         @click="addItem"
-        class="px-3.5 py-1.5 bg-brand-soft hover:opacity-90 text-brand-strong border border-brand-soft rounded-pill text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+        class="px-3.5 py-1.5 bg-brand-soft hover:bg-brand-strong/20 text-brand-strong border border-brand-soft rounded-pill text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

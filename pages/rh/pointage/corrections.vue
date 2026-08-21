@@ -9,7 +9,7 @@
 
       <button
         @click="openNewModal"
-        class="px-4 py-2.5 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+        class="px-4 py-2.5 bg-brand text-on-brand hover:bg-brand-strong font-bold rounded-pill text-xs transition-all flex items-center gap-2 shadow-sm cursor-pointer"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />

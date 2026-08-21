@@ -49,7 +49,7 @@
               v-if="blobUrl"
               type="button"
               @click="downloadPdf"
-              class="px-3 py-1.5 bg-brand-soft hover:opacity-90 text-brand-strong border border-brand-soft rounded-control text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+              class="px-3 py-1.5 bg-brand-soft hover:bg-brand-strong/20 text-brand-strong border border-brand-soft rounded-control text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
               title="Télécharger"
               aria-label="Télécharger le fichier PDF"
             >
@@ -96,7 +96,7 @@
             <button
               type="button"
               @click="loadPdf"
-              class="px-4 py-2 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs transition-colors cursor-pointer"
+              class="px-4 py-2 bg-brand text-on-brand hover:bg-brand-strong font-bold rounded-pill text-xs transition-colors cursor-pointer"
             >
               Réessayer
             </button>

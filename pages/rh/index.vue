@@ -20,7 +20,7 @@
 
         <NuxtLink
           to="/rh/employes/nouveau"
-          class="px-4 py-2.5 bg-brand hover:opacity-90 text-slate-950 text-xs font-bold rounded-pill transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+          class="px-4 py-2.5 bg-brand text-on-brand hover:bg-brand-strong text-xs font-bold rounded-pill transition-all shadow-sm flex items-center gap-2 cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    <!-- Phase Roadmap Placeholder Banner -->
+    <!-- Notice Banner -->
     <div class="bg-brand-soft border border-brand-soft rounded-card p-4 flex items-start gap-3 shadow-soft">
       <div class="p-2 bg-brand-soft rounded-control text-brand-strong shrink-0">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -40,7 +40,7 @@
       <div class="text-xs space-y-1">
         <h4 class="font-bold text-brand-strong">Module Ressources Humaines opérationnel</h4>
         <p class="text-secondary-custom leading-relaxed">
-          Gestion des collaborateurs, organisation, contrats, documents, planning et pointage centralisée dans Atlas CRM.
+          La gestion des collaborateurs, de l’organisation, des contrats, des documents, du planning et du pointage est centralisée dans Atlas CRM.
         </p>
       </div>
     </div>

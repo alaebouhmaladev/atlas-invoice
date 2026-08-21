@@ -22,7 +22,7 @@
         <a
           :href="`/api/rh/pointage/exports?format=pdf`"
           target="_blank"
-          class="px-3.5 py-2.5 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+          class="px-3.5 py-2.5 bg-brand text-on-brand hover:bg-brand-strong font-bold rounded-pill text-xs transition-all flex items-center gap-2 shadow-sm cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />

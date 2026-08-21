@@ -74,7 +74,7 @@
           <button
             type="submit"
             :disabled="savingPolicy"
-            class="px-5 py-2.5 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-colors cursor-pointer"
+            class="px-5 py-2.5 bg-brand text-on-brand hover:bg-brand-strong font-bold rounded-pill text-xs shadow-sm transition-colors cursor-pointer"
           >
             Enregistrer la Politique RH
           </button>

@@ -41,7 +41,7 @@
         <button
           type="button"
           @click="$emit('archive')"
-          class="px-3 py-1.5 bg-brand-soft hover:opacity-90 text-brand-strong border border-brand-soft rounded-control text-xs font-bold transition-colors cursor-pointer"
+          class="px-3 py-1.5 bg-brand-soft hover:bg-brand-strong/20 text-brand-strong border border-brand-soft rounded-control text-xs font-bold transition-colors cursor-pointer"
         >
           Archiver
         </button>

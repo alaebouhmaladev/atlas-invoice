@@ -3,7 +3,7 @@
     <!-- Top Module Icons -->
     <div class="flex flex-col items-center space-y-3 w-full">
       <!-- Atlas Bites Logo Mark -->
-      <NuxtLink to="/" class="w-10 h-10 rounded-2xl bg-brand text-slate-950 font-extrabold flex items-center justify-center shadow-sm text-xs tracking-tighter mb-2 hover:scale-105 transition-transform" title="Atlas CRM — Atlas Bites SARL">
+      <NuxtLink to="/" class="w-10 h-10 rounded-2xl bg-brand text-on-brand font-extrabold flex items-center justify-center shadow-sm text-xs tracking-tighter mb-2 hover:scale-105 transition-transform" title="Atlas CRM — Atlas Bites SARL">
         AB
       </NuxtLink>
 
@@ -13,7 +13,7 @@
         :key="mod.id"
         @click="$emit('select-module', mod.id)"
         class="w-10 h-10 rounded-2xl flex items-center justify-center transition-all relative group cursor-pointer"
-        :class="selectedModule === mod.id ? 'bg-brand text-slate-950 shadow-sm font-bold scale-105' : 'text-secondary-custom hover:bg-surface-hover hover:text-main'"
+        :class="selectedModule === mod.id ? 'bg-brand text-on-brand shadow-sm font-bold scale-105' : 'text-secondary-custom hover:bg-surface-hover hover:text-main'"
         :title="mod.label"
       >
         <component :is="mod.icon" class="w-5 h-5" />

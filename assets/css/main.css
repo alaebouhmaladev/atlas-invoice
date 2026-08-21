@@ -30,10 +30,14 @@
   --text-muted: #8b8580;
   --brand: #b49c80;
   --brand-strong: #987d61;
-  --brand-foreground: #ffffff;
+  --on-brand: #14110e;
+  --brand-foreground: var(--on-brand);
   --focus: #b49c80;
 
-  /* Legacy Backward Compatibility Mappings */
+  /* Legacy & Semantic Theme Token Mappings */
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-on-brand: var(--on-brand);
   --color-canvas: var(--canvas);
   --color-shell: var(--shell);
   --color-sidebar: var(--sidebar);
@@ -41,6 +45,8 @@
   --color-surface-raised: var(--panel-raised);
   --color-surface-muted: var(--panel);
   --color-surface-hover: #eae6e1;
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-text: var(--text);
@@ -82,10 +88,14 @@ html.dark {
   --text-muted: #99928b;
   --brand: #bca68d;
   --brand-strong: #d0baa0;
-  --brand-foreground: #111111;
+  --on-brand: #111111;
+  --brand-foreground: var(--on-brand);
   --focus: #bca68d;
 
-  /* Legacy Backward Compatibility Mappings */
+  /* Legacy & Semantic Theme Token Mappings */
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-on-brand: var(--on-brand);
   --color-canvas: var(--canvas);
   --color-shell: var(--shell);
   --color-sidebar: var(--sidebar);
@@ -93,6 +103,8 @@ html.dark {
   --color-surface-raised: var(--panel-raised);
   --color-surface-muted: var(--panel);
   --color-surface-hover: #2d2d33;
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-text: var(--text);
@@ -136,7 +148,10 @@ body {
 .text-secondary-custom { color: var(--text-secondary); }
 .text-muted-custom { color: var(--text-muted); }
 
-.bg-brand { background-color: var(--brand); color: var(--brand-foreground); }
+.text-on-brand { color: var(--on-brand); }
+.bg-brand { background-color: var(--brand); color: var(--on-brand); }
+.bg-brand-strong { background-color: var(--brand-strong); }
+.hover\:bg-brand-strong:hover { background-color: var(--brand-strong); }
 .text-brand { color: var(--brand); }
 .text-brand-strong { color: var(--brand-strong); }
 .border-brand { border-color: var(--brand); }

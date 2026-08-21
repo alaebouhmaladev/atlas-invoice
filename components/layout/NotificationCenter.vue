@@ -13,7 +13,7 @@
       <!-- Unread Count Badge -->
       <span
         v-if="unreadCount > 0"
-        class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-brand text-slate-950 font-black text-[10px] rounded-pill flex items-center justify-center shadow-sm animate-pulse"
+        class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-brand text-on-brand font-black text-[10px] rounded-pill flex items-center justify-center shadow-sm animate-pulse"
       >
         {{ unreadCount > 99 ? '99+' : unreadCount }}
       </span>

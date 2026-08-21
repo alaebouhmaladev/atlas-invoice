@@ -15,11 +15,11 @@
       <!-- Brand Logo Header -->
       <div class="h-16 px-5 flex items-center justify-between border-b border-custom">
         <NuxtLink to="/" class="flex items-center gap-3 group">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#987d61] to-[#b49c80] text-slate-950 font-extrabold flex items-center justify-center shadow-sm text-sm tracking-tighter">
+          <div class="w-9 h-9 rounded-xl bg-brand text-on-brand font-extrabold flex items-center justify-center shadow-sm text-sm tracking-tighter">
             AB
           </div>
           <div>
-            <span class="font-bold text-main tracking-tight text-base block leading-tight group-hover:text-[#b49c80] transition-colors">Atlas CRM</span>
+            <span class="font-bold text-main tracking-tight text-base block leading-tight group-hover:text-brand transition-colors">Atlas CRM</span>
             <span class="text-[9px] text-muted-custom font-semibold uppercase tracking-wider block">Atlas Bites SARL</span>
           </div>
         </NuxtLink>

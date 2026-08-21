@@ -52,7 +52,7 @@
             @click="handleConfirm"
             :disabled="loading || isConfirmDisabled"
             class="px-4 py-2 font-bold rounded-control text-xs shadow-sm transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-            :class="danger ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' : 'bg-brand hover:opacity-90 text-slate-950'"
+            :class="danger ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' : 'bg-brand text-on-brand hover:bg-brand-strong'"
           >
             <svg v-if="loading" class="animate-spin h-3.5 w-3.5 text-current" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

@@ -8,7 +8,7 @@
           <h2 class="text-lg font-semibold text-slate-700 mt-1">Site : {{ activeSiteName }} ({{ activeSiteCode }})</h2>
           <p class="text-xs text-slate-600">Période du {{ weekRangeLabel }} | Statut : {{ formatScheduleStatus(schedule?.status) }}</p>
         </div>
-        <div class="text-right text-xs text-slate-500">
+        <div class="text-right text-xs text-muted-custom">
           <div>Imprimé le {{ new Date().toLocaleDateString('fr-FR') }}</div>
           <div v-if="schedule?.publishedByName">Publié par {{ schedule.publishedByName }}</div>
         </div>
@@ -33,14 +33,14 @@
           <div class="flex items-center bg-panel-raised p-0.5 rounded-pill border border-custom">
             <button
               @click="activeView = 'WEEK'"
-              :class="activeView === 'WEEK' ? 'bg-brand text-slate-950 font-bold shadow-sm' : 'text-muted-custom hover:text-main'"
+              :class="activeView === 'WEEK' ? 'bg-brand text-on-brand hover:bg-brand-strong font-bold shadow-sm' : 'text-muted-custom hover:text-main'"
               class="px-3 py-1 rounded-pill text-xs transition-colors cursor-pointer"
             >
               Semaine
             </button>
             <button
               @click="activeView = 'MONTH'"
-              :class="activeView === 'MONTH' ? 'bg-brand text-slate-950 font-bold shadow-sm' : 'text-muted-custom hover:text-main'"
+              :class="activeView === 'MONTH' ? 'bg-brand text-on-brand hover:bg-brand-strong font-bold shadow-sm' : 'text-muted-custom hover:text-main'"
               class="px-3 py-1 rounded-pill text-xs transition-colors cursor-pointer"
             >
               Mois
@@ -210,7 +210,7 @@
                       v-for="shift in getShiftsForCell(emp.id, day.dateStr)"
                       :key="shift.id"
                       @click.stop="openShiftDetails(shift)"
-                      class="p-2 rounded-control text-slate-950 font-bold text-[11px] shadow-sm border relative transition-transform group-hover:scale-[1.02] print:bg-slate-100 print:text-slate-900 print:border-slate-400"
+                      class="p-2 rounded-control text-on-brand font-bold text-[11px] shadow-sm border relative transition-transform group-hover:scale-[1.02] print:bg-slate-100 print:text-slate-900 print:border-slate-400"
                       :style="{ backgroundColor: shift.templateColorSnapshot || '#b49c80', borderColor: `${shift.templateColorSnapshot || '#b49c80'}aa` }"
                     >
                       <div class="flex items-center justify-between font-bold">
@@ -393,7 +393,7 @@
             <button @click="showShiftModal = false" class="px-4 py-2 bg-panel hover:bg-surface-hover text-secondary-custom text-xs rounded-control border border-custom cursor-pointer">
               Fermer
             </button>
-            <button @click="saveShift()" :disabled="savingShift" class="px-4 py-2 bg-brand hover:opacity-90 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-control shadow-sm cursor-pointer">
+            <button @click="saveShift()" :disabled="savingShift" class="px-4 py-2 bg-brand text-on-brand hover:bg-brand-strong disabled:opacity-50 font-bold text-xs rounded-control shadow-sm cursor-pointer">
               {{ savingShift ? 'Enregistrement...' : 'Enregistrer' }}
             </button>
           </div>
@@ -453,7 +453,7 @@
           <button @click="showCopyModal = false" class="px-4 py-2 bg-panel text-secondary-custom text-xs rounded-control border border-custom cursor-pointer">
             Annuler
           </button>
-          <button @click="executeCopyWeek()" :disabled="copying" class="px-4 py-2 bg-brand hover:opacity-90 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-control shadow-sm cursor-pointer">
+          <button @click="executeCopyWeek()" :disabled="copying" class="px-4 py-2 bg-brand text-on-brand hover:bg-brand-strong disabled:opacity-50 font-bold text-xs rounded-control shadow-sm cursor-pointer">
             {{ copying ? 'Copie en cours...' : 'Exécuter la copie' }}
           </button>
         </div>

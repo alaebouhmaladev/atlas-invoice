@@ -66,7 +66,7 @@ const variantClasses = computed(() => {
       return 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/20'
     default:
       // Primary: Atlas Bites Bronze identity (#b49c80)
-      return 'bg-brand hover:opacity-90 text-slate-950 font-bold shadow-sm'
+      return 'bg-brand text-on-brand hover:bg-brand-strong font-bold shadow-sm'
   }
 })
 </script>

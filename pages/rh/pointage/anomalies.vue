@@ -10,21 +10,21 @@
       <div class="flex items-center gap-2">
         <button
           @click="isResolvedFilter = undefined"
-          :class="isResolvedFilter === undefined ? 'bg-brand text-slate-950 font-bold' : 'bg-panel-raised hover:bg-surface-hover text-secondary-custom border border-custom'"
+          :class="isResolvedFilter === undefined ? 'bg-brand text-on-brand hover:bg-brand-strong font-bold' : 'bg-panel-raised hover:bg-surface-hover text-secondary-custom border border-custom'"
           class="px-3 py-1.5 rounded-pill text-xs font-semibold transition-all cursor-pointer"
         >
           Toutes
         </button>
         <button
           @click="isResolvedFilter = false"
-          :class="isResolvedFilter === false ? 'bg-brand text-slate-950 font-bold' : 'bg-panel-raised hover:bg-surface-hover text-secondary-custom border border-custom'"
+          :class="isResolvedFilter === false ? 'bg-brand text-on-brand hover:bg-brand-strong font-bold' : 'bg-panel-raised hover:bg-surface-hover text-secondary-custom border border-custom'"
           class="px-3 py-1.5 rounded-pill text-xs font-semibold transition-all cursor-pointer"
         >
           À Traiter
         </button>
         <button
           @click="isResolvedFilter = true"
-          :class="isResolvedFilter === true ? 'bg-brand text-slate-950 font-bold' : 'bg-panel-raised hover:bg-surface-hover text-secondary-custom border border-custom'"
+          :class="isResolvedFilter === true ? 'bg-brand text-on-brand hover:bg-brand-strong font-bold' : 'bg-panel-raised hover:bg-surface-hover text-secondary-custom border border-custom'"
           class="px-3 py-1.5 rounded-pill text-xs font-semibold transition-all cursor-pointer"
         >
           Résolues

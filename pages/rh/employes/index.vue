@@ -9,7 +9,7 @@
 
       <NuxtLink
         to="/rh/employes/nouveau"
-        class="px-4 py-2 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs transition-all shadow-sm flex items-center gap-2 self-start sm:self-auto cursor-pointer"
+        class="px-4 py-2 bg-brand text-on-brand hover:bg-brand-strong font-bold rounded-pill text-xs transition-all shadow-sm flex items-center gap-2 self-start sm:self-auto cursor-pointer"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -78,7 +78,7 @@
               @change="handleSearch"
               class="sr-only peer"
             />
-            <div class="w-9 h-5 bg-panel-raised peer-focus:outline-none rounded-pill peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+            <div class="w-9 h-5 bg-panel-raised peer-focus:outline-none rounded-pill peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-custom after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
           </label>
           <span class="text-xs font-semibold text-main">Inclure les archivés</span>
         </div>

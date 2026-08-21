@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-[85vh] flex items-center justify-center py-6 px-4">
-    <div class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 text-center">
+    <div class="w-full max-w-xl bg-panel border border-custom rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 text-center">
       <!-- Terminal Welcome Header -->
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold rounded-full mb-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-brand/10 border border-brand/20 text-brand text-xs font-bold rounded-full mb-3">
           BORNE DE POINTAGE TABLETTE
         </div>
-        <h1 class="text-3xl font-extrabold text-slate-100 tracking-tight">Atlas CRM Pointage</h1>
-        <p class="text-sm text-slate-400 mt-1">Veuillez saisir le code de la borne et votre identifiant/PIN.</p>
+        <h1 class="text-3xl font-extrabold text-main tracking-tight">Atlas CRM Pointage</h1>
+        <p class="text-sm text-muted-custom mt-1">Veuillez saisir le code de la borne et votre identifiant/PIN.</p>
       </div>
 
       <!-- Feedback Banner -->
@@ -18,35 +18,35 @@
       <!-- Terminal Input Form -->
       <form @submit.prevent="submitTerminalClock" class="space-y-4 text-left">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Code Borne Tablette</label>
+          <label class="block text-xs font-semibold text-muted-custom uppercase tracking-wider mb-1.5">Code Borne Tablette</label>
           <input
             v-model="terminalCode"
             type="text"
             required
             placeholder="Ex: TERM-REST-01"
-            class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500 font-mono"
+            class="w-full px-4 py-3 bg-panel-raised border border-custom rounded-xl text-main placeholder-gray-500 text-sm focus:outline-none focus:border-brand font-mono"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Secret / PIN Borne</label>
+          <label class="block text-xs font-semibold text-muted-custom uppercase tracking-wider mb-1.5">Secret / PIN Borne</label>
           <input
             v-model="terminalSecret"
             type="password"
             required
             placeholder="••••••••"
-            class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500 font-mono"
+            class="w-full px-4 py-3 bg-panel-raised border border-custom rounded-xl text-main placeholder-gray-500 text-sm focus:outline-none focus:border-brand font-mono"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Matricule Employé ou PIN Collaborateur</label>
+          <label class="block text-xs font-semibold text-muted-custom uppercase tracking-wider mb-1.5">Matricule Employé ou PIN Collaborateur</label>
           <input
             v-model="employeeInput"
             type="text"
             required
             placeholder="Ex: EMP-2026-0001 ou Code PIN"
-            class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500 font-mono text-center tracking-widest text-lg font-bold"
+            class="w-full px-4 py-3 bg-panel-raised border border-custom rounded-xl text-main placeholder-gray-500 text-sm focus:outline-none focus:border-brand font-mono text-center tracking-widest text-lg font-bold"
           />
         </div>
 
@@ -55,7 +55,7 @@
           <button
             type="button"
             @click="selectedAction = 'CLOCK_IN'"
-            :class="selectedAction === 'CLOCK_IN' ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400' : 'bg-slate-800 text-slate-300 border-slate-700'"
+            :class="selectedAction === 'CLOCK_IN' ? 'bg-emerald-500 text-on-brand font-bold border-emerald-400' : 'bg-panel-raised text-muted-custom border-custom'"
             class="py-3 px-4 rounded-xl text-sm font-semibold border transition-all"
           >
             Entrée
@@ -63,7 +63,7 @@
           <button
             type="button"
             @click="selectedAction = 'CLOCK_OUT'"
-            :class="selectedAction === 'CLOCK_OUT' ? 'bg-rose-500 text-slate-950 font-bold border-rose-400' : 'bg-slate-800 text-slate-300 border-slate-700'"
+            :class="selectedAction === 'CLOCK_OUT' ? 'bg-rose-500 text-on-brand font-bold border-rose-400' : 'bg-panel-raised text-muted-custom border-custom'"
             class="py-3 px-4 rounded-xl text-sm font-semibold border transition-all"
           >
             Sortie
@@ -71,7 +71,7 @@
           <button
             type="button"
             @click="selectedAction = 'BREAK_START'"
-            :class="selectedAction === 'BREAK_START' ? 'bg-amber-500 text-slate-950 font-bold border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'"
+            :class="selectedAction === 'BREAK_START' ? 'bg-amber-500 text-on-brand font-bold border-amber-400' : 'bg-panel-raised text-muted-custom border-custom'"
             class="py-3 px-4 rounded-xl text-sm font-semibold border transition-all"
           >
             Début Pause
@@ -79,7 +79,7 @@
           <button
             type="button"
             @click="selectedAction = 'BREAK_END'"
-            :class="selectedAction === 'BREAK_END' ? 'bg-indigo-500 text-slate-950 font-bold border-indigo-400' : 'bg-slate-800 text-slate-300 border-slate-700'"
+            :class="selectedAction === 'BREAK_END' ? 'bg-indigo-500 text-on-brand font-bold border-indigo-400' : 'bg-panel-raised text-muted-custom border-custom'"
             class="py-3 px-4 rounded-xl text-sm font-semibold border transition-all"
           >
             Fin Pause
@@ -89,7 +89,7 @@
         <button
           type="submit"
           :disabled="loading"
-          class="w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl text-base transition-colors shadow-lg shadow-amber-500/20 disabled:opacity-50 mt-4"
+          class="w-full py-4 bg-brand hover:bg-brand-strong text-on-brand font-bold rounded-2xl text-base transition-colors shadow-lg shadow-brand/20 disabled:opacity-50 mt-4"
         >
           Valider le Pointage Borne
         </button>

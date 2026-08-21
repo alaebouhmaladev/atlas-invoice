@@ -10,7 +10,7 @@
       <div class="flex flex-wrap items-center gap-3">
         <NuxtLink
           to="/rh/pointage/badgeuse"
-          class="px-4 py-2.5 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+          class="px-4 py-2.5 bg-brand text-on-brand hover:bg-brand-strong font-bold rounded-pill text-xs transition-all flex items-center gap-2 shadow-sm cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -143,26 +143,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-const data = ref<any>(null)
-const loading = ref(true)
-
-async function fetchDashboardData() {
-  loading.value = true
-  try {
-    data.value = await $fetch('/api/rh/pointage/aujourdhui')
-  } catch (err) {
-    console.error('Failed to load dashboard attendance:', err)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  fetchDashboardData()
-})
-</script>
 
 <script setup lang="ts">
 const data = ref<any>(null)
