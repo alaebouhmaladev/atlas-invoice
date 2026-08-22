@@ -74,16 +74,16 @@
               </td>
               <td class="py-3.5 px-4 font-bold text-main">
                 {{ tmpl.name }}
-                <span v-if="tmpl.description" class="block text-[11px] text-muted-custom font-normal">{{ tmpl.description }}</span>
+                <span v-if="tmpl.description" class="block text-xs text-muted-custom font-normal">{{ tmpl.description }}</span>
               </td>
               <td class="py-3.5 px-4">
-                <span v-if="tmpl.isDayOff" class="px-2 py-0.5 bg-panel-raised text-muted-custom border border-custom rounded-pill text-[11px] font-semibold">
+                <span v-if="tmpl.isDayOff" class="px-2 py-0.5 bg-panel-raised text-muted-custom border border-custom rounded-pill text-xs font-semibold">
                   REPOS
                 </span>
-                <span v-else-if="tmpl.segments.length > 1" class="px-2 py-0.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 rounded-pill text-[11px] font-semibold">
+                <span v-else-if="tmpl.segments.length > 1" class="px-2 py-0.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 rounded-pill text-xs font-semibold">
                   Coupure ({{ tmpl.segments.length }} créneaux)
                 </span>
-                <span v-else class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-pill text-[11px] font-semibold">
+                <span v-else class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-pill text-xs font-semibold">
                   Shift continu
                 </span>
               </td>
@@ -93,16 +93,16 @@
                   <span
                     v-for="seg in tmpl.segments"
                     :key="seg.id"
-                    class="px-2 py-0.5 bg-panel-raised text-main rounded-control text-[11px] font-mono border border-custom"
+                    class="px-2 py-0.5 bg-panel-raised text-main rounded-control text-xs font-mono border border-custom"
                   >
                     {{ seg.startLocalTime }} – {{ seg.endLocalTime }}{{ seg.endsNextDay ? ' (+1d)' : '' }}
-                    <span v-if="seg.segmentType === 'PAID_BREAK'" class="text-emerald-600 dark:text-emerald-400 text-[10px] ml-1 font-sans">(Pause payée)</span>
-                    <span v-else-if="seg.segmentType === 'UNPAID_BREAK'" class="text-brand-strong text-[10px] ml-1 font-sans">(Pause non payée)</span>
+                    <span v-if="seg.segmentType === 'PAID_BREAK'" class="text-emerald-600 dark:text-emerald-400 text-xs ml-1 font-sans">(Pause payée)</span>
+                    <span v-else-if="seg.segmentType === 'UNPAID_BREAK'" class="text-brand-strong text-xs ml-1 font-sans">(Pause non payée)</span>
                   </span>
                 </div>
               </td>
               <td class="py-3.5 px-4">
-                <span :class="tmpl.isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-panel-raised text-muted-custom border border-custom'" class="px-2.5 py-0.5 rounded-pill text-[11px] font-bold">
+                <span :class="tmpl.isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-panel-raised text-muted-custom border border-custom'" class="px-2.5 py-0.5 rounded-pill text-xs font-bold">
                   {{ tmpl.isActive ? 'Actif' : 'Inactif' }}
                 </span>
               </td>
@@ -127,7 +127,7 @@
     </div>
 
     <!-- Create / Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div v-if="showModal" class="fixed inset-0 z-50 bg-overlay backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-panel border border-custom rounded-panel w-full max-w-xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-custom pb-3">
           <h3 class="text-base font-bold text-main">
@@ -174,13 +174,13 @@
           <div v-if="!form.isDayOff" class="space-y-3 pt-3 border-t border-custom">
             <div class="flex items-center justify-between">
               <h4 class="font-bold text-main">Créneaux horaires (Segments)</h4>
-              <button @click="addSegment()" type="button" class="text-brand-strong hover:underline text-[11px] font-bold flex items-center gap-1 cursor-pointer">
+              <button @click="addSegment()" type="button" class="text-brand-strong hover:underline text-xs font-bold flex items-center gap-1 cursor-pointer">
                 + Ajouter un créneau
               </button>
             </div>
 
             <div v-for="(seg, idx) in form.segments" :key="idx" class="bg-panel-raised border border-custom p-3 rounded-control space-y-2">
-              <div class="flex items-center justify-between text-[11px] font-bold text-muted-custom">
+              <div class="flex items-center justify-between text-xs font-bold text-muted-custom">
                 <span>Créneau {{ idx + 1 }}</span>
                 <button v-if="form.segments.length > 1" @click="removeSegment(idx)" type="button" class="text-rose-600 dark:text-rose-400 hover:underline cursor-pointer">
                   Supprimer
@@ -189,15 +189,15 @@
 
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div>
-                  <label class="block text-[10px] text-muted-custom">Heure début</label>
+                  <label class="block text-xs text-muted-custom">Heure début</label>
                   <input v-model="seg.startLocalTime" type="text" placeholder="11:00" class="w-full bg-panel border border-custom text-main rounded-control px-2 py-1 text-center font-mono focus:outline-none focus:border-brand" />
                 </div>
                 <div>
-                  <label class="block text-[10px] text-muted-custom">Heure fin</label>
+                  <label class="block text-xs text-muted-custom">Heure fin</label>
                   <input v-model="seg.endLocalTime" type="text" placeholder="16:00" class="w-full bg-panel border border-custom text-main rounded-control px-2 py-1 text-center font-mono focus:outline-none focus:border-brand" />
                 </div>
                 <div>
-                  <label class="block text-[10px] text-muted-custom">Type de créneau</label>
+                  <label class="block text-xs text-muted-custom">Type de créneau</label>
                   <select v-model="seg.segmentType" class="w-full bg-panel border border-custom text-main rounded-control px-2 py-1 focus:outline-none focus:border-brand">
                     <option value="WORK">Travail</option>
                     <option value="PAID_BREAK">Pause payée</option>
@@ -205,7 +205,7 @@
                   </select>
                 </div>
                 <div class="flex items-center pt-3">
-                  <label class="inline-flex items-center gap-1.5 text-[10px] text-secondary-custom cursor-pointer">
+                  <label class="inline-flex items-center gap-1.5 text-xs text-secondary-custom cursor-pointer">
                     <input v-model="seg.endsNextDay" type="checkbox" class="w-3.5 h-3.5 rounded-control bg-panel border-custom text-brand" />
                     Fin J+1
                   </label>

@@ -22,7 +22,7 @@
     <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-secondary-custom border-collapse">
-          <thead class="bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider border-b border-custom">
+          <thead class="bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider border-b border-custom">
             <tr>
               <th class="px-6 py-4">Collaborateur</th>
               <th class="px-6 py-4">Site</th>
@@ -47,7 +47,7 @@
               <td class="px-6 py-4 text-secondary-custom">{{ c.reason }}</td>
               <td class="px-6 py-4 text-muted-custom text-xs">{{ c.requestedBy.name }}</td>
               <td class="px-6 py-4">
-                <span :class="getStatusBadgeClass(c.status)" class="px-2.5 py-1 text-[10px] font-bold rounded-pill border">
+                <span :class="getStatusBadgeClass(c.status)" class="px-2.5 py-1 text-xs font-bold rounded-pill border">
                   {{ c.status }}
                 </span>
               </td>
@@ -80,13 +80,13 @@
     </div>
 
     <!-- Reject Modal -->
-    <div v-if="rejectTarget" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div v-if="rejectTarget" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay backdrop-blur-sm">
       <div class="bg-panel border border-custom rounded-panel p-6 max-w-md w-full shadow-2xl space-y-4">
         <h3 class="text-base font-bold text-main">Rejet de la Demande de Correction</h3>
         <p class="text-xs text-secondary-custom leading-relaxed">Veuillez indiquer le motif obligatoire du rejet.</p>
 
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1.5">Motif du Rejet</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1.5">Motif du Rejet</label>
           <textarea
             v-model="rejectNote"
             rows="3"

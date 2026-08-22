@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
   if (exactIceConflict) {
     throw createError({
       statusCode: 409,
-      statusMessage: 'Conflict',
+      statusMessage: 'Conflit',
       data: {
         code: 'EXACT_ICE_CONFLICT',
         message: `Un client avec le numéro ICE (${clientData.ice}) existe déjà.`

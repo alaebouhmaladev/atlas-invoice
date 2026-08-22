@@ -9,7 +9,7 @@
 
       <NuxtLink
         to="/factures/new"
-        class="px-4 py-2 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
+        class="px-4 py-2 bg-brand hover:opacity-90 text-on-brand font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -78,7 +78,7 @@
       </div>
       <button
         @click="() => fetchInvoices()"
-        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-600 dark:text-rose-300 rounded-control font-semibold text-[11px] transition-colors"
+        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-600 dark:text-rose-300 rounded-control font-semibold text-xs transition-colors"
       >
         Réessayer
       </button>
@@ -109,7 +109,7 @@
         <div class="pt-2">
           <NuxtLink
             to="/factures/new"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill text-xs transition-colors"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:opacity-90 text-on-brand font-bold rounded-pill text-xs transition-colors"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -163,11 +163,11 @@
                   <NuxtLink :to="`/factures/${invoice.id}`" class="text-brand-strong hover:underline transition-colors">
                     {{ invoice.number || `BROUILLON #${invoice.id.substring(0, 6).toUpperCase()}` }}
                   </NuxtLink>
-                  <span v-if="invoice.isArchived" class="px-1.5 py-0.5 rounded-pill text-[10px] font-bold bg-brand-soft text-brand-strong border border-brand-soft">
+                  <span v-if="invoice.isArchived" class="px-1.5 py-0.5 rounded-pill text-xs font-bold bg-brand-soft text-brand-strong border border-brand-soft">
                     ARCHIVÉ
                   </span>
                 </div>
-                <div v-if="invoice.sourceQuote" class="text-[11px] text-muted-custom font-sans font-normal">
+                <div v-if="invoice.sourceQuote" class="text-xs text-muted-custom font-sans font-normal">
                   Devis : {{ invoice.sourceQuote.number }}
                 </div>
               </td>
@@ -179,14 +179,14 @@
                 <div v-else class="font-bold text-main">
                   {{ invoice.clientSnapshot?.displayName || 'Client' }}
                 </div>
-                <div class="text-[11px] text-muted-custom">
+                <div class="text-xs text-muted-custom">
                   {{ invoice.clientSnapshot?.city || 'Maroc' }}
                 </div>
               </td>
 
               <td class="py-3.5 px-4">
                 <div class="text-secondary-custom font-mono">{{ formatDate(invoice.issueDate) }}</div>
-                <div class="text-muted-custom text-[11px]">Échéance : {{ formatDate(invoice.dueDate) }}</div>
+                <div class="text-muted-custom text-xs">Échéance : {{ formatDate(invoice.dueDate) }}</div>
               </td>
 
               <td class="py-3.5 px-4">
@@ -223,7 +223,7 @@
                 <button
                   type="button"
                   @click="openPdfPreview(invoice)"
-                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-[#b49c80] hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-brand hover:bg-surface-hover rounded-control transition-colors cursor-pointer"
                   title="Prévisualiser le PDF"
                   aria-label="Prévisualiser le PDF de la facture"
                 >

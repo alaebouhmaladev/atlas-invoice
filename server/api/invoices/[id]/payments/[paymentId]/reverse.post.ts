@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   if (!invoiceId || !paymentId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiants de facture et paiement requis' }
     })
   }
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   if (!parseResult.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'VALIDATION_ERROR',
         message: 'Le motif d\'annulation du paiement est obligatoire',
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     const error = err as Error
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'REVERSE_PAYMENT_FAILED',
         message: error.message || 'Échec de l\'annulation du paiement'

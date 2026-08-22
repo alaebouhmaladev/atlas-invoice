@@ -10,9 +10,11 @@ export default defineEventHandler(async (event) => {
       database: 'connected',
       timestamp: new Date().toISOString()
     })
-  } catch (error: unknown) {
+  } catch {
     setResponseStatus(event, 500)
-    const message = error instanceof Error ? error.message : String(error)
-    return createErrorResponse('HEALTH_CHECK_FAILED', 'Database health check failed', message)
+    return createErrorResponse(
+      'HEALTH_CHECK_FAILED',
+      'Le contrôle de disponibilité de la base de données a échoué'
+    )
   }
 })

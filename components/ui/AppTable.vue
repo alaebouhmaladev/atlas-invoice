@@ -2,7 +2,7 @@
   <div class="w-full overflow-hidden rounded-card border border-custom bg-panel shadow-soft">
     <div class="overflow-x-auto">
       <table class="w-full text-left text-xs text-main border-collapse">
-        <thead class="bg-panel-raised border-b border-custom text-[11px] font-bold text-muted-custom uppercase tracking-wider">
+        <thead class="bg-panel-raised border-b border-custom text-xs font-bold text-muted-custom uppercase tracking-wider">
           <slot name="header" />
         </thead>
         <tbody class="divide-y divide-custom">

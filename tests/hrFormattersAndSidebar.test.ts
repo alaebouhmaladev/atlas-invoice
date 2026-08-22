@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { formatHrAuditAction, formatContractStatus, formatWorkSiteType } from '../utils/hrFormatters'
+import { getActiveSidebarTarget } from '../utils/sidebarNavigation'
 
 describe('HR Formatters & Navigation Matching', () => {
   describe('formatHrAuditAction', () => {
@@ -10,10 +11,11 @@ describe('HR Formatters & Navigation Matching', () => {
       expect(formatHrAuditAction('HR_DOCUMENT_UPLOADED')).toBe('Document RH versé')
       expect(formatHrAuditAction('HR_ATTENDANCE_EVENT')).toBe('Pointage enregistré')
       expect(formatHrAuditAction('HR_ATTENDANCE_ANOMALY_RESOLVED')).toBe('Anomalie de pointage résolue')
+      expect(formatHrAuditAction('HR_LEAVE_REQUEST_APPROVED')).toBe('Demande de congé approuvée')
     })
 
     it('provides safe fallback for unknown HR audit actions', () => {
-      expect(formatHrAuditAction('HR_CUSTOM_EVENT_TRIGGERED')).toBe('Custom event triggered')
+      expect(formatHrAuditAction('HR_CUSTOM_EVENT_TRIGGERED')).toBe('Événement RH non répertorié')
       expect(formatHrAuditAction(null)).toBe('-')
     })
   })
@@ -34,29 +36,32 @@ describe('HR Formatters & Navigation Matching', () => {
   })
 
   describe('Sidebar Route Active Matching Logic', () => {
-    function isItemActive(to: string, currentPath: string): boolean {
-      if (to === '/rh/pointage') {
-        return currentPath === '/rh/pointage'
-      }
-      if (to === '/rh') {
-        return currentPath === '/rh'
-      }
-      return currentPath === to || currentPath.startsWith(to + '/')
-    }
-
     it('prevents duplicate active highlights on sub-routes under /rh/pointage', () => {
-      expect(isItemActive('/rh/pointage', '/rh/pointage')).toBe(true)
-      expect(isItemActive('/rh/pointage', '/rh/pointage/anomalies')).toBe(false)
-      expect(isItemActive('/rh/pointage', '/rh/pointage/corrections')).toBe(false)
-
-      expect(isItemActive('/rh/pointage/anomalies', '/rh/pointage/anomalies')).toBe(true)
-      expect(isItemActive('/rh/pointage/corrections', '/rh/pointage/corrections')).toBe(true)
+      const targets = ['/rh', '/rh/pointage', '/rh/pointage/anomalies', '/rh/pointage/corrections']
+      expect(getActiveSidebarTarget(targets, '/rh/pointage')).toBe('/rh/pointage')
+      expect(getActiveSidebarTarget(targets, '/rh/pointage/anomalies')).toBe('/rh/pointage/anomalies')
+      expect(getActiveSidebarTarget(targets, '/rh/pointage/corrections')).toBe('/rh/pointage/corrections')
     })
 
     it('enforces exact match on HR overview /rh', () => {
-      expect(isItemActive('/rh', '/rh')).toBe(true)
-      expect(isItemActive('/rh', '/rh/employes')).toBe(false)
-      expect(isItemActive('/rh', '/rh/organisation')).toBe(false)
+      const targets = ['/rh', '/rh/employes', '/rh/organisation']
+      expect(getActiveSidebarTarget(targets, '/rh')).toBe('/rh')
+      expect(getActiveSidebarTarget(targets, '/rh/employes')).toBe('/rh/employes')
+      expect(getActiveSidebarTarget(targets, '/rh/organisation')).toBe('/rh/organisation')
+    })
+
+    it('selects exactly one leave, client, admin, and query-specific route', () => {
+      expect(getActiveSidebarTarget(
+        ['/rh', '/rh/conges', '/rh/conges/soldes', '/rh/conges/parametres'],
+        '/rh/conges/soldes'
+      )).toBe('/rh/conges/soldes')
+      expect(getActiveSidebarTarget(['/clients', '/clients/new'], '/clients/new')).toBe('/clients/new')
+      expect(getActiveSidebarTarget(['/parametres', '/parametres/entreprise'], '/parametres/entreprise')).toBe('/parametres/entreprise')
+      expect(getActiveSidebarTarget(
+        ['/factures', '/factures?tab=paiements'],
+        '/factures',
+        { tab: 'paiements' }
+      )).toBe('/factures?tab=paiements')
     })
   })
 })

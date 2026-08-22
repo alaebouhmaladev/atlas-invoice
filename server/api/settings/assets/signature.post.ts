@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!formData || formData.length === 0) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'NO_FILE_UPLOADED', message: 'Aucun fichier n\'a été fourni' }
     })
   }
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   if (!fileItem || !fileItem.data) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_FILE', message: 'Fichier invalide ou corrompu' }
     })
   }

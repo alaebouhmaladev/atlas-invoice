@@ -45,7 +45,7 @@
     <!-- Secondary Filters Row -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-custom">
       <div>
-        <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Règlement</label>
+        <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Règlement</label>
         <select
           v-model="paymentStatus"
           class="w-full py-1.5 px-2.5 text-xs rounded-control bg-panel-raised border border-custom text-main focus:outline-none focus:border-brand"
@@ -59,7 +59,7 @@
       </div>
 
       <div>
-        <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Origine</label>
+        <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Origine</label>
         <select
           v-model="source"
           class="w-full py-1.5 px-2.5 text-xs rounded-control bg-panel-raised border border-custom text-main focus:outline-none focus:border-brand"
@@ -72,7 +72,7 @@
       </div>
 
       <div>
-        <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Archives</label>
+        <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Archives</label>
         <select
           v-model="archiveStatus"
           class="w-full py-1.5 px-2.5 text-xs rounded-control bg-panel-raised border border-custom text-main focus:outline-none focus:border-brand"

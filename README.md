@@ -18,6 +18,7 @@ All core modules through **Phase 5** and the **PDF Engine Design & Layout Refine
 - **PDF Engine & Layout Refinement**: Shared PDFKit engine matching authoritative reference design (`#FAF9F5` canvas, outer dark border, top logo & header metadata grid, two-column ÉMETTEUR / DESTINATAIRE alignment, side-by-side RÈGLEMENT & Totals alignment, vector checkmark circle `FACTURE ACQUITTÉE` box, centered bold legal footer with address line and no page numbers, strict 12pt font minimum, guaranteed single-page layout math).
 
 - **Phase 6: Production Dashboard, Backups, Deployment & Operations**: Real-time server-aggregated Super Admin Production Dashboard with date filters (`30d`, `7d`, `today`, `this_month`, `last_month`, `this_year`, `custom`), financial KPIs (Chiffre d’affaires facturé, Montant encaissé, Montant restant à encaisser, Factures en retard, Taux de transformation, Valeur devis acceptés), operational cards, visual distribution charts, Action-Required alerts, and Super Admin System Health card. Automated PostgreSQL `.dump` & Company Assets `.tar.gz` CLI backup tool (`scripts/backup.ts`) with SHA-256 `manifest.json` verification and retention policy. Verified CLI restoration tool (`scripts/restore.ts`) with test-database mode (`--test-restore-db`) and live safeguards (`--confirm-live-restore`). Production Docker Compose stack (`compose.production.yml`) with non-root app runner container, isolated database network, persistent named volumes (`postgres_prod_data`, `atlas_prod_uploads`, `atlas_prod_backups`), and zero public DB ports. Production Nginx reverse proxy template (`nginx/atlas-invoice.conf`) with security headers, body upload limits, blocked `.env` & `.dump` paths, and TLS setup. Process liveness (`/api/health/live`) and readiness (`/api/health/ready`) endpoints. Zero-data-loss deployment workflow script (`scripts/deploy.sh`), automated post-deployment smoke test (`scripts/smoke_test.ts`), and comprehensive operations documentation (`docs/`).
+- **HR Phase 5: Congés, Absences, Jours fériés & Validations**: Tenant-scoped configurable leave types and policies, immutable minute-based balance ledger, explicit holiday calendars, protected medical-document references, self-approval prevention, non-destructive planning conflicts/coverage, safe `ON_LEAVE`/`HOLIDAY` attendance projections, locked-period protection, audit history, persistent notifications, and French responsive light/dark workflows.
 
 ---
 
@@ -37,6 +38,7 @@ All core modules through **Phase 5** and the **PDF Engine Design & Layout Refine
 | **Company Settings & Assets** | ✅ Update Profile/Upload Assets | 👁️ View Only | 👁️ View Only |
 | **Production Dashboard & KPIs**| ✅ Full Dashboard & Infra Health | ✅ Financials & Operations | ✅ Sales & Devis Metrics |
 | **Backup & Restore Operations**| ✅ CLI & Status Endpoint | ❌ Forbidden (HTTP 403) | ❌ Forbidden (HTTP 403) |
+| **Congés & validations RH** | ✅ Configuration, demandes, décisions, soldes | 👁️ Lecture approuvée et soldes | ❌ Forbidden (HTTP 403) |
 
 ---
 
@@ -87,6 +89,22 @@ To prevent future client or company parameter updates from silently altering his
 ---
 
 ## 🔌 Complete API Endpoint Registry
+
+### HR Phase 5 (`/api/rh`)
+| Method | Endpoint | Description | Permission |
+| :--- | :--- | :--- | :--- |
+| `GET/POST` | `/api/rh/conges` | Liste publique RH / soumission confidentielle | `hr.leave.list` / `hr.leave.create_for_employee` |
+| `GET` | `/api/rh/conges/:id` | Détail redacted par défaut | `hr.leave.read` |
+| `POST` | `/api/rh/conges/:id/review` | Approbation ou refus sans auto-approbation | `hr.leave.review` |
+| `POST` | `/api/rh/conges/:id/cancel` | Annulation avec écriture compensatoire | `hr.leave.cancel` |
+| `GET/POST` | `/api/rh/conges/types` | Types configurables | lecture / `hr.leave.manage_types` |
+| `POST` | `/api/rh/conges/policies` | Politiques sans valeurs légales implicites | `hr.leave.manage_policies` |
+| `GET` | `/api/rh/conges/balances` | Soldes et registre | `hr.leave.balance.read` |
+| `POST` | `/api/rh/conges/balances/adjust` | Ajustement immuable et idempotent | `hr.leave.balance.adjust` |
+| `GET/POST` | `/api/rh/calendriers` | Calendriers fériés explicites | lecture / gestion calendrier |
+| `POST` | `/api/rh/calendriers/:id/jours-feries` | Ajout manuel d’une date | `hr.leave.holiday.manage` |
+| `GET` | `/api/rh/absences` | Absences sans motifs privés | `hr.leave.absence.read` |
+| `POST` | `/api/rh/absences/:id/resolve` | Justification confidentielle | `hr.leave.absence.resolve` |
 
 ### Auth & User Module (`/api/auth`)
 | Method | Endpoint | Description | Role Access |
@@ -293,4 +311,3 @@ When completing subsequent phases:
    - `pnpm typecheck` returns 0 errors.
    - `pnpm build` compiles cleanly.
 4. **Data Protection**: Never delete or un-link live user database records or asset IDs.
-

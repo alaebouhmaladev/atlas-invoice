@@ -23,7 +23,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <!-- Search Input -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche par titre</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche par titre</label>
           <div class="relative">
             <input
               v-model="searchQuery"
@@ -39,7 +39,7 @@
 
         <!-- Category Filter -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Catégorie</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Catégorie</label>
           <select
             v-model="categoryFilter"
             class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 text-xs text-main focus:outline-none focus:border-brand transition-colors"
@@ -61,7 +61,7 @@
 
         <!-- Expiration Filter -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Expiration sous</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Expiration sous</label>
           <select
             v-model="expiringFilter"
             class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 text-xs text-main focus:outline-none focus:border-brand transition-colors"
@@ -88,13 +88,13 @@
           </svg>
         </div>
         <p class="text-xs font-bold text-main">Aucun document RH trouvé</p>
-        <p class="text-[11px] text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou ajoutez un nouveau document administratif.</p>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou ajoutez un nouveau document administratif.</p>
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-custom bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider">
+            <tr class="border-b border-custom bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider">
               <th class="py-3.5 px-4">Employé</th>
               <th class="py-3.5 px-4">Titre du document</th>
               <th class="py-3.5 px-4">Catégorie</th>
@@ -111,7 +111,7 @@
                 <NuxtLink :to="`/rh/employes/${d.employeeId}`" class="font-bold text-main hover:text-brand block">
                   {{ d.employee?.displayName || '-' }}
                 </NuxtLink>
-                <span class="text-[10px] font-mono text-muted-custom block">{{ d.employee?.employeeNumber }}</span>
+                <span class="text-xs font-mono text-muted-custom block">{{ d.employee?.employeeNumber }}</span>
               </td>
 
               <!-- Titre -->
@@ -121,17 +121,17 @@
 
               <!-- Catégorie -->
               <td class="py-3 px-4">
-                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold inline-block" :class="getDocumentCategoryBadgeClass(d.category)">
+                <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold inline-block" :class="getDocumentCategoryBadgeClass(d.category)">
                   {{ formatDocumentCategory(d.category) }}
                 </span>
               </td>
 
               <!-- Version -->
               <td class="py-3 px-4 font-mono">
-                <span v-if="d.currentVersion" class="px-2 py-0.5 bg-panel-raised text-main rounded-control text-[10px] font-bold border border-custom">
+                <span v-if="d.currentVersion" class="px-2 py-0.5 bg-panel-raised text-main rounded-control text-xs font-bold border border-custom">
                   v{{ d.currentVersion.versionNumber }}
                 </span>
-                <span v-else class="text-muted-custom italic text-[11px]">Aucun fichier</span>
+                <span v-else class="text-muted-custom italic text-xs">Aucun fichier</span>
               </td>
 
               <!-- Expiration -->
@@ -141,10 +141,10 @@
 
               <!-- Confidentialité -->
               <td class="py-3 px-4">
-                <span v-if="d.isConfidential" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30">
+                <span v-if="d.isConfidential" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30">
                   Confidentiel
                 </span>
-                <span v-else class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-panel-raised text-muted-custom border border-custom">
+                <span v-else class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-panel-raised text-muted-custom border border-custom">
                   Public interne
                 </span>
               </td>

@@ -13,7 +13,7 @@
       <!-- Unread Count Badge -->
       <span
         v-if="unreadCount > 0"
-        class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-brand text-on-brand font-black text-[10px] rounded-pill flex items-center justify-center shadow-sm animate-pulse"
+        class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-brand text-on-brand font-black text-xs rounded-pill flex items-center justify-center shadow-sm animate-pulse"
       >
         {{ unreadCount > 99 ? '99+' : unreadCount }}
       </span>
@@ -29,7 +29,7 @@
         <div class="px-4 py-3 border-b border-custom flex items-center justify-between bg-panel-raised">
           <div class="flex items-center gap-2">
             <h3 class="text-xs font-bold text-main uppercase tracking-wider">Notifications</h3>
-            <span v-if="unreadCount > 0" class="px-2 py-0.5 bg-brand-soft text-brand-strong text-[10px] font-bold rounded-pill border border-brand-soft">
+            <span v-if="unreadCount > 0" class="px-2 py-0.5 bg-brand-soft text-brand-strong text-xs font-bold rounded-pill border border-brand-soft">
               {{ unreadCount }} non lue{{ unreadCount > 1 ? 's' : '' }}
             </span>
           </div>
@@ -38,14 +38,14 @@
             v-if="unreadCount > 0"
             @click="handleMarkAllRead"
             :disabled="marking"
-            class="text-[11px] font-bold text-brand-strong hover:text-brand transition-colors disabled:opacity-50 cursor-pointer"
+            class="text-xs font-bold text-brand-strong hover:text-brand transition-colors disabled:opacity-50 cursor-pointer"
           >
             Tout marquer comme lu
           </button>
         </div>
 
         <!-- Severity Filter Pills -->
-        <div class="px-3 py-2 border-b border-custom bg-panel-raised flex items-center gap-1.5 overflow-x-auto text-[11px]">
+        <div class="px-3 py-2 border-b border-custom bg-panel-raised flex items-center gap-1.5 overflow-x-auto text-xs">
           <button
             v-for="filter in severityFilters"
             :key="filter.value || 'all'"
@@ -110,11 +110,11 @@
                 <h4 class="font-bold text-main group-hover:text-brand transition-colors truncate">
                   {{ item.title }}
                 </h4>
-                <span class="text-[10px] text-muted-custom shrink-0">
+                <span class="text-xs text-muted-custom shrink-0">
                   {{ formatTimeAgo(item.createdAt) }}
                 </span>
               </div>
-              <p class="text-secondary-custom line-clamp-2 text-[11px] leading-relaxed">
+              <p class="text-secondary-custom line-clamp-2 text-xs leading-relaxed">
                 {{ item.message }}
               </p>
             </div>

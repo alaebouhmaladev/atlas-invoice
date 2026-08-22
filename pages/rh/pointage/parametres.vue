@@ -88,7 +88,7 @@
         <h2 class="text-base font-bold text-main">Bornes de Pointage Enregistrées</h2>
         <button
           @click="openNewTerminalModal"
-          class="px-3.5 py-1.5 bg-panel-raised hover:bg-surface-hover text-[#987d61] dark:text-[#d0baa0] font-bold rounded-pill text-xs border border-custom transition-colors cursor-pointer"
+          class="px-3.5 py-1.5 bg-panel-raised hover:bg-surface-hover text-brand-strong font-bold rounded-pill text-xs border border-custom transition-colors cursor-pointer"
         >
           + Ajouter une Borne Tablette
         </button>
@@ -106,19 +106,19 @@
         >
           <div>
             <div class="text-xs font-bold text-main">{{ t.name }}</div>
-            <div class="text-xs font-mono text-[#987d61] dark:text-[#d0baa0] font-bold">Code : {{ t.code }}</div>
-            <div class="text-[11px] text-muted-custom mt-1">Site : {{ t.site.name }}</div>
+            <div class="text-xs font-mono text-brand-strong font-bold">Code : {{ t.code }}</div>
+            <div class="text-xs text-muted-custom mt-1">Site : {{ t.site.name }}</div>
           </div>
 
           <div class="text-right">
-            <span :class="t.isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'" class="px-2.5 py-1 text-[10px] font-bold rounded-pill border">
+            <span :class="t.isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'" class="px-2.5 py-1 text-xs font-bold rounded-pill border">
               {{ t.isActive ? 'Active' : 'Révoquée' }}
             </span>
 
             <div v-if="t.isActive" class="mt-2">
               <button
                 @click="revokeTerminal(t.id)"
-                class="text-[11px] text-rose-600 dark:text-rose-400 hover:underline font-bold cursor-pointer"
+                class="text-xs text-rose-600 dark:text-rose-400 hover:underline font-bold cursor-pointer"
               >
                 Révoquer
               </button>

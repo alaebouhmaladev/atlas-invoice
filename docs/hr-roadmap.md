@@ -11,7 +11,7 @@ Ce document présente l’architecture fonctionnelle et la planification des 8 p
 - [x] Phase 2 — Sites, departments, positions, contracts and documents [COMPLETED]
 - [x] Phase 3 — Schedules, shifts and staffing coverage [COMPLETED]
 - [x] Phase 4 — Attendance, time clock and worked-hour validation [COMPLETED]
-- [ ] Phase 5 — Leave, absences and approval workflows [PLANIFIÉ]
+- [x] Phase 5 — Leave, absences and approval workflows [COMPLETED]
 - [ ] Phase 6 — Payroll, salary calculations and payslip PDFs [PLANIFIÉ]
 - [ ] Phase 7 — Employee self-service portal and manager approvals [PLANIFIÉ]
 - [ ] Phase 8 — HR dashboard, reporting, security audit and final production validation [PLANIFIÉ]
@@ -47,10 +47,12 @@ Ce document présente l’architecture fonctionnelle et la planification des 8 p
 
 ---
 
-## Phase 5: Congés, Absences et Workflows de Validation (Planned, not implemented)
+## Phase 5: Congés, Absences et Workflows de Validation
 
-* **Statut** : **Planifié (Non implémenté)**
-* **Objectif** : Gérer le solde des congés payés, les demandes d'absences, les arrêts maladie et les circuits de validation.
+* **Statut** : **Complété & Recetté**
+* **Objectif** : Gérer les politiques configurables, les soldes en minutes, les demandes d’absence, les justificatifs confidentiels et les circuits de validation sans auto-approbation.
+* **Garanties** : registre de solde immuable avec écritures compensatoires, isolation tenant, contrôles RBAC, aucune règle légale ou fête à date variable préremplie, motifs privés exclus des listes et notifications, intégration non destructive au planning, et refus de toute projection sur une présence validée ou verrouillée.
+* **Intégrations** : un congé approuvé bloque les nouveaux shifts et réduit la couverture calculée sans supprimer les shifts publiés ; les jours déverrouillés sont projetés en `ON_LEAVE`, les jours fériés en `HOLIDAY`, tandis que les événements de pointage bruts et les historiques restent intacts.
 
 ---
 

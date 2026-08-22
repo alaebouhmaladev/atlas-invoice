@@ -10,7 +10,7 @@
     <!-- Contextual Nav Items -->
     <nav class="flex-1 px-3 py-4 space-y-5">
       <div v-for="section in moduleSections" :key="section.title" class="space-y-1">
-        <div v-if="section.title" class="px-2 text-[10px] font-bold text-muted-custom uppercase tracking-wider mb-1.5">
+        <div v-if="section.title" class="px-2 text-xs font-bold text-muted-custom uppercase tracking-wider mb-1.5">
           {{ section.title }}
         </div>
 
@@ -22,7 +22,7 @@
           :class="isItemActive(item.to) ? 'bg-brand-soft text-brand-strong font-bold border-l-2 border-brand' : 'text-secondary-custom hover:bg-surface-hover hover:text-main'"
         >
           <span>{{ item.label }}</span>
-          <span v-if="item.badge" class="px-1.5 py-0.5 rounded-pill text-[10px] font-mono bg-panel border border-custom text-muted-custom">
+          <span v-if="item.badge" class="px-1.5 py-0.5 rounded-pill text-xs font-mono bg-panel border border-custom text-muted-custom">
             {{ item.badge }}
           </span>
         </NuxtLink>
@@ -35,6 +35,7 @@
 import { computed } from 'vue'
 import { useRoute } from '#imports'
 import { useAuth } from '~/composables/useAuth'
+import { getActiveSidebarTarget } from '~/utils/sidebarNavigation'
 
 const props = defineProps<{
   selectedModule: string
@@ -83,7 +84,7 @@ const allSections = computed<Record<string, NavSection[]>>(() => ({
       title: 'CLIENTELE',
       items: [
         { label: 'Tous les clients', to: '/clients' },
-        { label: '+ Nouveau client', to: '/clients/nouveau' }
+        { label: '+ Nouveau client', to: '/clients/new' }
       ]
     }
   ],
@@ -111,6 +112,17 @@ const allSections = computed<Record<string, NavSection[]>>(() => ({
         { label: 'Organisation et sites', to: '/rh/organisation', roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
         { label: 'Contrats', to: '/rh/contrats', roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
         { label: 'Documents RH', to: '/rh/documents', roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] }
+      ]
+    },
+    {
+      title: 'CONGÉS & ABSENCES',
+      items: [
+        { label: 'Congés et absences', to: '/rh/conges', roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT', 'COMMERCIAL'] },
+        { label: 'Approbations', to: '/rh/conges/approbations', roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
+        { label: 'Soldes de congés', to: '/rh/conges/soldes', roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+        { label: 'Absences détectées', to: '/rh/absences', roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+        { label: 'Calendrier férié', to: '/rh/conges/calendrier', roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT', 'COMMERCIAL'] },
+        { label: 'Paramètres congés', to: '/rh/conges/parametres', roles: ['SUPER_ADMIN', 'HR_MANAGER'] }
       ]
     },
     {
@@ -148,15 +160,13 @@ const moduleSections = computed(() => {
     .filter(s => s.items.length > 0)
 })
 
+const activeTarget = computed(() => getActiveSidebarTarget(
+  moduleSections.value.flatMap(section => section.items.map(item => item.to)),
+  route.path,
+  route.query
+))
+
 function isItemActive(to: string): boolean {
-  const currentPath = route.path
-  if (to === '/') return currentPath === '/'
-  if (to === '/rh') return currentPath === '/rh'
-  if (to === '/rh/pointage') return currentPath === '/rh/pointage'
-  if (to.includes('?')) {
-    const basePath = to.split('?')[0]
-    return currentPath === basePath && route.query.tab === 'paiements'
-  }
-  return currentPath.startsWith(to) && route.query.tab !== 'paiements'
+  return activeTarget.value === to
 }
 </script>

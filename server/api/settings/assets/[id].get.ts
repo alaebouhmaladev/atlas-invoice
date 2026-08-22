@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'MISSING_ASSET_ID', message: 'L\'identifiant de la ressource est requis' }
     })
   }

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant de devis requis' }
     })
   }
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   if (!parseResult.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'VALIDATION_ERROR',
         message: 'Statut de devis invalide',
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     const error = err as Error
     throw createError({
       statusCode: 409,
-      statusMessage: 'Conflict',
+      statusMessage: 'Conflit',
       data: {
         code: 'STATUS_CHANGE_FAILED',
         message: error.message || 'Transition de statut non autorisée'

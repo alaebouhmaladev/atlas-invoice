@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      class="fixed inset-0 z-50 bg-overlay backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       @keydown.esc="close"
@@ -45,22 +45,22 @@
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
             <div class="p-3 bg-panel-raised border border-custom rounded-card">
               <div class="text-lg font-black text-rose-600 dark:text-rose-400 font-mono">{{ result.totalDeleted }}</div>
-              <div class="text-[10px] font-bold text-muted-custom">Supprimés</div>
+              <div class="text-xs font-bold text-muted-custom">Supprimés</div>
             </div>
 
             <div class="p-3 bg-panel-raised border border-custom rounded-card">
               <div class="text-lg font-black text-amber-600 dark:text-amber-400 font-mono">{{ result.totalArchived }}</div>
-              <div class="text-[10px] font-bold text-muted-custom">Archivés</div>
+              <div class="text-xs font-bold text-muted-custom">Archivés</div>
             </div>
 
             <div class="p-3 bg-panel-raised border border-custom rounded-card">
               <div class="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono">{{ result.totalRestored }}</div>
-              <div class="text-[10px] font-bold text-muted-custom">Restaurés</div>
+              <div class="text-xs font-bold text-muted-custom">Restaurés</div>
             </div>
 
             <div class="p-3 bg-panel-raised border border-custom rounded-card">
               <div class="text-lg font-black text-muted-custom font-mono">{{ result.totalBlocked }}</div>
-              <div class="text-[10px] font-bold text-muted-custom">Ignorés</div>
+              <div class="text-xs font-bold text-muted-custom">Ignorés</div>
             </div>
           </div>
 
@@ -79,25 +79,25 @@
                 <div class="flex items-center gap-2 shrink-0">
                   <span
                     v-if="item.actionTaken === 'DELETED'"
-                    class="px-2 py-0.5 rounded-pill text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                    class="px-2 py-0.5 rounded-pill text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
                   >
                     Supprimé
                   </span>
                   <span
                     v-else-if="item.actionTaken === 'ARCHIVED'"
-                    class="px-2 py-0.5 rounded-pill text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                    class="px-2 py-0.5 rounded-pill text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
                   >
                     Archivé
                   </span>
                   <span
                     v-else-if="item.actionTaken === 'RESTORED'"
-                    class="px-2 py-0.5 rounded-pill text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                    class="px-2 py-0.5 rounded-pill text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                   >
                     Restauré
                   </span>
                   <span
                     v-else
-                    class="px-2 py-0.5 rounded-pill text-[10px] font-bold bg-panel-raised text-muted-custom border border-custom"
+                    class="px-2 py-0.5 rounded-pill text-xs font-bold bg-panel-raised text-muted-custom border border-custom"
                     :title="item.reason"
                   >
                     Ignoré ({{ item.reason || 'Non admissible' }})

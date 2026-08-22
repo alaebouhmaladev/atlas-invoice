@@ -3,7 +3,7 @@
     <!-- Breadcrumb & Header -->
     <div class="flex items-center justify-between">
       <div>
-        <NuxtLink to="/clients" class="inline-flex items-center gap-1 text-xs text-[#987d61] dark:text-[#d0baa0] hover:text-brand font-bold mb-1">
+        <NuxtLink to="/clients" class="inline-flex items-center gap-1 text-xs text-brand-strong hover:text-brand font-bold mb-1">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -41,9 +41,9 @@
         >
           <div>
             <span class="font-bold text-main block">{{ dup.displayName }}</span>
-            <span class="text-[11px] text-[#987d61] dark:text-[#d0baa0] font-bold block">{{ dup.matchReason }}</span>
+            <span class="text-xs text-brand-strong font-bold block">{{ dup.matchReason }}</span>
           </div>
-          <NuxtLink :to="`/clients/${dup.id}`" target="_blank" class="text-[11px] text-muted-custom hover:text-main underline font-semibold">
+          <NuxtLink :to="`/clients/${dup.id}`" target="_blank" class="text-xs text-muted-custom hover:text-main underline font-semibold">
             Voir la fiche
           </NuxtLink>
         </div>

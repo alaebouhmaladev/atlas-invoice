@@ -101,6 +101,23 @@ model User {
   createdValidations        AttendanceValidation[]        @relation("ValidationCreatedBy")
   lockedPeriods             AttendancePeriodLock[]        @relation("PeriodLockedBy")
   unlockedPeriods           AttendancePeriodLock[]        @relation("PeriodUnlockedBy")
+  createdLeaveTypes         LeaveType[]                   @relation("LeaveTypeCreatedBy")
+  updatedLeaveTypes         LeaveType[]                   @relation("LeaveTypeUpdatedBy")
+  createdLeavePolicies      LeavePolicy[]                 @relation("LeavePolicyCreatedBy")
+  updatedLeavePolicies      LeavePolicy[]                 @relation("LeavePolicyUpdatedBy")
+  submittedLeaveRequests    LeaveRequest[]                @relation("LeaveRequestSubmittedBy")
+  cancelledLeaveRequests    LeaveRequest[]                @relation("LeaveRequestCancelledBy")
+  assignedLeaveApprovals    LeaveApprovalStep[]           @relation("LeaveApprovalAssignedUser")
+  decidedLeaveApprovals     LeaveApprovalStep[]           @relation("LeaveApprovalDecisionBy")
+  leaveRequestHistories     LeaveRequestHistory[]         @relation("LeaveRequestHistoryActor")
+  leaveBalanceEntries       LeaveBalanceEntry[]           @relation("LeaveBalanceEntryActor")
+  createdHolidayCalendars   HolidayCalendar[]             @relation("HolidayCalendarCreatedBy")
+  updatedHolidayCalendars   HolidayCalendar[]             @relation("HolidayCalendarUpdatedBy")
+  createdHolidays           Holiday[]                     @relation("HolidayCreatedBy")
+  updatedHolidays           Holiday[]                     @relation("HolidayUpdatedBy")
+  resolvedAbsences          AbsenceRecord[]               @relation("AbsenceResolvedBy")
+  archivedLeaveTypes        LeaveType[]                   @relation("LeaveTypeArchivedBy")
+  leaveAttachmentsUploaded  LeaveRequestAttachment[]      @relation("LeaveAttachmentUploadedBy")
 
   @@index([tenantId])
   @@index([email])
@@ -671,6 +688,10 @@ model Employee {
   attendanceDays      AttendanceDay[]
   attendanceAnomalies AttendanceAnomaly[]
   correctionRequests  AttendanceCorrectionRequest[]
+  leaveBalances       LeaveBalance[]
+  leaveRequests       LeaveRequest[]
+  scopedLeavePolicies LeavePolicy[]                 @relation("LeavePolicyEmployeeScope")
+  absenceRecords      AbsenceRecord[]
 
   @@unique([tenantId, employeeNumber])
   @@unique([tenantId, cinFingerprint])
@@ -779,6 +800,10 @@ model WorkSite {
   correctionRequests    AttendanceCorrectionRequest[]
   attendanceValidations AttendanceValidation[]
   attendancePeriodLocks AttendancePeriodLock[]
+  leavePolicies         LeavePolicy[]
+  holidayCalendarSites  HolidayCalendarSite[]
+  leaveRequestDays      LeaveRequestDay[]
+  absenceRecords        AbsenceRecord[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -809,9 +834,10 @@ model Department {
   updatedBy       User?     @relation("DepartmentUpdatedBy", fields: [updatedById], references: [id])
   archivedBy      User?     @relation("DepartmentArchivedBy", fields: [archivedById], references: [id])
 
-  positions   Position[]
-  assignments EmployeeAssignment[]
-  contracts   EmploymentContract[]
+  positions     Position[]
+  assignments   EmployeeAssignment[]
+  contracts     EmploymentContract[]
+  leavePolicies LeavePolicy[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -851,6 +877,7 @@ model Position {
   contracts            EmploymentContract[]
   scheduledShifts      ScheduledShift[]
   staffingRequirements StaffingRequirement[]
+  leavePolicies        LeavePolicy[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -984,6 +1011,9 @@ model EmployeeDocument {
   updatedBy          User?                         @relation("DocumentUpdatedBy", fields: [updatedById], references: [id])
   archivedBy         User?                         @relation("DocumentArchivedBy", fields: [archivedById], references: [id])
   correctionRequests AttendanceCorrectionRequest[]
+  leaveRequests      LeaveRequest[]
+  leaveAttachments   LeaveRequestAttachment[]
+  absenceRecords     AbsenceRecord[]
 
   @@index([tenantId])
   @@index([tenantId, employeeId])
@@ -1140,17 +1170,18 @@ model ScheduledShift {
   updatedAt             DateTime             @updatedAt
   version               Int                  @default(1)
 
-  schedule       WorkSchedule            @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  employee       Employee                @relation("EmployeeScheduledShifts", fields: [employeeId], references: [id], onDelete: Cascade)
-  site           WorkSite                @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  position       Position                @relation(fields: [positionId], references: [id])
-  assignment     EmployeeAssignment?     @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
-  template       ShiftTemplate?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  createdByUser  User                    @relation("ShiftCreatedBy", fields: [createdByUserId], references: [id])
-  updatedByUser  User?                   @relation("ShiftUpdatedBy", fields: [updatedByUserId], references: [id])
-  segments       ScheduledShiftSegment[]
-  changes        ScheduleChangeHistory[]
-  attendanceDays AttendanceDay[]
+  schedule         WorkSchedule            @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee         Employee                @relation("EmployeeScheduledShifts", fields: [employeeId], references: [id], onDelete: Cascade)
+  site             WorkSite                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  position         Position                @relation(fields: [positionId], references: [id])
+  assignment       EmployeeAssignment?     @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  template         ShiftTemplate?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  createdByUser    User                    @relation("ShiftCreatedBy", fields: [createdByUserId], references: [id])
+  updatedByUser    User?                   @relation("ShiftUpdatedBy", fields: [updatedByUserId], references: [id])
+  segments         ScheduledShiftSegment[]
+  changes          ScheduleChangeHistory[]
+  attendanceDays   AttendanceDay[]
+  leaveRequestDays LeaveRequestDay[]
 
   @@index([tenantId])
   @@index([tenantId, scheduleId])
@@ -1456,6 +1487,8 @@ model AttendanceDay {
   anomalies           AttendanceAnomaly[]
   correctionRequests  AttendanceCorrectionRequest[]
   correctionHistories AttendanceCorrectionHistory[]
+  leaveRequestDays    LeaveRequestDay[]
+  absenceRecords      AbsenceRecord[]
 
   @@unique([tenantId, employeeId, workDate])
   @@index([tenantId])
@@ -1600,4 +1633,941 @@ model AttendancePeriodLock {
   @@index([tenantId])
   @@index([tenantId, siteId])
   @@index([tenantId, isLocked])
+}
+
+enum LeaveCategory {
+  PAID
+  UNPAID
+  SICK
+  AUTHORIZED_OTHER
+}
+
+enum LeaveRequestStatus {
+  DRAFT
+  SUBMITTED
+  PENDING_APPROVAL
+  PENDING_MANAGER
+  PENDING_HR
+  APPROVED
+  REJECTED
+  CANCEL_REQUESTED
+  WITHDRAWN
+  CANCELLED
+}
+
+enum LeaveApprovalWorkflow {
+  MANAGER_ONLY
+  HR_ONLY
+  MANAGER_THEN_HR
+  AUTOMATIC
+}
+
+enum LeaveAttachmentStatus {
+  MISSING
+  PROVIDED
+  VERIFIED
+  REJECTED
+}
+
+enum LeaveApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum LeaveDayPortion {
+  FULL_DAY
+  MORNING
+  AFTERNOON
+  CUSTOM
+}
+
+enum LeaveBalanceEntryType {
+  OPENING
+  ACCRUAL
+  ADJUSTMENT
+  RESERVATION
+  RELEASE
+  DEBIT
+  REVERSAL
+  CARRY_OVER
+  EXPIRY
+}
+
+enum AbsenceStatus {
+  UNJUSTIFIED
+  PENDING_JUSTIFICATION
+  JUSTIFIED
+  RESOLVED
+}
+
+enum AbsenceSource {
+  ATTENDANCE_JOB
+  MANUAL
+  LEAVE_REQUEST
+}
+
+model LeaveType {
+  id                     String        @id @default(uuid())
+  tenantId               String        @default("default-tenant")
+  code                   String
+  name                   String
+  description            String?
+  color                  String        @default("#b49c80")
+  category               LeaveCategory
+  isPaid                 Boolean       @default(false)
+  usesBalance            Boolean       @default(false)
+  requiresDocument       Boolean       @default(false)
+  allowPartialDay        Boolean       @default(true)
+  allowHourly            Boolean       @default(false)
+  requiresApproval       Boolean       @default(true)
+  minimumNoticeDays      Int?
+  maximumConsecutiveDays Int?
+  isActive               Boolean       @default(true)
+  archivedAt             DateTime?
+  archivedById           String?
+  createdById            String
+  updatedById            String?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  version                Int           @default(1)
+
+  createdBy  User           @relation("LeaveTypeCreatedBy", fields: [createdById], references: [id])
+  updatedBy  User?          @relation("LeaveTypeUpdatedBy", fields: [updatedById], references: [id])
+  archivedBy User?          @relation("LeaveTypeArchivedBy", fields: [archivedById], references: [id], onDelete: SetNull)
+  policies   LeavePolicy[]
+  balances   LeaveBalance[]
+  requests   LeaveRequest[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isActive])
+  @@index([tenantId, category])
+}
+
+model LeavePolicy {
+  id                         String                @id @default(uuid())
+  tenantId                   String                @default("default-tenant")
+  leaveTypeId                String
+  siteId                     String?
+  departmentId               String?
+  positionId                 String?
+  employeeId                 String?
+  contractType               ContractType?
+  scopeKey                   String                @default("GLOBAL")
+  name                       String
+  effectiveFrom              DateTime
+  effectiveTo                DateTime?
+  entitlementMinutes         Int                   @default(0)
+  accrualMinutes             Int                   @default(0)
+  accrualFrequency           String                @default("MANUAL")
+  minutesPerDay              Int                   @default(480)
+  workingWeekdays            Int[]                 @default([])
+  excludeHolidays            Boolean               @default(true)
+  carryOverLimitMinutes      Int?
+  carryOverExpiryMonth       Int?
+  allowNegativeBalance       Boolean               @default(false)
+  maximumNegativeMinutes     Int                   @default(0)
+  attachmentThresholdMinutes Int?
+  approvalWorkflow           LeaveApprovalWorkflow @default(HR_ONLY)
+  blockOnCoverageWarning     Boolean               @default(false)
+  priority                   Int                   @default(0)
+  allowDuringProbation       Boolean               @default(true)
+  allowRetroactiveRequests   Boolean               @default(false)
+  isActive                   Boolean               @default(true)
+  createdById                String
+  updatedById                String?
+  createdAt                  DateTime              @default(now())
+  updatedAt                  DateTime              @updatedAt
+  version                    Int                   @default(1)
+
+  leaveType  LeaveType   @relation(fields: [leaveTypeId], references: [id])
+  site       WorkSite?   @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  position   Position?   @relation(fields: [positionId], references: [id], onDelete: SetNull)
+  employee   Employee?   @relation("LeavePolicyEmployeeScope", fields: [employeeId], references: [id], onDelete: SetNull)
+  createdBy  User        @relation("LeavePolicyCreatedBy", fields: [createdById], references: [id])
+  updatedBy  User?       @relation("LeavePolicyUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([tenantId, leaveTypeId, effectiveFrom])
+  @@index([tenantId, siteId, isActive])
+  @@index([tenantId, employeeId, isActive])
+  @@index([tenantId, departmentId, positionId, priority])
+  @@index([tenantId, leaveTypeId, scopeKey, priority])
+}
+
+model LeaveBalance {
+  id               String   @id @default(uuid())
+  tenantId         String   @default("default-tenant")
+  employeeId       String
+  leaveTypeId      String
+  periodStart      DateTime
+  periodEnd        DateTime
+  openingMinutes   Int      @default(0)
+  accruedMinutes   Int      @default(0)
+  adjustedMinutes  Int      @default(0)
+  reservedMinutes  Int      @default(0)
+  consumedMinutes  Int      @default(0)
+  expiredMinutes   Int      @default(0)
+  availableMinutes Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  version          Int      @default(1)
+
+  employee  Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType LeaveType           @relation(fields: [leaveTypeId], references: [id])
+  entries   LeaveBalanceEntry[]
+
+  @@unique([tenantId, employeeId, leaveTypeId, periodStart])
+  @@index([tenantId, employeeId])
+  @@index([tenantId, leaveTypeId, periodEnd])
+}
+
+model LeaveBalanceEntry {
+  id                    String                @id @default(uuid())
+  tenantId              String                @default("default-tenant")
+  balanceId             String
+  leaveRequestId        String?
+  entryType             LeaveBalanceEntryType
+  amountMinutes         Int
+  effectiveDate         DateTime
+  reason                String
+  idempotencyKey        String?
+  balanceBeforeSnapshot Json
+  balanceAfterSnapshot  Json
+  actorId               String?
+  createdAt             DateTime              @default(now())
+
+  balance      LeaveBalance  @relation(fields: [balanceId], references: [id], onDelete: Cascade)
+  leaveRequest LeaveRequest? @relation(fields: [leaveRequestId], references: [id], onDelete: SetNull)
+  actor        User?         @relation("LeaveBalanceEntryActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, balanceId, effectiveDate])
+  @@index([tenantId, leaveRequestId])
+}
+
+model LeaveRequest {
+  id                      String                @id @default(uuid())
+  tenantId                String                @default("default-tenant")
+  requestNumber           String
+  sequenceYear            Int
+  sequenceNumber          Int
+  idempotencyKey          String?
+  employeeId              String
+  leaveTypeId             String
+  status                  LeaveRequestStatus    @default(DRAFT)
+  startDate               DateTime
+  endDate                 DateTime
+  startPortion            LeaveDayPortion       @default(FULL_DAY)
+  endPortion              LeaveDayPortion       @default(FULL_DAY)
+  customStartMinute       Int?
+  customEndMinute         Int?
+  requestedMinutes        Int                   @default(0)
+  approvedMinutes         Int?
+  privateReason           String?
+  documentId              String?
+  attachmentStatus        LeaveAttachmentStatus @default(MISSING)
+  emergencyContact        String?
+  submittedById           String
+  submittedAt             DateTime?
+  currentApprovalSequence Int                   @default(1)
+  policySnapshot          Json?
+  assignmentSnapshot      Json?
+  balanceSnapshot         Json?
+  planningImpactSnapshot  Json?
+  approvedAt              DateTime?
+  rejectedAt              DateTime?
+  withdrawnAt             DateTime?
+  cancelledAt             DateTime?
+  cancellationRequestedAt DateTime?
+  cancellationReason      String?
+  cancelledById           String?
+  privateDecisionNote     String?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  version                 Int                   @default(1)
+
+  employee       Employee                 @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType      LeaveType                @relation(fields: [leaveTypeId], references: [id])
+  document       EmployeeDocument?        @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  submittedBy    User                     @relation("LeaveRequestSubmittedBy", fields: [submittedById], references: [id])
+  cancelledBy    User?                    @relation("LeaveRequestCancelledBy", fields: [cancelledById], references: [id], onDelete: SetNull)
+  days           LeaveRequestDay[]
+  approvalSteps  LeaveApprovalStep[]
+  histories      LeaveRequestHistory[]
+  attachments    LeaveRequestAttachment[]
+  balanceEntries LeaveBalanceEntry[]
+  absenceRecords AbsenceRecord[]
+
+  @@unique([tenantId, requestNumber])
+  @@unique([tenantId, sequenceYear, sequenceNumber])
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, employeeId, startDate, endDate])
+  @@index([tenantId, status, submittedAt])
+  @@index([tenantId, leaveTypeId])
+}
+
+model LeaveRequestAttachment {
+  id             String   @id @default(uuid())
+  tenantId       String   @default("default-tenant")
+  leaveRequestId String
+  documentId     String
+  isMedical      Boolean  @default(false)
+  uploadedById   String
+  createdAt      DateTime @default(now())
+
+  leaveRequest LeaveRequest     @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
+  document     EmployeeDocument @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  uploadedBy   User             @relation("LeaveAttachmentUploadedBy", fields: [uploadedById], references: [id])
+
+  @@unique([tenantId, leaveRequestId, documentId])
+  @@index([tenantId, leaveRequestId])
+  @@index([tenantId, documentId])
+}
+
+model LeaveRequestDay {
+  id               String          @id @default(uuid())
+  tenantId         String          @default("default-tenant")
+  leaveRequestId   String
+  localDate        DateTime
+  siteId           String?
+  scheduledShiftId String?
+  holidayId        String?
+  attendanceDayId  String?
+  portion          LeaveDayPortion @default(FULL_DAY)
+  plannedMinutes   Int             @default(0)
+  requestedMinutes Int             @default(0)
+  isWorkingDay     Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+
+  leaveRequest   LeaveRequest    @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
+  site           WorkSite?       @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  scheduledShift ScheduledShift? @relation(fields: [scheduledShiftId], references: [id], onDelete: SetNull)
+  holiday        Holiday?        @relation(fields: [holidayId], references: [id], onDelete: SetNull)
+  attendanceDay  AttendanceDay?  @relation(fields: [attendanceDayId], references: [id], onDelete: SetNull)
+
+  @@unique([leaveRequestId, localDate])
+  @@index([tenantId, localDate])
+  @@index([tenantId, siteId, localDate])
+  @@index([tenantId, scheduledShiftId])
+}
+
+model LeaveApprovalStep {
+  id                     String              @id @default(uuid())
+  tenantId               String              @default("default-tenant")
+  leaveRequestId         String
+  sequence               Int                 @default(1)
+  approverRole           Role?
+  approverUserId         String?
+  status                 LeaveApprovalStatus @default(PENDING)
+  decisionById           String?
+  decidedAt              DateTime?
+  privateNote            String?
+  decisionIdempotencyKey String?
+  version                Int                 @default(1)
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  leaveRequest LeaveRequest @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
+  approverUser User?        @relation("LeaveApprovalAssignedUser", fields: [approverUserId], references: [id], onDelete: SetNull)
+  decisionBy   User?        @relation("LeaveApprovalDecisionBy", fields: [decisionById], references: [id], onDelete: SetNull)
+
+  @@unique([leaveRequestId, sequence])
+  @@unique([tenantId, decisionIdempotencyKey])
+  @@index([tenantId, status, approverRole])
+  @@index([tenantId, approverUserId, status])
+}
+
+model LeaveRequestHistory {
+  id             String   @id @default(uuid())
+  tenantId       String   @default("default-tenant")
+  leaveRequestId String
+  action         String
+  beforeSnapshot Json
+  afterSnapshot  Json
+  actorId        String
+  createdAt      DateTime @default(now())
+
+  leaveRequest LeaveRequest @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
+  actor        User         @relation("LeaveRequestHistoryActor", fields: [actorId], references: [id])
+
+  @@index([tenantId, leaveRequestId, createdAt])
+}
+
+model HolidayCalendar {
+  id          String   @id @default(uuid())
+  tenantId    String   @default("default-tenant")
+  code        String
+  name        String
+  timezone    String   @default("Africa/Casablanca")
+  countryCode String   @default("MA")
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdById String
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+
+  createdBy User                  @relation("HolidayCalendarCreatedBy", fields: [createdById], references: [id])
+  updatedBy User?                 @relation("HolidayCalendarUpdatedBy", fields: [updatedById], references: [id])
+  sites     HolidayCalendarSite[]
+  holidays  Holiday[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isDefault, isActive])
+}
+
+model HolidayCalendarSite {
+  id         String   @id @default(uuid())
+  tenantId   String   @default("default-tenant")
+  calendarId String
+  siteId     String
+  createdAt  DateTime @default(now())
+
+  calendar HolidayCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  site     WorkSite        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, siteId])
+  @@index([tenantId, calendarId])
+}
+
+model Holiday {
+  id           String   @id @default(uuid())
+  tenantId     String   @default("default-tenant")
+  calendarId   String
+  localDate    DateTime
+  name         String
+  nameAr       String?
+  description  String?
+  isPaid       Boolean  @default(true)
+  isWorkingDay Boolean  @default(false)
+  source       String   @default("CUSTOM")
+  isRecurring  Boolean  @default(false)
+  createdById  String
+  updatedById  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  version      Int      @default(1)
+
+  calendar         HolidayCalendar   @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  createdBy        User              @relation("HolidayCreatedBy", fields: [createdById], references: [id])
+  updatedBy        User?             @relation("HolidayUpdatedBy", fields: [updatedById], references: [id])
+  leaveRequestDays LeaveRequestDay[]
+
+  @@unique([calendarId, localDate])
+  @@index([tenantId, localDate])
+}
+
+model AbsenceRecord {
+  id                    String        @id @default(uuid())
+  tenantId              String        @default("default-tenant")
+  employeeId            String
+  siteId                String
+  localDate             DateTime
+  attendanceDayId       String?
+  leaveRequestId        String?
+  documentId            String?
+  source                AbsenceSource @default(ATTENDANCE_JOB)
+  status                AbsenceStatus @default(UNJUSTIFIED)
+  privateReason         String?
+  detectedAt            DateTime      @default(now())
+  resolvedAt            DateTime?
+  resolvedById          String?
+  privateResolutionNote String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  version               Int           @default(1)
+
+  employee      Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  site          WorkSite          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  attendanceDay AttendanceDay?    @relation(fields: [attendanceDayId], references: [id], onDelete: SetNull)
+  leaveRequest  LeaveRequest?     @relation(fields: [leaveRequestId], references: [id], onDelete: SetNull)
+  document      EmployeeDocument? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  resolvedBy    User?             @relation("AbsenceResolvedBy", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, employeeId, localDate])
+  @@index([tenantId, siteId, localDate])
+  @@index([tenantId, status, localDate])
+}
+
+enum PayrollPeriodStatus {
+  DRAFT
+  CALCULATING
+  CALCULATED
+  VALIDATED
+  CLOSED
+  REOPENED
+  CANCELLED
+}
+
+enum PayrollVerificationStatus {
+  UNVERIFIED
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum PayrollComponentKind {
+  EARNING
+  DEDUCTION
+  EMPLOYER_CONTRIBUTION
+  REIMBURSEMENT
+}
+
+enum PayrollComponentMode {
+  FIXED
+  VARIABLE
+  PERCENTAGE
+  QUANTITY_RATE
+}
+
+enum PayrollVariableStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  LOCKED
+  CANCELLED
+}
+
+enum PayrollRecordStatus {
+  DRAFT
+  CALCULATED
+  VALIDATED
+  CLOSED
+  FAILED
+  REVERSED
+}
+
+enum PayrollRunStatus {
+  RUNNING
+  SUCCEEDED
+  PARTIAL
+  FAILED
+}
+
+enum PayrollDebtStatus {
+  DRAFT
+  APPROVED
+  ACTIVE
+  SUSPENDED
+  SETTLED
+  CANCELLED
+}
+
+enum PayrollHistoryAction {
+  CREATED
+  PREPARED
+  CALCULATED
+  VALIDATED
+  CLOSED
+  REOPENED
+  CANCELLED
+  RECALCULATED
+  REVERSED
+  EXPORTED
+}
+
+model PayrollConfiguration {
+  id                      String    @id @default(uuid())
+  tenantId                String
+  name                    String
+  frequency               String    @default("MONTHLY")
+  standardMonthlyMinutes  Int       @default(11440)
+  standardWeeklyMinutes   Int       @default(2640)
+  prorationMethod         String    @default("SCHEDULED_MINUTES")
+  roundingMode            String    @default("HALF_UP")
+  currency                String    @default("MAD")
+  paymentDay              Int       @default(28)
+  attendanceCutoffDay     Int       @default(25)
+  leaveCutoffDay          Int       @default(25)
+  overtimeRules           Json      @default("{}")
+  accountingMappings      Json      @default("{}")
+  bankExportConfiguration Json      @default("{}")
+  effectiveFrom           DateTime
+  effectiveTo             DateTime?
+  isActive                Boolean   @default(false)
+  version                 Int       @default(1)
+  createdById             String
+  updatedById             String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@unique([tenantId, name, effectiveFrom])
+  @@index([tenantId, isActive, effectiveFrom, effectiveTo])
+}
+
+model StatutoryPayrollRuleSet {
+  id                   String                    @id @default(uuid())
+  tenantId             String
+  countryCode          String                    @default("MA")
+  name                 String
+  effectiveFrom        DateTime
+  effectiveTo          DateTime?
+  verificationStatus   PayrollVerificationStatus @default(UNVERIFIED)
+  verifiedAt           DateTime?
+  verifiedById         String?
+  officialSourceName   String?
+  officialSourceUrl    String?
+  sourceVerifiedAt     DateTime?
+  contributionRules    Json                      @default("{}")
+  incomeTaxBrackets    Json                      @default("[]")
+  professionalExpenses Json                      @default("{}")
+  exemptions           Json                      @default("[]")
+  roundingRules        Json                      @default("{}")
+  isActive             Boolean                   @default(false)
+  activatedAt          DateTime?
+  activatedById        String?
+  version              Int                       @default(1)
+  createdById          String
+  updatedById          String?
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+
+  periods PayrollPeriod[]
+
+  @@unique([tenantId, countryCode, name, effectiveFrom])
+  @@index([tenantId, isActive, verificationStatus, effectiveFrom, effectiveTo])
+}
+
+model SalaryComponentDefinition {
+  id               String               @id @default(uuid())
+  tenantId         String
+  code             String
+  name             String
+  description      String?
+  kind             PayrollComponentKind
+  mode             PayrollComponentMode
+  taxable          Boolean              @default(false)
+  cnssApplicable   Boolean              @default(false)
+  amoApplicable    Boolean              @default(false)
+  includedInGross  Boolean              @default(false)
+  includedInNet    Boolean              @default(true)
+  employeeSide     Boolean              @default(true)
+  calculationOrder Int                  @default(100)
+  debitAccount     String?
+  creditAccount    String?
+  effectiveFrom    DateTime
+  effectiveTo      DateTime?
+  archivedAt       DateTime?
+  archivedById     String?
+  archiveReason    String?
+  version          Int                  @default(1)
+  createdById      String
+  updatedById      String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  employeeComponents EmployeeSalaryComponent[]
+  variables          PayrollVariable[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, archivedAt, effectiveFrom, effectiveTo])
+}
+
+model EmployeeSalaryComponent {
+  id                    String    @id @default(uuid())
+  tenantId              String
+  employeeId            String
+  componentDefinitionId String
+  sourceContractId      String?
+  fixedAmount           Decimal?  @db.Decimal(14, 2)
+  percentage            Decimal?  @db.Decimal(9, 6)
+  calculationBase       String?
+  effectiveFrom         DateTime
+  effectiveTo           DateTime?
+  reason                String?
+  version               Int       @default(1)
+  createdById           String
+  updatedById           String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  componentDefinition SalaryComponentDefinition @relation(fields: [componentDefinitionId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, employeeId, effectiveFrom, effectiveTo])
+  @@index([tenantId, componentDefinitionId])
+}
+
+model PayrollPeriod {
+  id                     String              @id @default(uuid())
+  tenantId               String
+  periodNumber           String
+  name                   String
+  year                   Int
+  month                  Int
+  periodStart            DateTime
+  periodEnd              DateTime
+  paymentDate            DateTime
+  status                 PayrollPeriodStatus @default(DRAFT)
+  statutoryRuleSetId     String?
+  payrollConfigurationId String?
+  calculationVersion     Int                 @default(1)
+  calculatedAt           DateTime?
+  validatedAt            DateTime?
+  validatedById          String?
+  closedAt               DateTime?
+  closedById             String?
+  reopenedAt             DateTime?
+  reopenedById           String?
+  reopeningReason        String?
+  inputHash              String?
+  outputHash             String?
+  version                Int                 @default(1)
+  createdById            String
+  updatedById            String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  statutoryRuleSet StatutoryPayrollRuleSet? @relation(fields: [statutoryRuleSetId], references: [id], onDelete: Restrict)
+  variables        PayrollVariable[]
+  records          PayrollRecord[]
+  runs             PayrollCalculationRun[]
+  histories        PayrollHistory[]
+
+  @@unique([tenantId, year, month])
+  @@unique([tenantId, periodNumber])
+  @@index([tenantId, status, periodStart, periodEnd])
+}
+
+model PayrollVariable {
+  id                    String                @id @default(uuid())
+  tenantId              String
+  periodId              String
+  employeeId            String
+  componentDefinitionId String
+  quantity              Decimal?              @db.Decimal(14, 4)
+  rate                  Decimal?              @db.Decimal(14, 6)
+  amount                Decimal               @db.Decimal(14, 2)
+  source                String
+  sourceEntityId        String?
+  description           String?
+  status                PayrollVariableStatus @default(DRAFT)
+  submittedById         String?
+  submittedAt           DateTime?
+  approvedById          String?
+  approvedAt            DateTime?
+  rejectionReason       String?
+  idempotencyKey        String
+  version               Int                   @default(1)
+  createdById           String
+  updatedById           String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  period              PayrollPeriod             @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  componentDefinition SalaryComponentDefinition @relation(fields: [componentDefinitionId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, periodId, employeeId, status])
+}
+
+model EmployeeAdvance {
+  id                   String            @id @default(uuid())
+  tenantId             String
+  employeeId           String
+  reference            String
+  originalAmount       Decimal           @db.Decimal(14, 2)
+  paidAmount           Decimal           @default(0) @db.Decimal(14, 2)
+  remainingAmount      Decimal           @db.Decimal(14, 2)
+  disbursementDate     DateTime
+  repaymentStart       DateTime
+  installmentAmount    Decimal           @db.Decimal(14, 2)
+  status               PayrollDebtStatus @default(DRAFT)
+  supportingDocumentId String?
+  approvedById         String?
+  approvedAt           DateTime?
+  reason               String?
+  version              Int               @default(1)
+  createdById          String
+  updatedById          String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  @@unique([tenantId, reference])
+  @@index([tenantId, employeeId, status])
+}
+
+model EmployeeLoan {
+  id                   String            @id @default(uuid())
+  tenantId             String
+  employeeId           String
+  reference            String
+  originalAmount       Decimal           @db.Decimal(14, 2)
+  paidAmount           Decimal           @default(0) @db.Decimal(14, 2)
+  remainingAmount      Decimal           @db.Decimal(14, 2)
+  disbursementDate     DateTime
+  repaymentStart       DateTime
+  installmentAmount    Decimal           @db.Decimal(14, 2)
+  installmentCount     Int
+  status               PayrollDebtStatus @default(DRAFT)
+  supportingDocumentId String?
+  approvedById         String?
+  approvedAt           DateTime?
+  suspendedAt          DateTime?
+  settledAt            DateTime?
+  reason               String?
+  version              Int               @default(1)
+  createdById          String
+  updatedById          String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  installments EmployeeLoanInstallment[]
+
+  @@unique([tenantId, reference])
+  @@index([tenantId, employeeId, status])
+}
+
+model EmployeeLoanInstallment {
+  id              String    @id @default(uuid())
+  tenantId        String
+  loanId          String
+  payrollRecordId String?
+  installmentNo   Int
+  dueDate         DateTime
+  amount          Decimal   @db.Decimal(14, 2)
+  deductedAt      DateTime?
+  status          String    @default("SCHEDULED")
+  createdAt       DateTime  @default(now())
+
+  loan EmployeeLoan @relation(fields: [loanId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, loanId, installmentNo])
+  @@unique([tenantId, payrollRecordId, loanId])
+  @@index([tenantId, dueDate, status])
+}
+
+model PayrollRecord {
+  id                     String              @id @default(uuid())
+  tenantId               String
+  periodId               String
+  employeeId             String
+  employeeNumberSnapshot String
+  employeeNameSnapshot   String
+  siteSnapshot           String?
+  departmentSnapshot     String?
+  positionSnapshot       String?
+  contractSnapshot       Json
+  bankSnapshotEncrypted  String?
+  bankMaskedSnapshot     String?
+  baseSalarySnapshot     Decimal             @db.Decimal(14, 2)
+  workedTimeSnapshot     Json
+  leaveSnapshot          Json
+  sourceSnapshot         Json
+  prorationMethod        String
+  grossSalary            Decimal             @db.Decimal(14, 2)
+  taxableGross           Decimal             @db.Decimal(14, 2)
+  contributionBase       Decimal             @db.Decimal(14, 2)
+  employeeContributions  Decimal             @db.Decimal(14, 2)
+  employerContributions  Decimal             @db.Decimal(14, 2)
+  taxableNet             Decimal             @db.Decimal(14, 2)
+  incomeTax              Decimal             @db.Decimal(14, 2)
+  totalDeductions        Decimal             @db.Decimal(14, 2)
+  netPayable             Decimal             @db.Decimal(14, 2)
+  employerCost           Decimal             @db.Decimal(14, 2)
+  status                 PayrollRecordStatus @default(DRAFT)
+  calculationHash        String
+  calculatedAt           DateTime
+  version                Int                 @default(1)
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  period   PayrollPeriod  @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  lines    PayrollLine[]
+  payslips PayslipAsset[]
+
+  @@unique([tenantId, periodId, employeeId])
+  @@index([tenantId, employeeId, status])
+}
+
+model PayrollLine {
+  id                     String               @id @default(uuid())
+  tenantId               String
+  recordId               String
+  componentCodeSnapshot  String
+  componentNameSnapshot  String
+  kind                   PayrollComponentKind
+  quantity               Decimal?             @db.Decimal(14, 4)
+  rate                   Decimal?             @db.Decimal(14, 6)
+  calculationBase        Decimal?             @db.Decimal(14, 2)
+  employeeAmount         Decimal              @default(0) @db.Decimal(14, 2)
+  employerAmount         Decimal              @default(0) @db.Decimal(14, 2)
+  taxable                Boolean              @default(false)
+  cnssApplicable         Boolean              @default(false)
+  amoApplicable          Boolean              @default(false)
+  source                 String
+  sourceEntityId         String?
+  calculationOrder       Int
+  calculationExplanation Json
+  createdAt              DateTime             @default(now())
+
+  record PayrollRecord @relation(fields: [recordId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, recordId, calculationOrder])
+}
+
+model PayrollCalculationRun {
+  id            String           @id @default(uuid())
+  tenantId      String
+  periodId      String
+  runNumber     Int
+  status        PayrollRunStatus @default(RUNNING)
+  startedById   String
+  startedAt     DateTime         @default(now())
+  finishedAt    DateTime?
+  employeeCount Int              @default(0)
+  successCount  Int              @default(0)
+  failureCount  Int              @default(0)
+  inputHash     String?
+  outputHash    String?
+  errorSummary  Json?
+
+  period PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, periodId, runNumber])
+  @@index([tenantId, status, startedAt])
+}
+
+model PayrollHistory {
+  id                String               @id @default(uuid())
+  tenantId          String
+  periodId          String
+  recordId          String?
+  action            PayrollHistoryAction
+  actorId           String
+  actorNameSnapshot String
+  actorRoleSnapshot String
+  reason            String?
+  beforeSnapshot    Json?
+  afterSnapshot     Json?
+  requestId         String
+  calculationHash   String?
+  createdAt         DateTime             @default(now())
+
+  period PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, requestId, action])
+  @@index([tenantId, periodId, createdAt])
+}
+
+model PayslipAsset {
+  id              String    @id @default(uuid())
+  tenantId        String
+  payrollRecordId String
+  assetId         String
+  payslipNumber   String
+  versionNumber   Int
+  sha256          String
+  generatedById   String
+  generatedAt     DateTime  @default(now())
+  supersededAt    DateTime?
+
+  payrollRecord PayrollRecord @relation(fields: [payrollRecordId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, payrollRecordId, versionNumber])
+  @@unique([tenantId, payslipNumber])
+  @@index([tenantId, assetId])
 }

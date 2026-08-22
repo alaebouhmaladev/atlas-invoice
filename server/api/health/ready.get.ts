@@ -14,8 +14,8 @@ export default defineEventHandler(async (event) => {
     await prisma.$queryRaw`SELECT 1`
     isDbReady = true
     details.database = 'connected'
-  } catch (err: unknown) {
-    details.database = err instanceof Error ? err.message : String(err)
+  } catch {
+    details.database = 'indisponible'
   }
 
   // 2. Check Persistent Storage Accessibility
@@ -29,15 +29,19 @@ export default defineEventHandler(async (event) => {
     fs.unlinkSync(testFile)
     isStorageReady = true
     details.storage = 'accessible'
-  } catch (err: unknown) {
-    details.storage = err instanceof Error ? err.message : String(err)
+  } catch {
+    details.storage = 'indisponible'
   }
 
   const isReady = isDbReady && isStorageReady
 
   if (!isReady) {
     setResponseStatus(event, 503)
-    return createErrorResponse('NOT_READY', 'Application is not ready to serve traffic', JSON.stringify(details))
+    return createErrorResponse(
+      'NOT_READY',
+      'L’application n’est pas prête à recevoir du trafic',
+      details
+    )
   }
 
   return createSuccessResponse({

@@ -5,7 +5,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-custom pb-4">
         <div>
           <h2 class="text-base font-extrabold text-main flex items-center gap-2">
-            <svg class="w-5 h-5 text-[#987d61] dark:text-[#d0baa0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-5 h-5 text-brand-strong" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             Journal de sécurité & d'activités
@@ -31,7 +31,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
         <!-- Search Input -->
         <div>
-          <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">Recherche</label>
+          <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">Recherche</label>
           <input
             v-model="filters.search"
             type="text"
@@ -43,7 +43,7 @@
 
         <!-- Category Dropdown -->
         <div>
-          <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">Catégorie</label>
+          <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">Catégorie</label>
           <select
             v-model="filters.category"
             @change="fetchLogs"
@@ -63,7 +63,7 @@
 
         <!-- Result Dropdown -->
         <div>
-          <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">Résultat</label>
+          <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">Résultat</label>
           <select
             v-model="filters.result"
             @change="fetchLogs"
@@ -77,7 +77,7 @@
 
         <!-- Role Dropdown -->
         <div>
-          <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">Rôle</label>
+          <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">Rôle</label>
           <select
             v-model="filters.role"
             @change="fetchLogs"
@@ -95,7 +95,7 @@
     <!-- Activity Data Table -->
     <div class="bg-panel border border-custom rounded-panel shadow-soft overflow-hidden">
       <div v-if="loading && logs.length === 0" class="p-12 text-center text-xs text-muted-custom flex flex-col items-center gap-2 font-bold">
-        <svg class="animate-spin h-6 w-6 text-[#b49c80]" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-6 w-6 text-brand" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -109,7 +109,7 @@
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="bg-panel-raised border-b border-custom text-muted-custom font-bold uppercase tracking-wider text-[10px]">
+            <tr class="bg-panel-raised border-b border-custom text-muted-custom font-bold uppercase tracking-wider text-xs">
               <th class="py-3 px-4">Horodatage</th>
               <th class="py-3 px-4">Utilisateur</th>
               <th class="py-3 px-4">Catégorie & Action</th>
@@ -134,14 +134,14 @@
                 <div class="font-bold text-main">
                   {{ log.actorDisplayNameSnapshot || log.user?.name || 'Système' }}
                 </div>
-                <div v-if="log.actorRoleSnapshot || log.user?.role" class="text-[10px] text-muted-custom">
+                <div v-if="log.actorRoleSnapshot || log.user?.role" class="text-xs text-muted-custom">
                   {{ formatRole(log.actorRoleSnapshot || log.user?.role) }}
                 </div>
               </td>
 
               <!-- Catégorie & Action -->
               <td class="py-3 px-4">
-                <span class="inline-block px-2 py-0.5 rounded-pill text-[10px] font-bold uppercase border mb-1" :class="getCategoryBadgeClass(log.category)">
+                <span class="inline-block px-2 py-0.5 rounded-pill text-xs font-bold uppercase border mb-1" :class="getCategoryBadgeClass(log.category)">
                   {{ log.category }}
                 </span>
                 <div class="text-main font-bold truncate max-w-xs">
@@ -154,7 +154,7 @@
                 <NuxtLink
                   v-if="log.entityReference && getEntityUrl(log.entityType, log.entityId)"
                   :to="getEntityUrl(log.entityType, log.entityId)"
-                  class="text-[#987d61] dark:text-[#d0baa0] hover:underline font-bold"
+                  class="text-brand-strong hover:underline font-bold"
                 >
                   {{ log.entityReference }}
                 </NuxtLink>
@@ -167,7 +167,7 @@
               <!-- Résultat -->
               <td class="py-3 px-4 whitespace-nowrap">
                 <span
-                  class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold uppercase border"
+                  class="px-2.5 py-0.5 rounded-pill text-xs font-bold uppercase border"
                   :class="log.result === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'"
                 >
                   {{ log.result === 'SUCCESS' ? 'Succès' : 'Échec' }}
@@ -214,12 +214,12 @@
 
     <!-- Slide-over Drawer for Log Metadata Inspection -->
     <Teleport to="body">
-      <div v-if="selectedLog" class="fixed inset-0 z-50 flex justify-end bg-slate-950/80 backdrop-blur-sm">
+      <div v-if="selectedLog" class="fixed inset-0 z-50 flex justify-end bg-overlay backdrop-blur-sm">
         <div class="w-full max-w-lg bg-panel border-l border-custom p-6 flex flex-col justify-between shadow-2xl overflow-y-auto">
           <div class="space-y-4">
             <div class="flex items-center justify-between border-b border-custom pb-3">
               <h3 class="text-sm font-bold text-main flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[#b49c80]"></span>
+                <span class="w-2 h-2 rounded-full bg-brand"></span>
                 Détails de l'activité
               </h3>
               <button @click="selectedLog = null" class="text-muted-custom hover:text-main p-1 cursor-pointer">
@@ -233,7 +233,7 @@
             <div class="space-y-3 text-xs">
               <div>
                 <span class="text-muted-custom block">Action :</span>
-                <strong class="text-[#987d61] dark:text-[#d0baa0] font-mono">{{ selectedLog.action }}</strong>
+                <strong class="text-brand-strong font-mono">{{ selectedLog.action }}</strong>
               </div>
               <div>
                 <span class="text-muted-custom block">Horodatage :</span>
@@ -247,10 +247,10 @@
               </div>
               <div>
                 <span class="text-muted-custom block">Adresse IP / User-Agent :</span>
-                <span class="text-main block font-mono text-[11px] mt-0.5 break-all">
+                <span class="text-main block font-mono text-xs mt-0.5 break-all">
                   IP: {{ selectedLog.ipAddress || 'Interne' }}
                 </span>
-                <span class="text-muted-custom block text-[10px] mt-0.5 break-all">
+                <span class="text-muted-custom block text-xs mt-0.5 break-all">
                   {{ selectedLog.userAgent || '-' }}
                 </span>
               </div>
@@ -258,13 +258,13 @@
               <!-- Sanitized Metadata -->
               <div v-if="selectedLog.metadata" class="pt-2">
                 <span class="text-muted-custom font-bold block mb-1">Métadonnées sécurisées :</span>
-                <pre class="bg-panel-raised p-3 rounded-card border border-custom text-[11px] font-mono text-emerald-600 dark:text-emerald-400 overflow-x-auto whitespace-pre-wrap">{{ JSON.stringify(selectedLog.metadata, null, 2) }}</pre>
+                <pre class="bg-panel-raised p-3 rounded-card border border-custom text-xs font-mono text-emerald-600 dark:text-emerald-400 overflow-x-auto whitespace-pre-wrap">{{ JSON.stringify(selectedLog.metadata, null, 2) }}</pre>
               </div>
 
               <!-- Diffs -->
               <div v-if="selectedLog.changedFields" class="pt-2">
                 <span class="text-muted-custom font-bold block mb-1">Modifications apportées :</span>
-                <pre class="bg-panel-raised p-3 rounded-card border border-custom text-[11px] font-mono text-[#987d61] dark:text-[#d0baa0] overflow-x-auto whitespace-pre-wrap">{{ JSON.stringify(selectedLog.changedFields, null, 2) }}</pre>
+                <pre class="bg-panel-raised p-3 rounded-card border border-custom text-xs font-mono text-brand-strong overflow-x-auto whitespace-pre-wrap">{{ JSON.stringify(selectedLog.changedFields, null, 2) }}</pre>
               </div>
             </div>
           </div>

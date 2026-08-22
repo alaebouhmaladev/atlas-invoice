@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'MISSING_SESSION_ID', message: 'L\'identifiant de la session est requis' }
     })
   }

@@ -3,7 +3,7 @@
     <div class="w-full max-w-md bg-panel border border-custom rounded-panel p-8 shadow-soft">
       <!-- Branding & Header -->
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-panel bg-brand text-slate-950 shadow-sm mb-4 font-black text-2xl tracking-tighter">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-panel bg-brand text-on-brand shadow-sm mb-4 font-black text-2xl tracking-tighter">
           AB
         </div>
         <h1 class="text-2xl font-extrabold text-main tracking-tight">Atlas CRM</h1>
@@ -82,9 +82,9 @@
         <button
           type="submit"
           :disabled="loading"
-          class="w-full py-3.5 px-4 bg-brand hover:opacity-90 text-slate-950 font-bold rounded-pill shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-xs mt-2 cursor-pointer"
+          class="w-full py-3.5 px-4 bg-brand hover:opacity-90 text-on-brand font-bold rounded-pill shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-xs mt-2 cursor-pointer"
         >
-          <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
+          <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-on-brand" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>

@@ -23,7 +23,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <!-- Search Input -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche</label>
           <div class="relative">
             <input
               v-model="searchQuery"
@@ -40,7 +40,7 @@
 
         <!-- Status Filter -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Statut</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Statut</label>
           <select
             v-model="selectedStatus"
             @change="handleSearch"
@@ -57,7 +57,7 @@
 
         <!-- Account Link Filter -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Compte utilisateur</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Compte utilisateur</label>
           <select
             v-model="selectedLinked"
             @change="handleSearch"
@@ -98,13 +98,13 @@
           </svg>
         </div>
         <p class="text-xs font-semibold text-main">Aucun employé trouvé</p>
-        <p class="text-[11px] text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou ajoutez un nouveau collaborateur.</p>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou ajoutez un nouveau collaborateur.</p>
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-custom bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider">
+            <tr class="border-b border-custom bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider">
               <th class="py-3.5 px-4">Matricule</th>
               <th class="py-3.5 px-4">Collaborateur</th>
               <th class="py-3.5 px-4">Téléphone</th>
@@ -135,7 +135,7 @@
                     <NuxtLink :to="`/rh/employes/${emp.id}`" class="font-bold text-main hover:text-brand block">
                       {{ emp.displayName }}
                     </NuxtLink>
-                    <div class="flex items-center gap-2 text-[10px] text-muted-custom">
+                    <div class="flex items-center gap-2 text-xs text-muted-custom">
                       <span>CIN: {{ emp.cinMasked || '-' }}</span>
                       <span v-if="emp.professionalEmail" class="text-muted-custom">• {{ emp.professionalEmail }}</span>
                     </div>
@@ -155,7 +155,7 @@
 
               <!-- Statut -->
               <td class="py-3 px-4">
-                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold inline-block" :class="getStatusBadgeClass(emp.employmentStatus)">
+                <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold inline-block" :class="getStatusBadgeClass(emp.employmentStatus)">
                   {{ getStatusLabel(emp.employmentStatus) }}
                 </span>
               </td>
@@ -168,7 +168,7 @@
                   </svg>
                   <span>{{ emp.linkedUser.email }}</span>
                 </div>
-                <span v-else class="text-[11px] text-muted-custom italic">Non lié</span>
+                <span v-else class="text-xs text-muted-custom italic">Non lié</span>
               </td>
 
               <!-- Actions -->
@@ -187,7 +187,7 @@
 
                   <NuxtLink
                     :to="`/rh/employes/${emp.id}/modifier`"
-                    class="p-1.5 hover:bg-surface-hover text-muted-custom hover:text-[#b49c80] rounded-control transition-colors"
+                    class="p-1.5 hover:bg-surface-hover text-muted-custom hover:text-brand rounded-control transition-colors"
                     title="Modifier"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

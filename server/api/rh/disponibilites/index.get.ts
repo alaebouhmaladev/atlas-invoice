@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!employeeId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'MISSING_PARAM', message: 'Le paramètre employeeId est obligatoire.' }
     })
   }

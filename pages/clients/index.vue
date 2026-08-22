@@ -9,7 +9,7 @@
 
       <NuxtLink
         to="/clients/new"
-        class="px-4 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
+        class="px-4 py-2 bg-brand hover:bg-brand-strong text-on-brand font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -41,7 +41,7 @@
       </div>
       <button
         @click="loadClients"
-        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-600 dark:text-rose-300 rounded-control font-semibold text-[11px] transition-colors"
+        class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-600 dark:text-rose-300 rounded-control font-semibold text-xs transition-colors"
       >
         Réessayer
       </button>
@@ -51,7 +51,7 @@
     <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
       <!-- Loading State Overlay -->
       <div v-if="loading && clients.length === 0" class="p-12 text-center text-muted-custom">
-        <svg class="animate-spin h-8 w-8 text-[#b49c80] mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-8 w-8 text-brand mx-auto mb-3" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -72,7 +72,7 @@
         <div class="pt-2">
           <NuxtLink
             to="/clients/new"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs transition-colors"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-strong text-on-brand font-bold rounded-pill text-xs transition-colors"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -106,10 +106,10 @@
             >
               <!-- Name & Company -->
               <td class="py-3.5 px-4">
-                <NuxtLink :to="`/clients/${client.id}`" class="font-bold text-main hover:text-[#b49c80] transition-colors block">
+                <NuxtLink :to="`/clients/${client.id}`" class="font-bold text-main hover:text-brand transition-colors block">
                   {{ client.displayName }}
                 </NuxtLink>
-                <span v-if="client.type === 'COMPANY' && client.contactName" class="text-[11px] text-muted-custom block truncate">
+                <span v-if="client.type === 'COMPANY' && client.contactName" class="text-xs text-muted-custom block truncate">
                   Contact: {{ client.contactName }}
                 </span>
               </td>
@@ -122,7 +122,7 @@
               <!-- ICE / TaxId -->
               <td class="py-3.5 px-4 font-mono text-secondary-custom">
                 <div v-if="client.ice" class="text-xs">ICE: {{ client.ice }}</div>
-                <div v-if="client.taxId" class="text-[11px] text-muted-custom">IF: {{ client.taxId }}</div>
+                <div v-if="client.taxId" class="text-xs text-muted-custom">IF: {{ client.taxId }}</div>
                 <span v-if="!client.ice && !client.taxId" class="text-muted-custom">—</span>
               </td>
 
@@ -134,7 +134,7 @@
                   </svg>
                   <span>{{ client.phone }}</span>
                 </div>
-                <div v-if="client.email" class="text-[11px] text-muted-custom truncate max-w-[160px]">
+                <div v-if="client.email" class="text-xs text-muted-custom truncate max-w-[160px]">
                   {{ client.email }}
                 </div>
                 <span v-if="!client.phone && !client.email" class="text-muted-custom">—</span>
@@ -151,7 +151,7 @@
               </td>
 
               <!-- Created At -->
-              <td class="py-3.5 px-4 text-muted-custom text-[11px]">
+              <td class="py-3.5 px-4 text-muted-custom text-xs">
                 {{ formatDate(client.createdAt) }}
               </td>
 
@@ -170,7 +170,7 @@
 
                 <NuxtLink
                   :to="`/clients/${client.id}/edit`"
-                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-[#b49c80] hover:bg-surface-hover rounded-control transition-colors"
+                  class="p-1.5 inline-flex items-center text-muted-custom hover:text-brand hover:bg-surface-hover rounded-control transition-colors"
                   title="Modifier"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

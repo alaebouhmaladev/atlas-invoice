@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant client requis' }
     })
   }
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   if (!existing) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Not Found',
+      statusMessage: 'Ressource introuvable',
       data: { code: 'CLIENT_NOT_FOUND', message: 'Client introuvable' }
     })
   }
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
   if (exactIceConflict) {
     throw createError({
       statusCode: 409,
-      statusMessage: 'Conflict',
+      statusMessage: 'Conflit',
       data: {
         code: 'EXACT_ICE_CONFLICT',
         message: `Un autre client avec le numéro ICE (${clientData.ice}) existe déjà.`

@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay backdrop-blur-sm animate-fade-in"
       role="dialog"
       aria-modal="true"
     >
@@ -20,7 +20,7 @@
             </div>
             <div>
               <h3 class="text-sm font-bold text-main">Enregistrer un Paiement</h3>
-              <p class="text-[11px] text-muted-custom">Facture N° {{ invoiceNumber }}</p>
+              <p class="text-xs text-muted-custom">Facture N° {{ invoiceNumber }}</p>
             </div>
           </div>
           <button
@@ -36,11 +36,11 @@
         <!-- Balance Info Banner -->
         <div class="px-6 py-3 bg-panel-raised border-b border-custom grid grid-cols-2 gap-4 text-xs">
           <div>
-            <span class="text-muted-custom text-[11px]">Total TTC Facture :</span>
+            <span class="text-muted-custom text-xs">Total TTC Facture :</span>
             <div class="font-mono font-bold text-main">{{ formatMoney(totalTtc) }}</div>
           </div>
           <div>
-            <span class="text-muted-custom text-[11px]">Reste à Régler :</span>
+            <span class="text-muted-custom text-xs">Reste à Régler :</span>
             <div class="font-mono font-bold text-rose-600 dark:text-rose-400 text-sm">{{ formatMoney(amountDue) }}</div>
           </div>
         </div>
@@ -53,7 +53,7 @@
 
           <!-- Amount -->
           <div>
-            <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">
+            <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">
               Montant du Paiement (MAD) *
             </label>
             <div class="relative">
@@ -69,7 +69,7 @@
               <button
                 type="button"
                 @click="form.amount = Number(amountDue)"
-                class="absolute right-2 top-2 px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-[10px] font-bold rounded-pill border border-emerald-500/20 transition-colors cursor-pointer"
+                class="absolute right-2 top-2 px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-xs font-bold rounded-pill border border-emerald-500/20 transition-colors cursor-pointer"
               >
                 Solde Total
               </button>
@@ -79,7 +79,7 @@
           <!-- Payment Date & Method -->
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">
+              <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">
                 Date du règlement *
               </label>
               <input
@@ -91,7 +91,7 @@
             </div>
 
             <div>
-              <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">
+              <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">
                 Mode de règlement *
               </label>
               <select
@@ -110,7 +110,7 @@
 
           <!-- Reference -->
           <div>
-            <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">
+            <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">
               Référence (N° Chèque / N° Virement)
             </label>
             <input
@@ -123,7 +123,7 @@
 
           <!-- Notes -->
           <div>
-            <label class="block font-bold text-muted-custom uppercase tracking-wider text-[11px] mb-1">
+            <label class="block font-bold text-muted-custom uppercase tracking-wider text-xs mb-1">
               Notes complémentaires
             </label>
             <textarea

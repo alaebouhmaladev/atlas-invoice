@@ -75,7 +75,7 @@
           <!-- Title & Description -->
           <div class="md:col-span-6 space-y-2">
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Désignation *</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Désignation *</label>
               <input
                 v-model="item.title"
                 type="text"
@@ -85,7 +85,7 @@
               />
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Description (optionnelle)</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Description (optionnelle)</label>
               <textarea
                 v-model="item.description"
                 rows="2"
@@ -98,7 +98,7 @@
           <!-- Quantity, Unit, Price, VAT, Discount -->
           <div class="md:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-2">
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Quantité *</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Quantité *</label>
               <input
                 v-model.number="item.quantity"
                 type="number"
@@ -110,7 +110,7 @@
             </div>
 
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Unité</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Unité</label>
               <select
                 v-model="item.unit"
                 class="w-full py-1.5 px-2.5 text-xs rounded-control bg-panel-raised border border-custom text-main focus:outline-none focus:border-brand"
@@ -126,7 +126,7 @@
             </div>
 
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">P.U. HT (MAD) *</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">P.U. HT (MAD) *</label>
               <input
                 v-model.number="item.unitPriceHt"
                 type="number"
@@ -138,7 +138,7 @@
             </div>
 
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Taux TVA (%)</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Taux TVA (%)</label>
               <select
                 v-model.number="item.vatRate"
                 class="w-full py-1.5 px-2.5 text-xs rounded-control bg-panel-raised border border-custom text-main focus:outline-none focus:border-brand font-mono"
@@ -152,7 +152,7 @@
             </div>
 
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Remise (%)</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Remise (%)</label>
               <input
                 v-model.number="item.discountRate"
                 type="number"
@@ -164,7 +164,7 @@
             </div>
 
             <div class="col-span-2 sm:col-span-1 flex flex-col justify-end">
-              <span class="text-[10px] text-muted-custom uppercase tracking-wider mb-1">Total TTC</span>
+              <span class="text-xs text-muted-custom uppercase tracking-wider mb-1">Total TTC</span>
               <div class="py-1.5 px-2.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-panel-raised rounded-control border border-custom text-right">
                 {{ formatMoney(getItemTtc(item)) }}
               </div>

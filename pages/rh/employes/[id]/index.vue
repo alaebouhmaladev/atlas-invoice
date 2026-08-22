@@ -35,7 +35,7 @@
             <div class="space-y-1">
               <div class="flex items-center gap-3">
                 <h1 class="text-xl font-extrabold text-main tracking-tight">{{ currentEmployee.displayName }}</h1>
-                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold" :class="getStatusBadgeClass(currentEmployee.employmentStatus)">
+                <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold" :class="getStatusBadgeClass(currentEmployee.employmentStatus)">
                   {{ getStatusLabel(currentEmployee.employmentStatus) }}
                 </span>
               </div>
@@ -196,7 +196,7 @@
             </div>
             <div class="flex justify-between py-1 border-b border-custom/60">
               <span class="text-muted-custom">Statut d'emploi</span>
-              <span class="px-2 py-0.5 rounded-pill text-[10px] font-bold" :class="getStatusBadgeClass(currentEmployee.employmentStatus)">
+              <span class="px-2 py-0.5 rounded-pill text-xs font-bold" :class="getStatusBadgeClass(currentEmployee.employmentStatus)">
                 {{ getStatusLabel(currentEmployee.employmentStatus) }}
               </span>
             </div>
@@ -262,10 +262,10 @@
         <div v-if="currentEmployee.linkedUser" class="flex items-center justify-between text-xs bg-panel-raised p-4 rounded-card border border-custom">
           <div class="space-y-1">
             <p class="font-bold text-main">{{ currentEmployee.linkedUser.name }}</p>
-            <p class="text-muted-custom text-[11px]">{{ currentEmployee.linkedUser.email }}</p>
+            <p class="text-muted-custom text-xs">{{ currentEmployee.linkedUser.email }}</p>
           </div>
           <div class="text-right">
-            <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
               Rôle : {{ currentEmployee.linkedUser.role }}
             </span>
           </div>
@@ -294,17 +294,17 @@
           >
             <div>
               <p class="font-semibold text-main">{{ formatHrAuditAction(act.action) }}</p>
-              <p class="text-[11px] text-muted-custom">
+              <p class="text-xs text-muted-custom">
                 Par <strong class="text-secondary-custom">{{ act.user?.name || 'Système' }}</strong>
               </p>
             </div>
-            <span class="text-[11px] text-muted-custom">{{ formatDate(act.createdAt) }}</span>
+            <span class="text-xs text-muted-custom">{{ formatDate(act.createdAt) }}</span>
           </div>
         </div>
       </div>
 
       <!-- Confirm Dialog for Archive -->
-      <div v-if="showArchiveDialog" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div v-if="showArchiveDialog" class="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-panel border border-custom rounded-panel max-w-md w-full p-6 space-y-4 shadow-2xl">
           <h3 class="text-base font-bold text-rose-600 dark:text-rose-400">Archiver l’employé {{ currentEmployee.employeeNumber }}</h3>
           <p class="text-xs text-secondary-custom leading-relaxed">
@@ -314,7 +314,7 @@
 
           <div class="space-y-3">
             <div>
-              <label class="block text-[11px] font-semibold text-muted-custom mb-1">Motif d'archivage <span class="text-rose-500">*</span></label>
+              <label class="block text-xs font-semibold text-muted-custom mb-1">Motif d'archivage <span class="text-rose-500">*</span></label>
               <input
                 v-model="archiveReasonInput"
                 type="text"
@@ -324,7 +324,7 @@
             </div>
 
             <div>
-              <label class="block text-[11px] font-semibold text-muted-custom mb-1">Confirmation d'archivage</label>
+              <label class="block text-xs font-semibold text-muted-custom mb-1">Confirmation d'archivage</label>
               <input
                 v-model="archiveConfirmInput"
                 type="text"
@@ -348,7 +348,7 @@
       </div>
 
       <!-- Confirm Dialog for Restore -->
-      <div v-if="showRestoreDialog" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div v-if="showRestoreDialog" class="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-panel border border-custom rounded-panel max-w-md w-full p-6 space-y-4 shadow-2xl">
           <h3 class="text-base font-bold text-emerald-600 dark:text-emerald-400">Restaurer l’employé {{ currentEmployee.employeeNumber }}</h3>
           <p class="text-xs text-secondary-custom leading-relaxed">
@@ -379,7 +379,7 @@
       </div>
 
       <!-- Link User Account Modal -->
-      <div v-if="showLinkModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div v-if="showLinkModal" class="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-panel border border-custom rounded-panel max-w-md w-full p-6 space-y-4 shadow-2xl">
           <h3 class="text-base font-bold text-main">Gestion du compte utilisateur lié</h3>
 

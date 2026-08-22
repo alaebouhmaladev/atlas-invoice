@@ -45,7 +45,7 @@
           <div>
             <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Nouveau mot de passe *</label>
             <input v-model="passForm.newPassword" type="password" required placeholder="••••••••••••" class="w-full px-3.5 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand" />
-            <p class="text-[11px] text-muted-custom mt-1">12 caractères min., majuscule, minuscule, chiffre et caractère spécial.</p>
+            <p class="text-xs text-muted-custom mt-1">12 caractères min., majuscule, minuscule, chiffre et caractère spécial.</p>
           </div>
 
           <div>
@@ -56,7 +56,7 @@
           <button
             type="submit"
             :disabled="loading"
-            class="w-full py-2.5 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+            class="w-full py-2.5 bg-brand hover:bg-brand-strong text-on-brand font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
           >
             <span>Mettre à jour le mot de passe</span>
           </button>
@@ -72,7 +72,7 @@
           </h2>
           <button
             @click="handleLogoutOthers"
-            class="px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/20 rounded-pill text-[11px] font-bold transition-colors cursor-pointer"
+            class="px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/20 rounded-pill text-xs font-bold transition-colors cursor-pointer"
           >
             Déconnecter autres appareils
           </button>
@@ -87,11 +87,11 @@
             <div>
               <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-main">Session Web</span>
-                <span v-if="s.isCurrent" class="px-2 py-0.5 rounded-pill text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold">
+                <span v-if="s.isCurrent" class="px-2 py-0.5 rounded-pill text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold">
                   Appareil Actuel
                 </span>
               </div>
-              <div class="text-[11px] text-muted-custom mt-0.5 font-mono">
+              <div class="text-xs text-muted-custom mt-0.5 font-mono">
                 Créée le {{ formatDate(s.createdAt) }} • Expire le {{ formatDate(s.expiresAt) }}
               </div>
             </div>
@@ -99,7 +99,7 @@
             <button
               v-if="!s.isCurrent"
               @click="handleRevokeSession(s.id)"
-              class="px-2.5 py-1 bg-panel hover:bg-rose-500/20 hover:text-rose-600 text-main rounded-control text-[11px] font-bold border border-custom transition-colors cursor-pointer"
+              class="px-2.5 py-1 bg-panel hover:bg-rose-500/20 hover:text-rose-600 text-main rounded-control text-xs font-bold border border-custom transition-colors cursor-pointer"
             >
               Révoquer
             </button>

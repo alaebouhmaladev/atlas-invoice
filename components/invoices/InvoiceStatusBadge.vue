@@ -31,7 +31,7 @@ const label = computed(() => {
 const statusClasses = computed(() => {
   switch (props.status) {
     case 'DRAFT':
-      return 'bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0] border-[#b49c80]/30'
+      return 'bg-brand-soft text-brand-strong border-brand-soft'
     case 'FINALIZED':
       return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
     case 'CANCELLED':
@@ -44,13 +44,13 @@ const statusClasses = computed(() => {
 const dotClasses = computed(() => {
   switch (props.status) {
     case 'DRAFT':
-      return 'bg-[#b49c80]'
+      return 'bg-brand'
     case 'FINALIZED':
       return 'bg-blue-500'
     case 'CANCELLED':
       return 'bg-rose-500'
     default:
-      return 'bg-slate-400 dark:bg-slate-500'
+      return 'bg-border-strong'
   }
 })
 </script>

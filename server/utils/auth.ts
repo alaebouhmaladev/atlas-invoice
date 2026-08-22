@@ -60,10 +60,10 @@ export async function requireAuth(event: H3Event): Promise<UserPublic> {
   if (!user) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized',
+      statusMessage: 'Authentification requise',
       data: {
         code: 'UNAUTHORIZED',
-        message: 'Authentication is required to access this resource'
+        message: 'Vous devez être authentifié pour accéder à cette ressource'
       }
     })
   }
@@ -75,10 +75,10 @@ export async function requireRole(event: H3Event, ...allowedRoles: Role[]): Prom
   if (!allowedRoles.includes(user.role)) {
     throw createError({
       statusCode: 403,
-      statusMessage: 'Forbidden',
+      statusMessage: 'Accès interdit',
       data: {
         code: 'FORBIDDEN',
-        message: 'You do not have permission to perform this action'
+        message: 'Vous ne disposez pas des droits nécessaires pour effectuer cette action'
       }
     })
   }

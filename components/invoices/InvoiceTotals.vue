@@ -30,7 +30,7 @@
         <div
           v-for="vat in totals.vatBreakdown"
           :key="vat.rate"
-          class="flex justify-between text-muted-custom text-[11px]"
+          class="flex justify-between text-muted-custom text-xs"
         >
           <span>TVA {{ Number(vat.rate) }}% (sur {{ formatMoney(vat.netAmountHt) }}) :</span>
           <span class="font-mono text-main font-bold">+ {{ formatMoney(vat.vatAmount) }}</span>

@@ -47,6 +47,7 @@ export async function validateSessionToken(
       user: {
         select: {
           id: true,
+          tenantId: true,
           name: true,
           email: true,
           role: true,

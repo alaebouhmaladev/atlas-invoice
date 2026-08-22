@@ -23,7 +23,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <!-- Search Input -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche</label>
           <div class="relative">
             <input
               v-model="searchQuery"
@@ -39,7 +39,7 @@
 
         <!-- Status Filter -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Statut</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Statut</label>
           <select
             v-model="statusFilter"
             class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 text-xs text-main focus:outline-none focus:border-brand transition-colors"
@@ -56,7 +56,7 @@
 
         <!-- Contract Type Filter -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Type de contrat</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Type de contrat</label>
           <select
             v-model="typeFilter"
             class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 text-xs text-main focus:outline-none focus:border-brand transition-colors"
@@ -73,7 +73,7 @@
 
         <!-- Expiration Filter -->
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Expiration sous</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Expiration sous</label>
           <select
             v-model="expiringFilter"
             class="w-full bg-panel-raised border border-custom rounded-control px-3 py-2 text-xs text-main focus:outline-none focus:border-brand transition-colors"
@@ -100,13 +100,13 @@
           </svg>
         </div>
         <p class="text-xs font-bold text-main">Aucun contrat trouvé</p>
-        <p class="text-[11px] text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau contrat de travail.</p>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau contrat de travail.</p>
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-custom bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider">
+            <tr class="border-b border-custom bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider">
               <th class="py-3.5 px-4">N° Contrat</th>
               <th class="py-3.5 px-4">Employé</th>
               <th class="py-3.5 px-4">Type</th>
@@ -129,12 +129,12 @@
                 <NuxtLink :to="`/rh/employes/${c.employeeId}`" class="font-bold text-main hover:text-brand block">
                   {{ c.employeeNameSnapshot || c.employee?.displayName || '-' }}
                 </NuxtLink>
-                <span class="text-[10px] font-mono text-muted-custom block">{{ c.employeeNumberSnapshot || c.employee?.employeeNumber }}</span>
+                <span class="text-xs font-mono text-muted-custom block">{{ c.employeeNumberSnapshot || c.employee?.employeeNumber }}</span>
               </td>
 
               <!-- Type -->
               <td class="py-3 px-4 text-secondary-custom">
-                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-panel-raised text-secondary-custom border border-custom">
+                <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-panel-raised text-secondary-custom border border-custom">
                   {{ formatContractType(c.contractType) }}
                 </span>
               </td>
@@ -156,7 +156,7 @@
 
               <!-- Statut -->
               <td class="py-3 px-4">
-                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold inline-block" :class="getContractStatusBadgeClass(c.status)">
+                <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold inline-block" :class="getContractStatusBadgeClass(c.status)">
                   {{ formatContractStatus(c.status) }}
                 </span>
               </td>
@@ -167,7 +167,7 @@
                   <button
                     v-if="c.status === 'DRAFT'"
                     @click="activateContract(c)"
-                    class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-control font-bold text-[11px] transition-colors cursor-pointer"
+                    class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-control font-bold text-xs transition-colors cursor-pointer"
                   >
                     Activer
                   </button>
@@ -175,7 +175,7 @@
                   <button
                     v-if="c.status === 'ACTIVE'"
                     @click="openRenewModal(c)"
-                    class="px-2.5 py-1 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 border border-sky-500/20 rounded-control font-bold text-[11px] transition-colors cursor-pointer"
+                    class="px-2.5 py-1 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 border border-sky-500/20 rounded-control font-bold text-xs transition-colors cursor-pointer"
                   >
                     Renouveler
                   </button>
@@ -183,7 +183,7 @@
                   <button
                     v-if="c.status === 'ACTIVE'"
                     @click="openTerminateModal(c)"
-                    class="px-2.5 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 rounded-control font-bold text-[11px] transition-colors cursor-pointer"
+                    class="px-2.5 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 rounded-control font-bold text-xs transition-colors cursor-pointer"
                   >
                     Résilier
                   </button>

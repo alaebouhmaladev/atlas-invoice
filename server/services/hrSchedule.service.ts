@@ -4,6 +4,7 @@ import { createAuditEntry } from './audit.service'
 import { createNotification } from './notification.service'
 import { calculateSegmentMinutes } from './hrShiftTemplate.service'
 import type { UserPublic } from '~/types/auth'
+import { parseHrLocalDate } from '../utils/hrDates'
 
 export interface ShiftSegmentInput {
   order: number
@@ -160,6 +161,7 @@ export async function detectShiftConflicts(
   const dbClient = txClient || prisma
   const conflicts: ScheduleConflict[] = []
   const dateStr = workDate.toISOString().slice(0, 10)
+  const normalizedDate = parseHrLocalDate(dateStr)
 
   // Calculate UTC times for proposed shift segments
   const proposedTimes = segments
@@ -183,6 +185,52 @@ export async function detectShiftConflicts(
   }
 
   if (proposedTimes.length === 0) return conflicts
+
+  // Approved leave is a blocking planning fact. It never mutates an existing shift.
+  const approvedLeave = await dbClient.leaveRequestDay.findFirst({
+    where: {
+      tenantId,
+      localDate: normalizedDate,
+      isWorkingDay: true,
+      requestedMinutes: { gt: 0 },
+      leaveRequest: { employeeId, status: 'APPROVED' }
+    },
+    include: { leaveRequest: { include: { leaveType: { select: { name: true } } } } }
+  })
+  if (approvedLeave) {
+    conflicts.push({
+      type: 'BLOCKING',
+      code: 'APPROVED_LEAVE',
+      message: `L’employé dispose d’une absence approuvée (${approvedLeave.leaveRequest.leaveType.name}) à cette date.`,
+      employeeId,
+      workDate: dateStr
+    })
+  }
+
+  const calendarSite = await dbClient.holidayCalendarSite.findFirst({
+    where: { tenantId, siteId },
+    select: { calendarId: true }
+  })
+  const holiday = await dbClient.holiday.findFirst({
+    where: {
+      tenantId,
+      localDate: normalizedDate,
+      isWorkingDay: false,
+      OR: [
+        ...(calendarSite ? [{ calendarId: calendarSite.calendarId }] : []),
+        { calendar: { isDefault: true, isActive: true } }
+      ]
+    }
+  })
+  if (holiday) {
+    conflicts.push({
+      type: 'WARNING',
+      code: 'SITE_HOLIDAY',
+      message: `Le ${dateStr} est configuré comme jour férié (${holiday.name}).`,
+      employeeId,
+      workDate: dateStr
+    })
+  }
 
   // 2. Double-booking check across all sites for this employee on overlapping dates
   const dayBefore = new Date(workDate)
@@ -339,8 +387,7 @@ export async function getOrCreateWorkSchedule(siteId: string, periodStartInput: 
 
 export async function createScheduledShift(input: CreateScheduledShiftInput, actor: UserPublic) {
   const tenantId = actor.tenantId || 'default-tenant'
-  const workDate = new Date(input.workDate)
-  workDate.setUTCHours(12, 0, 0, 0) // Normalize date
+  const workDate = parseHrLocalDate(input.workDate)
 
   const schedule = await prisma.workSchedule.findFirst({
     where: { id: input.scheduleId, tenantId }
@@ -494,6 +541,26 @@ export async function copyPreviousWeek(
       // Verify eligibility on target date
       const eligibility = await verifyEmployeeEligibility(srcShift.employeeId, siteId, targetWorkDate, tenantId)
       if (!eligibility.isEligible) {
+        skippedCount++
+        continue
+      }
+
+      const copyConflicts = await detectShiftConflicts(
+        tenantId,
+        srcShift.employeeId,
+        siteId,
+        targetWorkDate,
+        srcShift.segments.map(seg => ({
+          order: seg.order,
+          startLocalTime: seg.startLocalTime,
+          endLocalTime: seg.endLocalTime,
+          endsNextDay: seg.endsNextDay,
+          segmentType: seg.segmentType
+        })),
+        undefined,
+        tx
+      )
+      if (copyConflicts.some(conflict => conflict.type === 'BLOCKING')) {
         skippedCount++
         continue
       }
@@ -653,6 +720,9 @@ export async function changePublishedShift(shiftId: string, input: UpdateSchedul
     include: { schedule: true, employee: true, segments: { orderBy: { order: 'asc' } } }
   })
   if (!shift) throw new Error('Shift introuvable.')
+  if (shift.schedule.status === ScheduleStatus.LOCKED || shift.schedule.status === ScheduleStatus.ARCHIVED) {
+    throw new Error('Impossible de modifier un planning verrouillé ou archivé.')
+  }
 
   const beforeSnapshot = {
     positionId: shift.positionId,
@@ -791,6 +861,16 @@ export async function calculateStaffingCoverage(siteId: string, dateInput: strin
     },
     include: { segments: true }
   })
+  const approvedLeaveDays = await prisma.leaveRequestDay.findMany({
+    where: {
+      tenantId,
+      localDate: parseHrLocalDate(dateStr),
+      requestedMinutes: { gt: 0 },
+      leaveRequest: { status: 'APPROVED' }
+    },
+    select: { leaveRequest: { select: { employeeId: true } } }
+  })
+  const employeesOnLeave = new Set(approvedLeaveDays.map(day => day.leaveRequest.employeeId))
 
   const results: StaffingCoverageResult[] = []
 
@@ -801,6 +881,7 @@ export async function calculateStaffingCoverage(siteId: string, dateInput: strin
     let actualCount = 0
 
     for (const shift of dayShifts) {
+      if (employeesOnLeave.has(shift.employeeId)) continue
       if (shift.positionId !== req.positionId) continue
 
       for (const seg of shift.segments) {
@@ -841,15 +922,36 @@ export async function calculateStaffingCoverage(siteId: string, dateInput: strin
   return results
 }
 
-export async function deleteScheduledShift(shiftId: string, actor: UserPublic) {
+export async function deleteScheduledShift(shiftId: string, actor: UserPublic, reason = 'Annulation explicite du shift') {
   const tenantId = actor.tenantId || 'default-tenant'
   const shift = await prisma.scheduledShift.findFirst({
     where: { id: shiftId, tenantId },
-    include: { employee: true }
+    include: { employee: true, schedule: true, segments: true }
   })
   if (!shift) throw new Error('Shift introuvable.')
 
-  await prisma.scheduledShift.delete({ where: { id: shiftId } })
+  if (shift.schedule.status === ScheduleStatus.LOCKED || shift.schedule.status === ScheduleStatus.ARCHIVED) {
+    throw new Error('Impossible d’annuler un shift d’un planning verrouillé ou archivé.')
+  }
+  if (reason.trim().length < 5) throw new Error('Un motif d’annulation est obligatoire.')
+
+  const beforeSnapshot = JSON.parse(JSON.stringify(shift))
+  await prisma.$transaction(async tx => {
+    await tx.scheduledShift.update({
+      where: { id: shiftId },
+      data: { status: ScheduledShiftStatus.CANCELLED, updatedByUserId: actor.id, version: { increment: 1 } }
+    })
+    await tx.scheduleChangeHistory.create({
+      data: {
+        tenantId,
+        shiftId,
+        changeReason: reason.trim(),
+        beforeSnapshot,
+        afterSnapshot: { ...beforeSnapshot, status: ScheduledShiftStatus.CANCELLED },
+        changedById: actor.id
+      }
+    })
+  })
 
   await createAuditEntry({
     userId: actor.id,
@@ -858,6 +960,7 @@ export async function deleteScheduledShift(shiftId: string, actor: UserPublic) {
     result: 'SUCCESS',
     entityType: 'ScheduledShift',
     entityId: shiftId,
-    entityReference: `${shift.employee.firstName} ${shift.employee.lastName}`
+    entityReference: `${shift.employee.firstName} ${shift.employee.lastName}`,
+    metadata: { reason: reason.trim(), previousStatus: shift.status }
   })
 }

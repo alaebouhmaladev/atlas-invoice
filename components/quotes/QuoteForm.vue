@@ -54,7 +54,7 @@
             class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.issueDate }"
           />
-          <p v-if="fieldErrors.issueDate" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.issueDate }}</p>
+          <p v-if="fieldErrors.issueDate" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ fieldErrors.issueDate }}</p>
         </div>
 
         <!-- Valid Until Date -->
@@ -68,7 +68,7 @@
             class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.validUntil }"
           />
-          <p v-if="fieldErrors.validUntil" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.validUntil }}</p>
+          <p v-if="fieldErrors.validUntil" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ fieldErrors.validUntil }}</p>
         </div>
 
         <!-- Payment Terms -->
@@ -88,7 +88,7 @@
     <!-- SECTION 2: Lignes de Prestations -->
     <div class="bg-panel border border-custom rounded-panel p-6 shadow-soft">
       <QuoteItemsEditor v-model:items="form.items" />
-      <p v-if="fieldErrors.items" class="text-rose-600 dark:text-rose-400 text-[11px] mt-2 font-bold">{{ fieldErrors.items }}</p>
+      <p v-if="fieldErrors.items" class="text-rose-600 dark:text-rose-400 text-xs mt-2 font-bold">{{ fieldErrors.items }}</p>
     </div>
 
     <!-- SECTION 3: Remise globale & Récapitulatif -->

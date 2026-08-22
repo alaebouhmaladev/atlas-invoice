@@ -86,7 +86,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
           <!-- Designation (Title) -->
           <div class="lg:col-span-2">
-            <label :for="`item-title-${index}`" class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Désignation *</label>
+            <label :for="`item-title-${index}`" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Désignation *</label>
             <input
               :id="`item-title-${index}`"
               v-model="item.title"
@@ -99,7 +99,7 @@
 
           <!-- Quantity -->
           <div>
-            <label :for="`item-qty-${index}`" class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Quantité *</label>
+            <label :for="`item-qty-${index}`" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Quantité *</label>
             <input
               :id="`item-qty-${index}`"
               v-model.number="item.quantity"
@@ -113,7 +113,7 @@
 
           <!-- Unit Selector -->
           <div>
-            <label :for="`item-unit-${index}`" class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Unité *</label>
+            <label :for="`item-unit-${index}`" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Unité *</label>
             <select
               :id="`item-unit-${index}`"
               v-model="item.unit"
@@ -134,7 +134,7 @@
 
           <!-- Unit Price HT -->
           <div>
-            <label :for="`item-price-${index}`" class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">P.U. HT (MAD) *</label>
+            <label :for="`item-price-${index}`" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">P.U. HT (MAD) *</label>
             <input
               :id="`item-price-${index}`"
               v-model.number="item.unitPriceHt"
@@ -148,7 +148,7 @@
 
           <!-- Remise % -->
           <div>
-            <label :for="`item-disc-${index}`" class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Remise %</label>
+            <label :for="`item-disc-${index}`" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Remise %</label>
             <input
               :id="`item-disc-${index}`"
               v-model.number="item.discountRate"
@@ -164,7 +164,7 @@
         <!-- Description & TVA -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-1">
           <div class="sm:col-span-3">
-            <label :for="`item-desc-${index}`" class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Description / Détails prestation</label>
+            <label :for="`item-desc-${index}`" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Description / Détails prestation</label>
             <input
               :id="`item-desc-${index}`"
               v-model="item.description"
@@ -175,7 +175,7 @@
           </div>
 
           <div>
-            <label :for="`item-vat-${index}`" class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Taux TVA</label>
+            <label :for="`item-vat-${index}`" class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Taux TVA</label>
             <select
               :id="`item-vat-${index}`"
               v-model.number="item.vatRate"

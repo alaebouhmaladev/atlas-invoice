@@ -16,7 +16,7 @@
     <div class="bg-panel border border-custom rounded-panel p-6 space-y-5 shadow-soft">
       <div class="border-b border-custom pb-3">
         <h3 class="text-sm font-bold text-main uppercase tracking-wider flex items-center gap-2">
-          <span class="w-6 h-6 rounded-control bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0] flex items-center justify-center text-xs font-bold border border-[#b49c80]/30">1</span>
+          <span class="w-6 h-6 rounded-control bg-brand-soft text-brand-strong flex items-center justify-center text-xs font-bold border border-brand-soft">1</span>
           {{ isEdit ? 'Modifier le Brouillon de Facture' : 'Informations Générales de la Facture' }}
         </h3>
         <p class="text-xs text-muted-custom mt-1">Renseignez le client, les dates et les détails de facturation.</p>
@@ -90,7 +90,7 @@
           </h4>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Type de remise</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Type de remise</label>
               <select
                 v-model="form.discountType"
                 class="w-full px-3 py-2 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
@@ -100,7 +100,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Valeur</label>
+              <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Valeur</label>
               <input
                 v-model.number="form.discountValue"
                 type="number"
@@ -119,7 +119,7 @@
             Conditions & Remarques
           </h4>
           <div>
-            <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Conditions de règlement</label>
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Conditions de règlement</label>
             <input
               v-model="form.paymentTerms"
               type="text"
@@ -128,7 +128,7 @@
             />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Notes publiques (visibles sur le PDF)</label>
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Notes publiques (visibles sur le PDF)</label>
             <textarea
               v-model="form.publicNotes"
               rows="2"
@@ -137,7 +137,7 @@
             ></textarea>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Notes internes (équipe uniquement)</label>
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Notes internes (équipe uniquement)</label>
             <textarea
               v-model="form.internalNotes"
               rows="2"

@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   if (!documentType || !['INVOICE', 'QUOTE'].includes(documentType)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_DOCUMENT_TYPE', message: 'Type de document invalide.' }
     })
   }
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   if (!actionType || !['ARCHIVE', 'DELETE_DRAFTS', 'MIXED_CLEANUP', 'RESTORE'].includes(actionType)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ACTION_TYPE', message: 'Action invalide.' }
     })
   }

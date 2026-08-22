@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant de facture requis' }
     })
   }
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   if (!parseResult.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'VALIDATION_ERROR',
         message: 'Le motif d\'annulation est obligatoire',
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     const error = err as Error
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'CANCEL_INVOICE_FAILED',
         message: error.message || 'Échec de l\'annulation de la facture'

@@ -50,13 +50,13 @@
             <td class="py-2.5 px-3">
               <span
                 v-if="payment.status === 'CONFIRMED'"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
               >
                 Confirmé
               </span>
               <span
                 v-else
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30"
                 :title="`Annulé pour : ${payment.reversalReason || 'Non spécifié'}`"
               >
                 Annulé
@@ -67,7 +67,7 @@
                 v-if="payment.status === 'CONFIRMED' && isSuperAdmin && invoiceStatus === 'FINALIZED'"
                 type="button"
                 @click="$emit('open-reversal-modal', payment)"
-                class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30 rounded-control text-[11px] font-bold transition-colors cursor-pointer"
+                class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30 rounded-control text-xs font-bold transition-colors cursor-pointer"
               >
                 Annuler le paiement
               </button>

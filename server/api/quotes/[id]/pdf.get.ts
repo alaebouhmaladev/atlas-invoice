@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant de devis requis' }
     })
   }
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   if (!quote) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Not Found',
+      statusMessage: 'Ressource introuvable',
       data: { code: 'QUOTE_NOT_FOUND', message: 'Devis introuvable' }
     })
   }
@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
     const error = err as Error
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal Server Error',
+      statusMessage: 'Erreur interne du serveur',
       data: {
         code: 'PDF_GENERATION_FAILED',
         message: error.message || 'Échec de la génération du document PDF'

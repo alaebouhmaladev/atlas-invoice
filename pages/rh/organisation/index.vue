@@ -71,7 +71,7 @@
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <!-- Search Input -->
         <div class="w-full sm:w-80">
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Recherche</label>
           <div class="relative">
             <input
               v-model="searchQuery"
@@ -93,7 +93,7 @@
               v-model="showArchived"
               class="sr-only peer"
             />
-            <div class="w-9 h-5 bg-panel-raised peer-focus:outline-none rounded-pill peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+            <div class="w-9 h-5 bg-panel-raised peer-focus:outline-none rounded-pill peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-custom after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
           </label>
           <span class="text-xs text-secondary-custom font-semibold">Inclure les éléments archivés</span>
         </div>
@@ -112,12 +112,12 @@
           </svg>
         </div>
         <p class="text-xs font-bold text-main">Aucun site trouvé</p>
-        <p class="text-[11px] text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau site de travail.</p>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau site de travail.</p>
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-custom bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider">
+            <tr class="border-b border-custom bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider">
               <th class="py-3.5 px-4">Code</th>
               <th class="py-3.5 px-4">Nom du site</th>
               <th class="py-3.5 px-4">Type</th>
@@ -132,16 +132,16 @@
               <td class="py-3 px-4 font-mono font-bold text-brand-strong">{{ site.code }}</td>
               <td class="py-3 px-4 font-bold text-main">{{ site.name }}</td>
               <td class="py-3 px-4 text-secondary-custom">
-                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-panel-raised text-secondary-custom border border-custom">
+                <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-panel-raised text-secondary-custom border border-custom">
                   {{ formatWorkSiteType(site.type) }}
                 </span>
               </td>
               <td class="py-3 px-4 text-secondary-custom">{{ site.city || '—' }}</td>
               <td class="py-3 px-4 text-secondary-custom">{{ site.managerEmployee?.displayName || '—' }}</td>
               <td class="py-3 px-4">
-                <span v-if="site.archivedAt" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">Archivé</span>
-                <span v-else-if="site.isActive" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Actif</span>
-                <span v-else class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Inactif</span>
+                <span v-if="site.archivedAt" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">Archivé</span>
+                <span v-else-if="site.isActive" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Actif</span>
+                <span v-else class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Inactif</span>
               </td>
               <td class="py-3 px-4 text-right">
                 <div class="flex items-center justify-end gap-2">
@@ -197,12 +197,12 @@
           </svg>
         </div>
         <p class="text-xs font-bold text-main">Aucun département trouvé</p>
-        <p class="text-[11px] text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau département.</p>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau département.</p>
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-custom bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider">
+            <tr class="border-b border-custom bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider">
               <th class="py-3.5 px-4">Code</th>
               <th class="py-3.5 px-4">Intitulé du département</th>
               <th class="py-3.5 px-4">Responsable</th>
@@ -218,9 +218,9 @@
               <td class="py-3 px-4 text-secondary-custom">{{ dept.managerEmployee?.displayName || '—' }}</td>
               <td class="py-3 px-4 text-secondary-custom font-mono">{{ dept._count?.positions || 0 }} poste(s)</td>
               <td class="py-3 px-4">
-                <span v-if="dept.archivedAt" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">Archivé</span>
-                <span v-else-if="dept.isActive" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Actif</span>
-                <span v-else class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Inactif</span>
+                <span v-if="dept.archivedAt" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">Archivé</span>
+                <span v-else-if="dept.isActive" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Actif</span>
+                <span v-else class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Inactif</span>
               </td>
               <td class="py-3 px-4 text-right">
                 <div class="flex items-center justify-end gap-2">
@@ -276,12 +276,12 @@
           </svg>
         </div>
         <p class="text-xs font-bold text-main">Aucun poste trouvé</p>
-        <p class="text-[11px] text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau poste.</p>
+        <p class="text-xs text-muted-custom max-w-sm mx-auto">Modifiez les filtres de recherche ou créez un nouveau poste.</p>
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-custom bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider">
+            <tr class="border-b border-custom bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider">
               <th class="py-3.5 px-4">Code</th>
               <th class="py-3.5 px-4">Intitulé du poste</th>
               <th class="py-3.5 px-4">Département</th>
@@ -296,13 +296,13 @@
               <td class="py-3 px-4 font-bold text-main">{{ pos.title }}</td>
               <td class="py-3 px-4 text-secondary-custom">{{ pos.department?.name || '—' }}</td>
               <td class="py-3 px-4">
-                <span v-if="pos.isManagerial" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">Managérial</span>
-                <span v-else class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-panel-raised text-secondary-custom border border-custom">Opérationnel</span>
+                <span v-if="pos.isManagerial" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">Managérial</span>
+                <span v-else class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-panel-raised text-secondary-custom border border-custom">Opérationnel</span>
               </td>
               <td class="py-3 px-4">
-                <span v-if="pos.archivedAt" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">Archivé</span>
-                <span v-else-if="pos.isActive" class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Actif</span>
-                <span v-else class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Inactif</span>
+                <span v-if="pos.archivedAt" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">Archivé</span>
+                <span v-else-if="pos.isActive" class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Actif</span>
+                <span v-else class="px-2.5 py-0.5 rounded-pill text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Inactif</span>
               </td>
               <td class="py-3 px-4 text-right">
                 <div class="flex items-center justify-end gap-2">
@@ -347,7 +347,7 @@
     </div>
 
     <!-- Archive Confirmation Modal -->
-    <div v-if="showArchiveModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div v-if="showArchiveModal" class="fixed inset-0 bg-overlay backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div class="bg-panel border border-custom rounded-panel max-w-md w-full p-6 shadow-2xl space-y-4">
         <div class="flex items-center gap-3 text-rose-600 dark:text-rose-400">
           <div class="w-10 h-10 rounded-pill bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
@@ -368,7 +368,7 @@
 
         <div class="space-y-3">
           <div>
-            <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Code de confirmation</label>
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Code de confirmation</label>
             <input
               v-model="archiveConfirmInput"
               type="text"
@@ -377,7 +377,7 @@
             />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1">Motif d’archivage (obligatoire)</label>
+            <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1">Motif d’archivage (obligatoire)</label>
             <textarea
               v-model="archiveReasonInput"
               rows="2"

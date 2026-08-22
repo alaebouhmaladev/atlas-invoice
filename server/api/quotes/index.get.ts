@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   if (!parseResult.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'VALIDATION_ERROR',
         message: 'Paramètres de recherche invalides',

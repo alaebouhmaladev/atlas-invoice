@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!quoteId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant du devis requis' }
     })
   }
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const error = err as Error
     throw createError({
       statusCode: 409,
-      statusMessage: 'Conflict',
+      statusMessage: 'Conflit',
       data: {
         code: 'CONVERT_QUOTE_FAILED',
         message: error.message || 'Échec de la conversion du devis en facture'

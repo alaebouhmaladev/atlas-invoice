@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      class="fixed inset-0 z-50 bg-overlay backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       @keydown.esc="close"
@@ -74,7 +74,7 @@
               placeholder="ex: Nettoyage administratif de fin de mois (min 10 caractères)"
               class="w-full px-3.5 py-2.5 bg-panel-raised border border-custom focus:border-rose-500 text-main placeholder-muted-custom rounded-control text-xs outline-none transition-colors"
             />
-            <p v-if="reasonText.trim().length > 0 && reasonText.trim().length < 10" class="text-[11px] text-rose-600 dark:text-rose-400 font-semibold">
+            <p v-if="reasonText.trim().length > 0 && reasonText.trim().length < 10" class="text-xs text-rose-600 dark:text-rose-400 font-semibold">
               Le motif doit comporter au moins 10 caractères (actuellement {{ reasonText.trim().length }}/10).
             </p>
           </div>
@@ -90,7 +90,7 @@
               placeholder="Entrez votre mot de passe Super Admin"
               class="w-full px-3.5 py-2.5 bg-panel border border-amber-500/30 focus:border-amber-500 text-main placeholder-muted-custom rounded-control text-xs outline-none transition-colors"
             />
-            <p class="text-[11px] text-amber-600 dark:text-amber-400">
+            <p class="text-xs text-amber-600 dark:text-amber-400">
               Une ré-authentification est nécessaire pour traiter plus de 20 documents ou des suppressions sensibles.
             </p>
           </div>
@@ -98,7 +98,7 @@
           <!-- Typed Confirmation Phrase Input -->
           <div class="space-y-1.5">
             <label class="block text-xs font-bold text-main">
-              Veuillez saisir exactement <code class="px-1.5 py-0.5 bg-panel-raised text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-control text-[11px] font-mono select-all">{{ requiredPhrase }}</code> pour confirmer :
+              Veuillez saisir exactement <code class="px-1.5 py-0.5 bg-panel-raised text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-control text-xs font-mono select-all">{{ requiredPhrase }}</code> pour confirmer :
             </label>
             <input
               v-model="typedPhrase"

@@ -10,7 +10,7 @@
 
     <span
       v-if="isOverdue"
-      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-extrabold bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/40 animate-pulse"
+      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-xs font-extrabold bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/40 animate-pulse"
       title="Facture en retard de paiement"
     >
       <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -58,13 +58,13 @@ const statusClasses = computed(() => {
 const dotClasses = computed(() => {
   switch (props.status) {
     case 'UNPAID':
-      return 'bg-slate-400 dark:bg-slate-500'
+      return 'bg-border-strong'
     case 'PARTIALLY_PAID':
       return 'bg-indigo-500'
     case 'PAID':
       return 'bg-emerald-500'
     default:
-      return 'bg-slate-400 dark:bg-slate-500'
+      return 'bg-border-strong'
   }
 })
 </script>

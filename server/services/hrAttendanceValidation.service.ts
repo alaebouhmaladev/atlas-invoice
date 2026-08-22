@@ -152,8 +152,7 @@ export async function lockAttendancePeriod(
         workDate: { gte: periodStart, lte: periodEnd }
       },
       data: {
-        validationStatus: 'LOCKED',
-        status: 'LOCKED'
+        validationStatus: 'LOCKED'
       }
     })
 
@@ -206,17 +205,21 @@ export async function unlockAttendancePeriod(
       }
     })
 
-    await tx.attendanceDay.updateMany({
-      where: {
-        tenantId,
-        siteId,
-        workDate: { gte: periodStart, lte: lock.periodEnd }
-      },
-      data: {
-        validationStatus: 'PENDING',
-        status: 'COMPLETE'
-      }
+    const lockedDays = await tx.attendanceDay.findMany({
+      where: { tenantId, siteId, workDate: { gte: periodStart, lte: lock.periodEnd } }
     })
+    for (const day of lockedDays) {
+      let restoredStatus = day.status
+      if (day.status === 'LOCKED') {
+        restoredStatus = day.firstClockIn
+          ? (day.lastClockOut ? 'COMPLETE' : 'INCOMPLETE')
+          : (day.plannedMinutes > 0 ? 'ABSENT' : 'REST_DAY')
+      }
+      await tx.attendanceDay.update({
+        where: { id: day.id },
+        data: { validationStatus: 'PENDING', status: restoredStatus }
+      })
+    }
 
     await createAuditEntry({
       userId: user.id,

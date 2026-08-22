@@ -51,6 +51,53 @@ export type HrPermission =
   | 'hr.attendance.terminal.manage'
   | 'hr.attendance.export'
   | 'hr.attendance.anomaly.resolve'
+  | 'hr.leave.list'
+  | 'hr.leave.read'
+  | 'hr.leave.request'
+  | 'hr.leave.create_for_employee'
+  | 'hr.leave.review'
+  | 'hr.leave.cancel'
+  | 'hr.leave.manage_types'
+  | 'hr.leave.manage_policies'
+  | 'hr.leave.balance.read'
+  | 'hr.leave.balance.adjust'
+  | 'hr.leave.holiday.read'
+  | 'hr.leave.holiday.manage'
+  | 'hr.leave.absence.read'
+  | 'hr.leave.absence.resolve'
+  | 'hr.leave.read_medical'
+  | 'hr.leave.export'
+  | 'hr.leave.self.read'
+  | 'hr.leave.self.request'
+  | 'hr.leave.team.read'
+  | 'hr.leave.review_manager'
+  | 'hr.leave.review_hr'
+  | 'hr.leave.override'
+  | 'hr.leave.policy.read'
+  | 'hr.leave.attachment.read'
+  | 'hr.leave.attachment.medical'
+  | 'hr.leave.audit.read'
+  | 'hr.payroll.read'
+  | 'hr.payroll.read_own'
+  | 'hr.payroll.prepare'
+  | 'hr.payroll.calculate'
+  | 'hr.payroll.validate'
+  | 'hr.payroll.close'
+  | 'hr.payroll.reopen'
+  | 'hr.payroll.variable.read'
+  | 'hr.payroll.variable.manage'
+  | 'hr.payroll.variable.approve'
+  | 'hr.payroll.salary_component.manage'
+  | 'hr.payroll.advance.manage'
+  | 'hr.payroll.loan.manage'
+  | 'hr.payroll.rules.read'
+  | 'hr.payroll.rules.manage'
+  | 'hr.payroll.payslip.read'
+  | 'hr.payroll.payslip.read_own'
+  | 'hr.payroll.export'
+  | 'hr.payroll.bank_export'
+  | 'hr.payroll.accounting_export'
+  | 'hr.payroll.audit.read'
 
 const ALL_PHASE_4_PERMISSIONS: HrPermission[] = [
   'hr.employee.list',
@@ -102,11 +149,63 @@ const ALL_PHASE_4_PERMISSIONS: HrPermission[] = [
   'hr.attendance.terminal.manage',
   'hr.attendance.export',
   'hr.attendance.anomaly.resolve'
+  , 'hr.leave.list'
+  , 'hr.leave.read'
+  , 'hr.leave.request'
+  , 'hr.leave.create_for_employee'
+  , 'hr.leave.review'
+  , 'hr.leave.cancel'
+  , 'hr.leave.manage_types'
+  , 'hr.leave.manage_policies'
+  , 'hr.leave.balance.read'
+  , 'hr.leave.balance.adjust'
+  , 'hr.leave.holiday.read'
+  , 'hr.leave.holiday.manage'
+  , 'hr.leave.absence.read'
+  , 'hr.leave.absence.resolve'
+  , 'hr.leave.read_medical'
+  , 'hr.leave.export'
+  , 'hr.leave.self.read'
+  , 'hr.leave.self.request'
+  , 'hr.leave.team.read'
+  , 'hr.leave.review_manager'
+  , 'hr.leave.review_hr'
+  , 'hr.leave.override'
+  , 'hr.leave.policy.read'
+  , 'hr.leave.attachment.read'
+  , 'hr.leave.attachment.medical'
+  , 'hr.leave.audit.read'
+  , 'hr.payroll.read'
+  , 'hr.payroll.read_own'
+  , 'hr.payroll.prepare'
+  , 'hr.payroll.calculate'
+  , 'hr.payroll.validate'
+  , 'hr.payroll.close'
+  , 'hr.payroll.reopen'
+  , 'hr.payroll.variable.read'
+  , 'hr.payroll.variable.manage'
+  , 'hr.payroll.variable.approve'
+  , 'hr.payroll.salary_component.manage'
+  , 'hr.payroll.advance.manage'
+  , 'hr.payroll.loan.manage'
+  , 'hr.payroll.rules.read'
+  , 'hr.payroll.rules.manage'
+  , 'hr.payroll.payslip.read'
+  , 'hr.payroll.payslip.read_own'
+  , 'hr.payroll.export'
+  , 'hr.payroll.bank_export'
+  , 'hr.payroll.accounting_export'
+  , 'hr.payroll.audit.read'
 ]
 
 const ROLE_HR_PERMISSIONS: Record<Role, HrPermission[]> = {
   SUPER_ADMIN: ALL_PHASE_4_PERMISSIONS,
-  HR_MANAGER: ALL_PHASE_4_PERMISSIONS,
+  HR_MANAGER: ALL_PHASE_4_PERMISSIONS.filter(permission => ![
+    'hr.payroll.close',
+    'hr.payroll.reopen',
+    'hr.payroll.rules.manage',
+    'hr.payroll.bank_export'
+  ].includes(permission)),
   ACCOUNTANT: [
     'hr.employee.list',
     'hr.employee.read',
@@ -116,9 +215,30 @@ const ROLE_HR_PERMISSIONS: Record<Role, HrPermission[]> = {
     'hr.schedule.list',
     'hr.schedule.read',
     'hr.attendance.read',
-    'hr.attendance.export'
+    'hr.attendance.export',
+    'hr.leave.list',
+    'hr.leave.read',
+    'hr.leave.balance.read',
+    'hr.leave.holiday.read',
+    'hr.leave.absence.read',
+    'hr.leave.export',
+    'hr.leave.policy.read'
+    , 'hr.leave.self.read'
+    , 'hr.payroll.read'
+    , 'hr.payroll.variable.read'
+    , 'hr.payroll.rules.read'
+    , 'hr.payroll.payslip.read'
+    , 'hr.payroll.export'
+    , 'hr.payroll.accounting_export'
   ],
-  COMMERCIAL: []
+  COMMERCIAL: [
+    'hr.leave.self.read',
+    'hr.leave.self.request',
+    'hr.leave.team.read',
+    'hr.leave.review_manager',
+    'hr.payroll.read_own',
+    'hr.payroll.payslip.read_own'
+  ]
 }
 
 export function hasHrPermission(user: UserPublic | null | undefined, permission: HrPermission): boolean {
@@ -134,9 +254,9 @@ export async function requireHrPermission(event: any, permission: HrPermission):
   })())
 
   if (!user) {
-    const err: any = new Error('Authentication is required to access this resource')
+    const err: any = new Error('Vous devez être authentifié pour accéder à cette ressource')
     err.statusCode = 401
-    err.data = { code: 'UNAUTHORIZED', message: 'Authentication is required to access this resource' }
+    err.data = { code: 'UNAUTHORIZED', message: 'Vous devez être authentifié pour accéder à cette ressource' }
     throw err
   }
   if (!hasHrPermission(user, permission)) {
@@ -164,17 +284,17 @@ export async function requireHrPermission(event: any, permission: HrPermission):
         severity: 'WARNING',
         title: 'Tentative d’accès RH non autorisée',
         message: `L’utilisateur ${user.name} (${user.role}) a tenté d’accéder sans la permission (${permission}).`,
-        actionUrl: '/admin/audit'
+        actionUrl: '/activites'
       })
     } catch {
       // Ignore logging failures to prevent swallowing original 403 error
     }
 
-    const err: any = new Error(`Vous n'avez pas la permission requise (${permission}) pour accéder aux Ressources Humaines.`)
+    const err: any = new Error('Vous ne disposez pas des droits nécessaires pour accéder à cette ressource RH.')
     err.statusCode = 403
     err.data = {
       code: 'FORBIDDEN',
-      message: `Vous n'avez pas la permission requise (${permission}) pour accéder aux Ressources Humaines.`
+      message: 'Vous ne disposez pas des droits nécessaires pour accéder à cette ressource RH.'
     }
     throw err
   }

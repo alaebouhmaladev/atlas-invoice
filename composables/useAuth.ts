@@ -44,7 +44,7 @@ export function useAuth() {
       return false
     } catch (err: unknown) {
       const fetchError = err as { data?: { data?: { message?: string }; message?: string } }
-      const message = fetchError.data?.data?.message || fetchError.data?.message || 'Login failed. Please check your credentials.'
+      const message = fetchError.data?.data?.message || fetchError.data?.message || 'La connexion a échoué. Vérifiez vos identifiants.'
       error.value = message
       return false
     } finally {

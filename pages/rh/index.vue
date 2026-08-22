@@ -55,7 +55,7 @@
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <!-- Employés Actifs -->
         <div class="bg-panel border border-custom rounded-card p-4 space-y-2 shadow-soft">
-          <span class="text-[11px] font-semibold text-muted-custom uppercase tracking-wider block">Actifs</span>
+          <span class="text-xs font-semibold text-muted-custom uppercase tracking-wider block">Actifs</span>
           <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
             {{ hrOverview.metrics.totalActive }}
           </div>
@@ -63,7 +63,7 @@
 
         <!-- En Intégration -->
         <div class="bg-panel border border-custom rounded-card p-4 space-y-2 shadow-soft">
-          <span class="text-[11px] font-semibold text-muted-custom uppercase tracking-wider block">En intégration</span>
+          <span class="text-xs font-semibold text-muted-custom uppercase tracking-wider block">En intégration</span>
           <div class="text-2xl font-black text-sky-600 dark:text-sky-400 font-mono">
             {{ hrOverview.metrics.onboarding }}
           </div>
@@ -71,7 +71,7 @@
 
         <!-- Suspendus -->
         <div class="bg-panel border border-custom rounded-card p-4 space-y-2 shadow-soft">
-          <span class="text-[11px] font-semibold text-muted-custom uppercase tracking-wider block">Suspendus</span>
+          <span class="text-xs font-semibold text-muted-custom uppercase tracking-wider block">Suspendus</span>
           <div class="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
             {{ hrOverview.metrics.suspended }}
           </div>
@@ -79,7 +79,7 @@
 
         <!-- Départis -->
         <div class="bg-panel border border-custom rounded-card p-4 space-y-2 shadow-soft">
-          <span class="text-[11px] font-semibold text-muted-custom uppercase tracking-wider block">A quitté</span>
+          <span class="text-xs font-semibold text-muted-custom uppercase tracking-wider block">A quitté</span>
           <div class="text-2xl font-black text-rose-600 dark:text-rose-400 font-mono">
             {{ hrOverview.metrics.departed }}
           </div>
@@ -87,7 +87,7 @@
 
         <!-- Archivés -->
         <div class="bg-panel border border-custom rounded-card p-4 space-y-2 shadow-soft">
-          <span class="text-[11px] font-semibold text-muted-custom uppercase tracking-wider block">Archivés</span>
+          <span class="text-xs font-semibold text-muted-custom uppercase tracking-wider block">Archivés</span>
           <div class="text-2xl font-black text-muted-custom font-mono">
             {{ hrOverview.metrics.archived }}
           </div>
@@ -95,7 +95,7 @@
 
         <!-- Nouveaux ce mois -->
         <div class="bg-panel border border-custom rounded-card p-4 space-y-2 shadow-soft">
-          <span class="text-[11px] font-semibold text-muted-custom uppercase tracking-wider block">Nouveaux (mois)</span>
+          <span class="text-xs font-semibold text-muted-custom uppercase tracking-wider block">Nouveaux (mois)</span>
           <div class="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
             {{ hrOverview.metrics.newThisMonth }}
           </div>
@@ -131,15 +131,15 @@
                   <NuxtLink :to="`/rh/employes/${emp.id}`" class="text-xs font-bold text-main hover:text-brand block">
                     {{ emp.displayName }}
                   </NuxtLink>
-                  <span class="text-[11px] font-mono text-brand-strong">{{ emp.employeeNumber }}</span>
+                  <span class="text-xs font-mono text-brand-strong">{{ emp.employeeNumber }}</span>
                 </div>
               </div>
 
               <div class="flex items-center gap-3 text-xs">
-                <span class="px-2.5 py-0.5 rounded-pill text-[10px] font-bold" :class="getStatusBadgeClass(emp.employmentStatus)">
+                <span class="px-2.5 py-0.5 rounded-pill text-xs font-bold" :class="getStatusBadgeClass(emp.employmentStatus)">
                   {{ getStatusLabel(emp.employmentStatus) }}
                 </span>
-                <span class="text-muted-custom text-[11px] font-mono">{{ formatDate(emp.hireDate) }}</span>
+                <span class="text-muted-custom text-xs font-mono">{{ formatDate(emp.hireDate) }}</span>
               </div>
             </div>
           </div>
@@ -169,7 +169,7 @@
 
               <div class="space-y-0.5 text-xs">
                 <p class="font-bold text-main">{{ formatHrAuditAction(act.action) }}</p>
-                <p class="text-[11px] text-secondary-custom">
+                <p class="text-xs text-secondary-custom">
                   Par <strong class="text-main">{{ act.user?.name || 'Système' }}</strong>
                   <span class="ml-1 text-muted-custom">({{ formatDate(act.createdAt) }})</span>
                 </p>

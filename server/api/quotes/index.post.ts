@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!parseResult.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'VALIDATION_ERROR',
         message: 'Données du devis invalides',
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     const error = err as Error
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'CREATE_QUOTE_FAILED',
         message: error.message || 'Échec de la création du devis'

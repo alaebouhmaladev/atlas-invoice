@@ -28,5 +28,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return createSuccessResponse({ message: 'Successfully logged out' })
+  return createSuccessResponse({ message: 'Déconnexion réussie' })
 })

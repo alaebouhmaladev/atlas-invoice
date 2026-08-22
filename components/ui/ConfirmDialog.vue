@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
     >
@@ -29,6 +29,7 @@
             Veuillez saisir <strong class="text-brand-strong">{{ requireMatchText }}</strong> pour confirmer :
           </label>
           <input
+            ref="confirmationInput"
             v-model="inputMatchText"
             type="text"
             placeholder="Nom pour confirmer"
@@ -67,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps<{
   show: boolean
@@ -83,21 +84,44 @@ const props = defineProps<{
 const emit = defineEmits(['confirm', 'cancel'])
 
 const inputMatchText = ref('')
+const confirmationInput = ref<HTMLInputElement | null>(null)
+const confirmEmitted = ref(false)
 
 const isConfirmDisabled = computed(() => {
+  if (confirmEmitted.value) return true
   if (!props.requireMatchText) return false
   return inputMatchText.value.trim() !== props.requireMatchText.trim()
 })
 
 function handleConfirm() {
-  if (isConfirmDisabled.value) return
+  if (isConfirmDisabled.value || props.loading) return
+  confirmEmitted.value = true
   emit('confirm')
+}
+
+function handleEscape(event: KeyboardEvent) {
+  if (event.key === 'Escape' && props.show && !props.loading) emit('cancel')
 }
 
 watch(
   () => props.show,
-  (newVal) => {
-    if (newVal) inputMatchText.value = ''
+  async (newVal) => {
+    if (newVal) {
+      inputMatchText.value = ''
+      confirmEmitted.value = false
+      await nextTick()
+      confirmationInput.value?.focus()
+    }
   }
 )
+
+watch(
+  () => props.loading,
+  (loading, previous) => {
+    if (previous && !loading && props.show) confirmEmitted.value = false
+  }
+)
+
+onMounted(() => document.addEventListener('keydown', handleEscape))
+onUnmounted(() => document.removeEventListener('keydown', handleEscape))
 </script>

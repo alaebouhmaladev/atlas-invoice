@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   if (!body?.siteId || !body?.sourcePeriodStart || !body?.targetPeriodStart) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'MISSING_PARAMS', message: 'Les paramètres siteId, sourcePeriodStart et targetPeriodStart sont obligatoires.' }
     })
   }

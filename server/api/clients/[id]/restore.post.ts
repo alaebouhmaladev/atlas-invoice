@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant client requis' }
     })
   }
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   if (!existing) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Not Found',
+      statusMessage: 'Ressource introuvable',
       data: { code: 'CLIENT_NOT_FOUND', message: 'Client introuvable' }
     })
   }
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   if (!existing.isArchived) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'NOT_ARCHIVED', message: "Ce client n'est pas archivé" }
     })
   }

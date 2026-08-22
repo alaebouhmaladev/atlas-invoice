@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!siteId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'MISSING_PARAM', message: 'Le paramètre siteId est obligatoire.' }
     })
   }

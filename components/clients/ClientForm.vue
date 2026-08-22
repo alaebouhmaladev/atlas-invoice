@@ -64,7 +64,7 @@
           class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           :class="{ 'border-rose-500': fieldErrors.companyName }"
         />
-        <p v-if="fieldErrors.companyName" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.companyName }}</p>
+        <p v-if="fieldErrors.companyName" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ fieldErrors.companyName }}</p>
       </div>
 
       <!-- First Name & Last Name (Dynamic for INDIVIDUAL) -->
@@ -80,7 +80,7 @@
             class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.firstName }"
           />
-          <p v-if="fieldErrors.firstName" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.firstName }}</p>
+          <p v-if="fieldErrors.firstName" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ fieldErrors.firstName }}</p>
         </div>
 
         <div>
@@ -94,7 +94,7 @@
             class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.lastName }"
           />
-          <p v-if="fieldErrors.lastName" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.lastName }}</p>
+          <p v-if="fieldErrors.lastName" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ fieldErrors.lastName }}</p>
         </div>
       </div>
     </div>
@@ -124,8 +124,8 @@
             class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.ice }"
           />
-          <p v-if="fieldErrors.ice" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.ice }}</p>
-          <p v-else class="text-[11px] text-muted-custom mt-1">Identifiant Commun de l'Entreprise</p>
+          <p v-if="fieldErrors.ice" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ fieldErrors.ice }}</p>
+          <p v-else class="text-xs text-muted-custom mt-1">Identifiant Commun de l'Entreprise</p>
         </div>
 
         <!-- Identifiant Fiscal (IF) -->
@@ -201,7 +201,7 @@
             class="w-full px-4 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
             :class="{ 'border-rose-500': fieldErrors.email }"
           />
-          <p v-if="fieldErrors.email" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ fieldErrors.email }}</p>
+          <p v-if="fieldErrors.email" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ fieldErrors.email }}</p>
         </div>
 
         <div>

@@ -43,39 +43,39 @@
     <!-- Summary KPI Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
       <div class="bg-panel border border-custom rounded-card p-4 space-y-1 shadow-soft">
-        <div class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Présents</div>
+        <div class="text-xs font-bold text-muted-custom uppercase tracking-wider">Présents</div>
         <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono mt-1">{{ data?.presentCount || 0 }}</div>
-        <div class="text-[11px] text-secondary-custom">Actuellement au travail</div>
+        <div class="text-xs text-secondary-custom">Actuellement au travail</div>
       </div>
 
       <div class="bg-panel border border-custom rounded-card p-4 space-y-1 shadow-soft">
-        <div class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">En Pause</div>
+        <div class="text-xs font-bold text-muted-custom uppercase tracking-wider">En Pause</div>
         <div class="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono mt-1">{{ data?.breakCount || 0 }}</div>
-        <div class="text-[11px] text-secondary-custom">Pause active</div>
+        <div class="text-xs text-secondary-custom">Pause active</div>
       </div>
 
       <div class="bg-panel border border-custom rounded-card p-4 space-y-1 shadow-soft">
-        <div class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Retards</div>
+        <div class="text-xs font-bold text-muted-custom uppercase tracking-wider">Retards</div>
         <div class="text-2xl font-black text-rose-600 dark:text-rose-400 font-mono mt-1">{{ data?.lateCount || 0 }}</div>
-        <div class="text-[11px] text-secondary-custom">Pointages en retard</div>
+        <div class="text-xs text-secondary-custom">Pointages en retard</div>
       </div>
 
       <div class="bg-panel border border-custom rounded-card p-4 space-y-1 shadow-soft">
-        <div class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Planifiés</div>
+        <div class="text-xs font-bold text-muted-custom uppercase tracking-wider">Planifiés</div>
         <div class="text-2xl font-black text-main font-mono mt-1">{{ data?.plannedCount || 0 }}</div>
-        <div class="text-[11px] text-secondary-custom">Collaborateurs prévus</div>
+        <div class="text-xs text-secondary-custom">Collaborateurs prévus</div>
       </div>
 
       <div class="bg-panel border border-custom rounded-card p-4 space-y-1 shadow-soft">
-        <div class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Pointés Effectivement</div>
+        <div class="text-xs font-bold text-muted-custom uppercase tracking-wider">Pointés Effectivement</div>
         <div class="text-2xl font-black text-sky-600 dark:text-sky-400 font-mono mt-1">{{ data?.actualCount || 0 }}</div>
-        <div class="text-[11px] text-secondary-custom">Au moins 1 pointage</div>
+        <div class="text-xs text-secondary-custom">Au moins 1 pointage</div>
       </div>
 
       <div class="bg-panel border border-custom rounded-card p-4 space-y-1 shadow-soft">
-        <div class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Anomalies Critiques</div>
+        <div class="text-xs font-bold text-muted-custom uppercase tracking-wider">Anomalies Critiques</div>
         <div class="text-2xl font-black text-rose-600 dark:text-rose-500 font-mono mt-1">{{ data?.criticalAnomaliesCount || 0 }}</div>
-        <div class="text-[11px] text-secondary-custom">À traiter en priorité</div>
+        <div class="text-xs text-secondary-custom">À traiter en priorité</div>
       </div>
     </div>
 
@@ -100,7 +100,7 @@
           >
             <div>
               <div class="text-xs font-bold text-main">{{ item.employee.displayName }}</div>
-              <div class="text-[11px] text-brand-strong font-mono">Matricule : {{ item.employee.employeeNumber }}</div>
+              <div class="text-xs text-brand-strong font-mono">Matricule : {{ item.employee.employeeNumber }}</div>
             </div>
             <div class="text-right">
               <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold rounded-pill border border-emerald-500/20">
@@ -130,7 +130,7 @@
           >
             <div>
               <div class="text-xs font-bold text-main">{{ item.employee.displayName }}</div>
-              <div class="text-[11px] text-brand-strong font-mono">Matricule : {{ item.employee.employeeNumber }}</div>
+              <div class="text-xs text-brand-strong font-mono">Matricule : {{ item.employee.employeeNumber }}</div>
             </div>
             <div class="text-right">
               <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold rounded-pill border border-amber-500/20">

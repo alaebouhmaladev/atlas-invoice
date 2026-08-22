@@ -3,7 +3,7 @@
     <Transition name="fade">
       <div
         v-if="modelValue"
-        class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+        class="fixed inset-0 z-50 overflow-y-auto bg-overlay backdrop-blur-sm flex items-center justify-center p-4"
         @click.self="closeOnBackdrop && $emit('update:modelValue', false)"
       >
         <div

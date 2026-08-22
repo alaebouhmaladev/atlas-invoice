@@ -2,12 +2,12 @@
   <div class="space-y-6">
     <!-- Header Banner & Global Date Filter -->
     <div class="bg-panel border border-custom rounded-panel p-6 shadow-soft relative overflow-hidden transition-colors">
-      <div class="absolute -right-12 -top-12 w-64 h-64 bg-[#b49c80]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -right-12 -top-12 w-64 h-64 bg-brand-soft rounded-full blur-3xl pointer-events-none"></div>
 
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-pill bg-[#b49c80]/15 border border-[#b49c80]/30 text-[#987d61] dark:text-[#d0baa0] text-xs font-bold mb-3">
-            <span class="w-2 h-2 rounded-full bg-[#b49c80] animate-pulse"></span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-pill bg-brand-soft border border-brand-soft text-brand-strong text-xs font-bold mb-3">
+            <span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
             Atlas Bites SARL • Tableau de Bord Production
           </div>
 
@@ -44,7 +44,7 @@
 
           <NuxtLink
             to="/factures"
-            class="px-4 py-2 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+            class="px-4 py-2 bg-brand hover:bg-brand-strong text-on-brand font-bold rounded-pill text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -84,21 +84,21 @@
         <!-- Chiffre d'affaires facturé -->
         <div class="bg-panel border border-custom rounded-card p-5 relative overflow-hidden shadow-soft">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">C.A. Facturé TTC</span>
-            <span class="p-2 rounded-control bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0]">
+            <span class="text-xs font-bold text-muted-custom uppercase tracking-wider">C.A. Facturé TTC</span>
+            <span class="p-2 rounded-control bg-brand-soft text-brand-strong">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </span>
           </div>
           <div class="text-2xl font-black text-main font-mono mt-2">{{ formatMAD(stats.financials.invoicedRevenueTtc) }}</div>
-          <p class="text-[11px] text-muted-custom mt-1">Factures finalisées sur la période</p>
+          <p class="text-xs text-muted-custom mt-1">Factures finalisées sur la période</p>
         </div>
 
         <!-- Montant Encaissé -->
         <div class="bg-panel border border-custom rounded-card p-5 relative overflow-hidden shadow-soft">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Montant Encaissé</span>
+            <span class="text-xs font-bold text-muted-custom uppercase tracking-wider">Montant Encaissé</span>
             <span class="p-2 rounded-control bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -106,13 +106,13 @@
             </span>
           </div>
           <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono mt-2">{{ formatMAD(stats.financials.amountCollected) }}</div>
-          <p class="text-[11px] text-muted-custom mt-1">Règlements encaissés enregistrés</p>
+          <p class="text-xs text-muted-custom mt-1">Règlements encaissés enregistrés</p>
         </div>
 
         <!-- Reste à Encaisser -->
         <div class="bg-panel border border-custom rounded-card p-5 relative overflow-hidden shadow-soft">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Reste à Encaisser</span>
+            <span class="text-xs font-bold text-muted-custom uppercase tracking-wider">Reste à Encaisser</span>
             <span class="p-2 rounded-control bg-sky-500/10 text-sky-600 dark:text-sky-400">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -120,13 +120,13 @@
             </span>
           </div>
           <div class="text-2xl font-black text-sky-600 dark:text-sky-400 font-mono mt-2">{{ formatMAD(stats.financials.amountRemaining) }}</div>
-          <p class="text-[11px] text-muted-custom mt-1">Solde restant du portefeuille factures</p>
+          <p class="text-xs text-muted-custom mt-1">Solde restant du portefeuille factures</p>
         </div>
 
         <!-- Factures en Retard -->
         <div class="bg-panel border border-custom rounded-card p-5 relative overflow-hidden shadow-soft">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-muted-custom uppercase tracking-wider">Factures en Retard</span>
+            <span class="text-xs font-bold text-muted-custom uppercase tracking-wider">Factures en Retard</span>
             <span class="p-2 rounded-control bg-rose-500/10 text-rose-600 dark:text-rose-400">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -134,7 +134,7 @@
             </span>
           </div>
           <div class="text-2xl font-black text-rose-600 dark:text-rose-400 font-mono mt-2">{{ formatMAD(stats.financials.overdueInvoicesAmount) }}</div>
-          <p class="text-[11px] text-muted-custom mt-1">{{ stats.financials.overdueInvoicesCount }} facture(s) dépassée(s)</p>
+          <p class="text-xs text-muted-custom mt-1">{{ stats.financials.overdueInvoicesCount }} facture(s) dépassée(s)</p>
         </div>
       </div>
 
@@ -154,7 +154,7 @@
         </div>
         <div class="bg-panel-raised border border-custom rounded-card p-4">
           <span class="text-xs text-muted-custom">Valeur Devis Acceptés</span>
-          <div class="text-xl font-bold text-[#987d61] dark:text-[#d0baa0] font-mono mt-1">{{ formatMAD(stats.financials.acceptedQuotesValueTtc) }}</div>
+          <div class="text-xl font-bold text-brand-strong font-mono mt-1">{{ formatMAD(stats.financials.acceptedQuotesValueTtc) }}</div>
         </div>
       </div>
 
@@ -176,7 +176,7 @@
             <div class="flex items-start gap-3">
               <span
                 :class="[
-                  'px-2.5 py-1 rounded-pill text-[10px] font-bold uppercase tracking-wider shrink-0 mt-0.5',
+                  'px-2.5 py-1 rounded-pill text-xs font-bold uppercase tracking-wider shrink-0 mt-0.5',
                   act.severity === 'HIGH' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
                 ]"
               >
@@ -184,7 +184,7 @@
               </span>
               <div>
                 <div class="text-xs font-bold text-main">{{ act.title }}</div>
-                <div class="text-[11px] text-muted-custom mt-0.5">{{ act.subtitle }} • Échéance : {{ act.date }}</div>
+                <div class="text-xs text-muted-custom mt-0.5">{{ act.subtitle }} • Échéance : {{ act.date }}</div>
               </div>
             </div>
 
@@ -192,7 +192,7 @@
               <span class="text-xs font-bold text-main font-mono">{{ act.amount }}</span>
               <NuxtLink
                 :to="act.link"
-                class="px-3 py-1.5 bg-panel hover:bg-surface-hover text-main font-semibold text-[11px] rounded-control border border-custom transition-colors"
+                class="px-3 py-1.5 bg-panel hover:bg-surface-hover text-main font-semibold text-xs rounded-control border border-custom transition-colors"
               >
                 Consulter
               </NuxtLink>
@@ -237,17 +237,17 @@
           <div v-else class="space-y-3">
             <div v-for="(cli, idx) in stats.topClients" :key="cli.clientId" class="flex items-center justify-between p-2.5 rounded-card bg-panel-raised border border-custom">
               <div class="flex items-center gap-3">
-                <span class="w-6 h-6 rounded-control bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0] font-bold text-xs flex items-center justify-center">
+                <span class="w-6 h-6 rounded-control bg-brand-soft text-brand-strong font-bold text-xs flex items-center justify-center">
                   #{{ idx + 1 }}
                 </span>
                 <div>
                   <div class="text-xs font-bold text-main">{{ cli.displayName }}</div>
-                  <div class="text-[10px] text-muted-custom">{{ cli.invoicesCount }} facture(s)</div>
+                  <div class="text-xs text-muted-custom">{{ cli.invoicesCount }} facture(s)</div>
                 </div>
               </div>
               <div class="text-right">
                 <div class="text-xs font-bold text-main font-mono">{{ formatMAD(cli.invoicedTtc) }}</div>
-                <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">Payé : {{ formatMAD(cli.amountPaid) }}</div>
+                <div class="text-xs text-emerald-600 dark:text-emerald-400 font-mono">Payé : {{ formatMAD(cli.amountPaid) }}</div>
               </div>
             </div>
           </div>

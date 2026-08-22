@@ -3,6 +3,8 @@ import * as argon2 from 'argon2'
 import crypto from 'node:crypto'
 import { loginSchema } from '../server/utils/validation'
 import { loginRateLimiter } from '../server/services/rateLimit.service'
+import { createSession, validateSessionToken } from '../server/services/auth.service'
+import { prisma } from '../server/utils/db'
 
 function hashToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex')
@@ -47,6 +49,31 @@ describe('Authentication & Security Foundation Tests', () => {
       expect(hash1).toBe(hash2)
       expect(hash1).toHaveLength(64) // 256 bits = 64 hex characters
       expect(hash1).not.toBe(token)
+    })
+
+    it('propagates the authenticated tenant through session validation', async () => {
+      const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`
+      const tenantId = `tenant-auth-${stamp}`
+      const user = await prisma.user.create({
+        data: {
+          tenantId,
+          name: 'Audit isolation locataire',
+          email: `audit-tenant-${stamp}@atlas.test`,
+          passwordHash: 'test-only',
+          role: 'HR_MANAGER'
+        }
+      })
+
+      try {
+        const { token } = await createSession(user.id, 60)
+        const authenticated = await validateSessionToken(token)
+
+        expect(authenticated?.user.id).toBe(user.id)
+        expect(authenticated?.user.tenantId).toBe(tenantId)
+      } finally {
+        await prisma.session.deleteMany({ where: { userId: user.id } })
+        await prisma.user.delete({ where: { id: user.id } })
+      }
     })
   })
 
@@ -94,6 +121,9 @@ describe('Authentication & Security Foundation Tests', () => {
       }
       const result = loginSchema.safeParse(input)
       expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe('Le format de l’adresse email est invalide')
+      }
     })
 
     it('should reject empty passwords', () => {
@@ -103,6 +133,9 @@ describe('Authentication & Security Foundation Tests', () => {
       }
       const result = loginSchema.safeParse(input)
       expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe('Le mot de passe ne peut pas être vide')
+      }
     })
   })
 

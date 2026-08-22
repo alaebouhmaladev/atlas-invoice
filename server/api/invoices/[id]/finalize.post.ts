@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant de facture requis' }
     })
   }
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const error = err as Error
     throw createError({
       statusCode: 409,
-      statusMessage: 'Conflict',
+      statusMessage: 'Conflit',
       data: {
         code: 'FINALIZE_INVOICE_FAILED',
         message: error.message || 'Échec de la finalisation de la facture'

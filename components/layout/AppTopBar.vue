@@ -51,7 +51,7 @@
           v-if="showQuickCreate"
           class="absolute right-0 mt-2 w-48 bg-panel-raised border border-custom rounded-card shadow-lg z-50 py-1 text-xs"
         >
-          <NuxtLink to="/clients/nouveau" class="block px-4 py-2 text-main hover:bg-surface-hover font-semibold">
+          <NuxtLink to="/clients/new" class="block px-4 py-2 text-main hover:bg-surface-hover font-semibold">
             + Nouveau Client
           </NuxtLink>
           <NuxtLink to="/devis/new" class="block px-4 py-2 text-main hover:bg-surface-hover font-semibold">
@@ -77,7 +77,7 @@
 
         <div class="hidden lg:block text-left text-xs">
           <div class="font-bold text-main leading-tight">{{ user?.name || 'Utilisateur' }}</div>
-          <div class="text-[10px] text-muted-custom font-mono uppercase">{{ formatRole(user?.role) }}</div>
+          <div class="text-xs text-muted-custom font-mono uppercase">{{ formatRole(user?.role) }}</div>
         </div>
 
         <button

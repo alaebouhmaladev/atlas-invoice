@@ -2,6 +2,8 @@ import { AttendanceDayStatus } from '@prisma/client'
 import { prisma } from '../utils/db'
 import { getAttendancePolicy } from './hrAttendancePolicy.service'
 import { detectAndRecordAnomalies } from './hrAttendanceAnomaly.service'
+import { getHrDateRange, parseHrLocalDate, toHrLocalDate } from '../utils/hrDates'
+import { findHolidayForSiteDate } from './hrLeaveConfiguration.service'
 
 export async function calculateAttendanceDay(
   tenantId: string,
@@ -11,7 +13,9 @@ export async function calculateAttendanceDay(
 ) {
   const db = dbTransaction || prisma
 
-  const localDateStr = workDate.toISOString().split('T')[0]
+  const normalizedWorkDate = parseHrLocalDate(workDate)
+  const localDateStr = toHrLocalDate(normalizedWorkDate)
+  const { start: workDateStart, end: workDateEnd } = getHrDateRange(normalizedWorkDate)
 
   // 1. Fetch raw events for this date
   const events = await db.attendanceEvent.findMany({
@@ -24,7 +28,7 @@ export async function calculateAttendanceDay(
     where: {
       tenantId,
       employeeId,
-      workDate,
+      workDate: { gte: workDateStart, lte: workDateEnd },
       status: { in: ['PUBLISHED', 'CHANGED'] }
     },
     include: {
@@ -39,6 +43,22 @@ export async function calculateAttendanceDay(
 
   if (!primarySiteId) {
     throw new Error('Aucun site de travail associé pour le calcul de pointage.')
+  }
+
+  const periodLock = await db.attendancePeriodLock.findFirst({
+    where: {
+      tenantId,
+      siteId: primarySiteId,
+      isLocked: true,
+      periodStart: { lte: normalizedWorkDate },
+      periodEnd: { gte: normalizedWorkDate }
+    }
+  })
+  if (periodLock) {
+    const err: any = new Error('Impossible de recalculer une période de pointage verrouillée.')
+    err.statusCode = 409
+    err.data = { code: 'ATTENDANCE_PERIOD_LOCKED' }
+    throw err
   }
 
   // 3. Fetch policy
@@ -129,13 +149,32 @@ export async function calculateAttendanceDay(
     overtimeMinutes = netWorkedMinutes - policy.overtimeThresholdMinutes
   }
 
-  const missingMinutes = plannedMinutes > netWorkedMinutes ? plannedMinutes - netWorkedMinutes : 0
-  const differenceMinutes = netWorkedMinutes - plannedMinutes
+  let missingMinutes = plannedMinutes > netWorkedMinutes ? plannedMinutes - netWorkedMinutes : 0
+  let differenceMinutes = netWorkedMinutes - plannedMinutes
 
   // 8. Determine Day Status
   let status: AttendanceDayStatus = 'OPEN'
   if (events.length === 0) {
-    status = scheduledShift ? 'ABSENT' : 'REST_DAY'
+    const approvedLeaveDay = await db.leaveRequestDay.findFirst({
+      where: {
+        tenantId,
+        localDate: normalizedWorkDate,
+        leaveRequest: { employeeId, status: 'APPROVED' },
+        isWorkingDay: true
+      }
+    })
+    const holiday = await findHolidayForSiteDate(tenantId, primarySiteId, normalizedWorkDate, db)
+    if (approvedLeaveDay) {
+      status = 'ON_LEAVE'
+      missingMinutes = 0
+      differenceMinutes = -plannedMinutes
+    } else if (holiday && !holiday.isWorkingDay) {
+      status = 'HOLIDAY'
+      missingMinutes = 0
+      differenceMinutes = 0
+    } else {
+      status = scheduledShift ? 'ABSENT' : 'REST_DAY'
+    }
   } else if (isOpenSession) {
     status = 'OPEN'
   } else if (lastClockOut) {
@@ -147,7 +186,7 @@ export async function calculateAttendanceDay(
   // 9. Upsert AttendanceDay Record
   const day = await db.attendanceDay.upsert({
     where: {
-      tenantId_employeeId_workDate: { tenantId, employeeId, workDate }
+      tenantId_employeeId_workDate: { tenantId, employeeId, workDate: normalizedWorkDate }
     },
     update: {
       siteId: primarySiteId,
@@ -173,7 +212,7 @@ export async function calculateAttendanceDay(
       tenantId,
       employeeId,
       siteId: primarySiteId,
-      workDate,
+      workDate: normalizedWorkDate,
       status,
       scheduledShiftId: scheduledShift?.id || null,
       plannedMinutes,

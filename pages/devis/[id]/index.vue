@@ -2,7 +2,7 @@
   <div class="space-y-6 max-w-5xl mx-auto">
     <!-- Top Back Link -->
     <div>
-      <NuxtLink to="/devis" class="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold">
+      <NuxtLink to="/devis" class="inline-flex items-center gap-1 text-xs text-brand-strong hover:text-brand font-semibold">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -11,7 +11,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading && !quote" class="p-12 text-center text-slate-400">
+    <div v-if="loading && !quote" class="p-12 text-center text-muted-custom">
       <svg class="animate-spin h-8 w-8 text-amber-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -20,18 +20,18 @@
     </div>
 
     <!-- Devis Not Found Error -->
-    <div v-else-if="!quote" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-      <h3 class="text-base font-bold text-slate-100">Devis introuvable</h3>
-      <NuxtLink to="/devis" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold">
+    <div v-else-if="!quote" class="bg-panel/60 border border-custom rounded-2xl p-8 text-center space-y-4">
+      <h3 class="text-base font-bold text-main">Devis introuvable</h3>
+      <NuxtLink to="/devis" class="inline-flex items-center gap-2 px-4 py-2 bg-panel-raised text-main rounded-xl text-xs font-semibold">
         Retour à la liste des devis
       </NuxtLink>
     </div>
 
     <!-- Main Devis Profile Card -->
     <template v-else>
-      <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+      <div class="bg-panel/80 border border-custom rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
         <!-- Header Info & Action Controls -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-custom pb-6">
           <div class="space-y-1.5">
             <div class="flex items-center gap-3">
               <h2 class="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono tracking-tight">
@@ -41,7 +41,7 @@
               <ClientStatusBadge v-if="quote.isArchived" :is-archived="true" />
             </div>
 
-            <p v-if="quote.subject" class="text-sm font-semibold text-slate-200">
+            <p v-if="quote.subject" class="text-sm font-semibold text-main">
               Objet : {{ quote.subject }}
             </p>
           </div>
@@ -65,69 +65,69 @@
         <!-- Devis Header Cards Grid (Client Snapshot & Document Info) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Client Snapshot Box -->
-          <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="bg-panel border border-custom rounded-2xl p-5 space-y-3">
             <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
               <span>Client (Informations Figées)</span>
-              <NuxtLink v-if="quote.clientId" :to="`/clients/${quote.clientId}`" class="text-[11px] text-slate-400 hover:text-white font-normal underline">
+              <NuxtLink v-if="quote.clientId" :to="`/clients/${quote.clientId}`" class="text-xs text-muted-custom hover:text-white font-normal underline">
                 Fiche client actuelle
               </NuxtLink>
             </h3>
 
             <div class="space-y-2 text-xs">
-              <div class="text-sm font-bold text-slate-100">{{ quote.clientSnapshot?.displayName }}</div>
-              <div v-if="quote.clientSnapshot?.ice" class="font-mono text-slate-300">ICE: {{ quote.clientSnapshot.ice }}</div>
-              <div v-if="quote.clientSnapshot?.taxId" class="font-mono text-slate-400">IF: {{ quote.clientSnapshot.taxId }}</div>
-              <div v-if="quote.clientSnapshot?.address" class="text-slate-300">
+              <div class="text-sm font-bold text-main">{{ quote.clientSnapshot?.displayName }}</div>
+              <div v-if="quote.clientSnapshot?.ice" class="font-mono text-secondary-custom">ICE: {{ quote.clientSnapshot.ice }}</div>
+              <div v-if="quote.clientSnapshot?.taxId" class="font-mono text-muted-custom">IF: {{ quote.clientSnapshot.taxId }}</div>
+              <div v-if="quote.clientSnapshot?.address" class="text-secondary-custom">
                 {{ quote.clientSnapshot.address }} {{ quote.clientSnapshot.city ? `, ${quote.clientSnapshot.city}` : '' }}
               </div>
-              <div v-if="quote.clientSnapshot?.phone || quote.clientSnapshot?.email" class="text-slate-400 text-[11px]">
+              <div v-if="quote.clientSnapshot?.phone || quote.clientSnapshot?.email" class="text-muted-custom text-xs">
                 {{ quote.clientSnapshot.phone }} • {{ quote.clientSnapshot.email }}
               </div>
             </div>
           </div>
 
           <!-- Document Dates & Details -->
-          <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="bg-panel border border-custom rounded-2xl p-5 space-y-3">
             <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider">
               Détails du Document
             </h3>
 
             <div class="space-y-2 text-xs">
-              <div class="flex justify-between border-b border-slate-800/60 pb-1.5">
-                <span class="text-slate-400">Date d'émission</span>
-                <span class="text-slate-100 font-medium">{{ formatDate(quote.issueDate) }}</span>
+              <div class="flex justify-between border-b border-custom/60 pb-1.5">
+                <span class="text-muted-custom">Date d'émission</span>
+                <span class="text-main font-medium">{{ formatDate(quote.issueDate) }}</span>
               </div>
 
-              <div class="flex justify-between border-b border-slate-800/60 pb-1.5">
-                <span class="text-slate-400">Date de validité</span>
-                <span class="font-medium" :class="isExpiredDate(quote.validUntil) && quote.status === 'SENT' ? 'text-rose-400 font-bold' : 'text-slate-100'">
+              <div class="flex justify-between border-b border-custom/60 pb-1.5">
+                <span class="text-muted-custom">Date de validité</span>
+                <span class="font-medium" :class="isExpiredDate(quote.validUntil) && quote.status === 'SENT' ? 'text-rose-400 font-bold' : 'text-main'">
                   {{ formatDate(quote.validUntil) }}
                 </span>
               </div>
 
-              <div class="flex justify-between border-b border-slate-800/60 pb-1.5">
-                <span class="text-slate-400">Devise</span>
-                <span class="text-slate-100 font-medium font-mono">MAD</span>
+              <div class="flex justify-between border-b border-custom/60 pb-1.5">
+                <span class="text-muted-custom">Devise</span>
+                <span class="text-main font-medium font-mono">MAD</span>
               </div>
 
               <div class="flex justify-between">
-                <span class="text-slate-400">Conditions de paiement</span>
-                <span class="text-slate-100 font-medium text-right max-w-[200px]">{{ quote.paymentTerms || 'Standard' }}</span>
+                <span class="text-muted-custom">Conditions de paiement</span>
+                <span class="text-main font-medium text-right max-w-[200px]">{{ quote.paymentTerms || 'Standard' }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Service Lines Table -->
-        <div class="bg-slate-950/60 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-          <div class="p-4 bg-slate-950/80 border-b border-slate-800 text-xs font-bold text-slate-200 uppercase tracking-wider">
+        <div class="bg-panel border border-custom rounded-2xl overflow-hidden shadow-lg">
+          <div class="p-4 bg-panel-raised border-b border-custom text-xs font-bold text-main uppercase tracking-wider">
             Prestations Traiteur ({{ quote.items?.length || 0 }} lignes)
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
-                <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider font-semibold">
+                <tr class="border-b border-custom bg-panel-raised text-muted-custom uppercase tracking-wider font-semibold">
                   <th class="py-3 px-4">#</th>
                   <th class="py-3 px-4">Désignation & Description</th>
                   <th class="py-3 px-4 text-right">Quantité</th>
@@ -138,21 +138,21 @@
                   <th class="py-3 px-4 text-right">Total HT (MAD)</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-800/60">
-                <tr v-for="item in quote.items" :key="item.id" class="hover:bg-slate-800/30 transition-colors">
-                  <td class="py-3 px-4 text-slate-500 font-mono">{{ item.position }}</td>
+              <tbody class="divide-y divide-custom">
+                <tr v-for="item in quote.items" :key="item.id" class="hover:bg-panel-raised/30 transition-colors">
+                  <td class="py-3 px-4 text-muted-custom font-mono">{{ item.position }}</td>
                   <td class="py-3 px-4">
-                    <span class="font-bold text-slate-100 block">{{ item.title }}</span>
-                    <span v-if="item.description" class="text-[11px] text-slate-400 block mt-0.5 whitespace-pre-line">{{ item.description }}</span>
+                    <span class="font-bold text-main block">{{ item.title }}</span>
+                    <span v-if="item.description" class="text-xs text-muted-custom block mt-0.5 whitespace-pre-line">{{ item.description }}</span>
                   </td>
-                  <td class="py-3 px-4 text-right font-mono text-slate-200">{{ Number(item.quantity) }}</td>
-                  <td class="py-3 px-4 text-center text-slate-300">{{ item.unit }}</td>
-                  <td class="py-3 px-4 text-right font-mono text-slate-200">{{ formatMoney(item.unitPriceHt).replace(' MAD', '') }}</td>
+                  <td class="py-3 px-4 text-right font-mono text-main">{{ Number(item.quantity) }}</td>
+                  <td class="py-3 px-4 text-center text-secondary-custom">{{ item.unit }}</td>
+                  <td class="py-3 px-4 text-right font-mono text-main">{{ formatMoney(item.unitPriceHt).replace(' MAD', '') }}</td>
                   <td class="py-3 px-4 text-right font-mono text-amber-400">
                     {{ Number(item.discountRate) > 0 ? `${Number(item.discountRate)}%` : '—' }}
                   </td>
-                  <td class="py-3 px-4 text-right font-mono text-slate-300">{{ Number(item.vatRate) }}%</td>
-                  <td class="py-3 px-4 text-right font-mono font-bold text-slate-100">{{ formatMoney(item.netAmountHt).replace(' MAD', '') }}</td>
+                  <td class="py-3 px-4 text-right font-mono text-secondary-custom">{{ Number(item.vatRate) }}%</td>
+                  <td class="py-3 px-4 text-right font-mono font-bold text-main">{{ formatMoney(item.netAmountHt).replace(' MAD', '') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -163,43 +163,43 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Notes -->
           <div class="space-y-4">
-            <div v-if="quote.publicNotes" class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-2">
+            <div v-if="quote.publicNotes" class="bg-panel border border-custom rounded-2xl p-5 space-y-2">
               <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider">Notes visibles sur le devis (PDF)</h3>
-              <p class="text-xs text-slate-300 whitespace-pre-line leading-relaxed">{{ quote.publicNotes }}</p>
+              <p class="text-xs text-secondary-custom whitespace-pre-line leading-relaxed">{{ quote.publicNotes }}</p>
             </div>
 
-            <div v-if="quote.internalNotes" class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 space-y-2">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div v-if="quote.internalNotes" class="bg-panel border border-custom rounded-2xl p-5 space-y-2">
+              <h3 class="text-xs font-bold text-muted-custom uppercase tracking-wider flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-muted-custom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <span>Notes Internes Confidentielles</span>
               </h3>
-              <p class="text-xs text-slate-300 whitespace-pre-line leading-relaxed">{{ quote.internalNotes }}</p>
+              <p class="text-xs text-secondary-custom whitespace-pre-line leading-relaxed">{{ quote.internalNotes }}</p>
             </div>
           </div>
 
           <!-- Financial Summary Totals Block -->
-          <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-3">
-            <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider border-b border-slate-800 pb-2">
+          <div class="bg-panel border border-custom rounded-2xl p-5 space-y-3">
+            <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider border-b border-custom pb-2">
               Récapitulatif Financier (MAD)
             </h3>
             <div class="space-y-2 text-xs">
-              <div class="flex justify-between text-slate-400">
+              <div class="flex justify-between text-muted-custom">
                 <span>Sous-total HT :</span>
-                <span class="font-mono text-slate-200">{{ formatMoney(quote.subtotalHt) }}</span>
+                <span class="font-mono text-main">{{ formatMoney(quote.subtotalHt) }}</span>
               </div>
               <div v-if="Number(quote.discountAmount) > 0" class="flex justify-between text-amber-400">
                 <span>Total Remises :</span>
                 <span class="font-mono">- {{ formatMoney(quote.discountAmount) }}</span>
               </div>
-              <div class="flex justify-between text-slate-200 font-semibold border-t border-slate-800/80 pt-2">
+              <div class="flex justify-between text-main font-semibold border-t border-custom pt-2">
                 <span>Total Net HT :</span>
                 <span class="font-mono">{{ formatMoney(quote.totalNetHt) }}</span>
               </div>
-              <div class="flex justify-between text-slate-400">
+              <div class="flex justify-between text-muted-custom">
                 <span>TVA Total :</span>
-                <span class="font-mono text-slate-200">{{ formatMoney(quote.totalVat) }}</span>
+                <span class="font-mono text-main">{{ formatMoney(quote.totalVat) }}</span>
               </div>
               <div class="flex justify-between items-center bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/40 p-3 rounded-xl text-amber-400 font-bold text-sm mt-3">
                 <span>Total TTC :</span>
@@ -210,10 +210,10 @@
         </div>
 
         <!-- Timestamps Metadata Box -->
-        <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 text-[11px] text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="bg-panel-raised border border-custom rounded-2xl p-4 text-xs text-muted-custom flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            Créé le <span class="text-slate-200 font-medium">{{ formatDate(quote.createdAt) }}</span>
-            <span v-if="quote.createdBy"> par <strong class="text-slate-200">{{ quote.createdBy.name }}</strong></span>
+            Créé le <span class="text-main font-medium">{{ formatDate(quote.createdAt) }}</span>
+            <span v-if="quote.createdBy"> par <strong class="text-main">{{ quote.createdBy.name }}</strong></span>
           </div>
 
           <div class="flex items-center gap-3">

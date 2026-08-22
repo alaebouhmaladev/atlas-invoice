@@ -5,7 +5,7 @@
       <NuxtLink
         to="/clients/new"
         target="_blank"
-        class="text-[11px] text-brand-strong hover:text-brand font-bold flex items-center gap-1"
+        class="text-xs text-brand-strong hover:text-brand font-bold flex items-center gap-1"
       >
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -29,7 +29,7 @@
         </option>
       </select>
     </div>
-    <p v-if="error" class="text-rose-600 dark:text-rose-400 text-[11px] mt-1 font-bold">{{ error }}</p>
+    <p v-if="error" class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-bold">{{ error }}</p>
   </div>
 </template>
 

@@ -20,10 +20,10 @@ export default defineEventHandler(async (event) => {
     const issue = validationResult.error.issues[0]
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'VALIDATION_ERROR',
-        message: issue ? issue.message : 'Invalid request parameters'
+        message: issue ? issue.message : 'Les paramètres de la requête sont invalides'
       }
     })
   }
@@ -148,6 +148,7 @@ export default defineEventHandler(async (event) => {
 
   const userPublic = {
     id: user.id,
+    tenantId: user.tenantId,
     name: user.name,
     email: user.email,
     role: user.role,

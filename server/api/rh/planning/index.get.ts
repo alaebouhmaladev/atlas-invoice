@@ -1,6 +1,7 @@
 import { defineEventHandler, getQuery, createError } from 'h3'
 import { requireHrPermission } from '../../../utils/hrPermissions'
 import { getOrCreateWorkSchedule, calculateStaffingCoverage } from '../../../services/hrSchedule.service'
+import { prisma } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const user = await requireHrPermission(event, 'hr.schedule.read')
@@ -11,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!siteId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'MISSING_PARAM', message: 'Le paramètre siteId est obligatoire.' }
     })
   }
@@ -19,12 +20,31 @@ export default defineEventHandler(async (event) => {
   try {
     const schedule = await getOrCreateWorkSchedule(siteId, date, user)
     const coverage = await calculateStaffingCoverage(siteId, date, user)
+    const leaveDays = await prisma.leaveRequestDay.findMany({
+      where: {
+        tenantId: user.tenantId || 'default-tenant',
+        siteId,
+        localDate: { gte: schedule.periodStart, lte: schedule.periodEnd },
+        leaveRequest: { status: 'APPROVED' }
+      },
+      select: {
+        localDate: true,
+        requestedMinutes: true,
+        leaveRequest: {
+          select: {
+            employeeId: true,
+            leaveType: { select: { name: true, color: true } }
+          }
+        }
+      }
+    })
 
     return {
       success: true,
       data: {
         schedule,
-        coverage
+        coverage,
+        leaveDays
       }
     }
   } catch (err: any) {

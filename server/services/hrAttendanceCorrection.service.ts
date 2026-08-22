@@ -43,6 +43,7 @@ export async function requestCorrection(
       tenantId,
       siteId: input.siteId,
       periodStart: { lte: workDateObj },
+      periodEnd: { gte: workDateObj },
       isLocked: true
     }
   })

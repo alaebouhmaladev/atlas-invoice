@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!typeParam || !['LOGO', 'SIGNATURE', 'STAMP'].includes(typeParam.toUpperCase())) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ASSET_TYPE', message: 'Le type de ressource est requis (LOGO, SIGNATURE, STAMP)' }
     })
   }

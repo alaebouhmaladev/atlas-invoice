@@ -4,7 +4,7 @@
     <div
       v-if="mobileOpen"
       @click="$emit('close-mobile')"
-      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden"
+      class="fixed inset-0 bg-overlay backdrop-blur-sm z-40 lg:hidden"
     ></div>
 
     <!-- Sidebar Container -->
@@ -20,7 +20,7 @@
           </div>
           <div>
             <span class="font-bold text-main tracking-tight text-base block leading-tight group-hover:text-brand transition-colors">Atlas CRM</span>
-            <span class="text-[9px] text-muted-custom font-semibold uppercase tracking-wider block">Atlas Bites SARL</span>
+            <span class="text-xs text-muted-custom font-semibold uppercase tracking-wider block">Atlas Bites SARL</span>
           </div>
         </NuxtLink>
 
@@ -38,7 +38,7 @@
       <!-- Navigation Groups -->
       <nav class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
         <div v-for="group in filteredNavGroups" :key="group.title" class="space-y-1">
-          <div class="px-3 text-[10px] font-semibold text-muted-custom uppercase tracking-widest mb-1.5">
+          <div class="px-3 text-xs font-semibold text-muted-custom uppercase tracking-widest mb-1.5">
             {{ group.title }}
           </div>
 
@@ -47,7 +47,7 @@
             :key="item.to"
             :to="item.to"
             class="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150"
-            :class="isItemActive(item.to) ? 'bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0] font-semibold border-l-2 border-[#b49c80]' : 'text-secondary-custom hover:bg-surface-hover hover:text-main'"
+            :class="isItemActive(item.to) ? 'bg-brand-soft text-brand-strong font-semibold border-l-2 border-brand' : 'text-secondary-custom hover:bg-surface-hover hover:text-main'"
           >
             <div class="flex items-center gap-3">
               <component :is="item.icon" class="w-5 h-5" />
@@ -70,6 +70,7 @@ import { h, computed } from 'vue'
 import { useRoute } from '#imports'
 import { useAppIdentity } from '~/composables/useAppIdentity'
 import { useAuth } from '~/composables/useAuth'
+import { getActiveSidebarTarget } from '~/utils/sidebarNavigation'
 
 defineProps<{
   mobileOpen: boolean
@@ -171,10 +172,14 @@ const navGroups = computed<NavGroup[]>(() => [
       { label: 'Contrats', to: '/rh/contrats', icon: IconQuotes, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
       { label: 'Documents', to: '/rh/documents', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
       { label: 'Planning', to: '/rh/planning', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+      { label: 'Congés', to: '/rh/conges', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT', 'COMMERCIAL'] },
+      { label: 'Absences', to: '/rh/absences', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
+      { label: 'Calendrier férié', to: '/rh/conges/calendrier', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT', 'COMMERCIAL'] },
       { label: 'Pointage', to: '/rh/pointage', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
       { label: 'Présences', to: '/rh/presences', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT'] },
       { label: 'Anomalies', to: '/rh/pointage/anomalies', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
       { label: 'Corrections', to: '/rh/pointage/corrections', icon: IconActivities, roles: ['SUPER_ADMIN', 'HR_MANAGER'] }
+      , { label: 'Paie', to: '/rh/paie', icon: IconPayments, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'ACCOUNTANT', 'COMMERCIAL'] }
     ]
   },
   {
@@ -197,12 +202,7 @@ const filteredNavGroups = computed(() => {
 })
 
 function isItemActive(to: string): boolean {
-  const currentPath = route.path
-  if (to === '/') return currentPath === '/'
-  if (to.includes('?')) {
-    const basePath = to.split('?')[0]
-    return currentPath === basePath && route.query.tab === 'paiements'
-  }
-  return currentPath.startsWith(to) && route.query.tab !== 'paiements'
+  const targets = filteredNavGroups.value.flatMap(group => group.items.map(item => item.to))
+  return getActiveSidebarTarget(targets, route.path, route.query) === to
 }
 </script>

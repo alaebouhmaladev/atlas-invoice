@@ -3,13 +3,13 @@ import { ClientType } from '@prisma/client'
 
 export const loginSchema = z.object({
   email: z
-    .string({ required_error: 'Email is required' })
+    .string({ required_error: 'L’adresse email est requise' })
     .trim()
     .toLowerCase()
-    .pipe(z.string().email({ message: 'Invalid email address format' })),
+    .pipe(z.string().email({ message: 'Le format de l’adresse email est invalide' })),
   password: z
-    .string({ required_error: 'Password is required' })
-    .min(1, { message: 'Password cannot be empty' })
+    .string({ required_error: 'Le mot de passe est requis' })
+    .min(1, { message: 'Le mot de passe ne peut pas être vide' })
 })
 
 export type LoginInput = z.infer<typeof loginSchema>
@@ -384,5 +384,4 @@ export const adminResetPasswordSchema = z
   })
 
 export type AdminResetPasswordInput = z.infer<typeof adminResetPasswordSchema>
-
 

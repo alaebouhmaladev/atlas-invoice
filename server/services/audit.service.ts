@@ -48,7 +48,18 @@ function sanitizeValue(value: unknown): unknown {
       lowerKey.includes('secret') ||
       lowerKey.includes('token') ||
       lowerKey.includes('authorization') ||
-      lowerKey.includes('cookie')
+      lowerKey.includes('cookie') ||
+      lowerKey.includes('salary') ||
+      lowerKey.includes('salaire') ||
+      lowerKey.includes('rib') ||
+      lowerKey.includes('bank') ||
+      lowerKey.includes('deduction') ||
+      lowerKey.includes('retenue') ||
+      lowerKey.includes('tax') ||
+      lowerKey.includes('impot') ||
+      lowerKey.includes('gross') ||
+      lowerKey.includes('netpayable') ||
+      lowerKey.includes('contribution')
     ) {
       sanitized[key] = '[REDACTED]'
     } else {

@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   if (!queryResult.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: {
         code: 'VALIDATION_ERROR',
         message: queryResult.error.issues[0]?.message || 'Paramètres de requête invalides'

@@ -4,9 +4,9 @@
     <div class="hidden print:block mb-6 border-b-2 border-slate-900 pb-4">
       <div class="flex justify-between items-start">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 uppercase tracking-wide">Atlas CRM — Planning RH</h1>
-          <h2 class="text-lg font-semibold text-slate-700 mt-1">Site : {{ activeSiteName }} ({{ activeSiteCode }})</h2>
-          <p class="text-xs text-slate-600">Période du {{ weekRangeLabel }} | Statut : {{ formatScheduleStatus(schedule?.status) }}</p>
+          <h1 class="text-2xl font-bold text-main uppercase tracking-wide">Atlas CRM — Planning RH</h1>
+          <h2 class="text-lg font-semibold text-secondary-custom mt-1">Site : {{ activeSiteName }} ({{ activeSiteCode }})</h2>
+          <p class="text-xs text-secondary-custom">Période du {{ weekRangeLabel }} | Statut : {{ formatScheduleStatus(schedule?.status) }}</p>
         </div>
         <div class="text-right text-xs text-muted-custom">
           <div>Imprimé le {{ new Date().toLocaleDateString('fr-FR') }}</div>
@@ -20,7 +20,7 @@
       <div class="flex flex-wrap items-center gap-4">
         <!-- Site Selector -->
         <div>
-          <label class="block text-[10px] text-muted-custom font-bold uppercase tracking-wider mb-1">Site de travail</label>
+          <label class="block text-xs text-muted-custom font-bold uppercase tracking-wider mb-1">Site de travail</label>
           <select v-model="selectedSiteId" class="bg-panel-raised border border-custom text-main text-xs rounded-control px-3 py-2 focus:outline-none focus:border-brand min-w-[200px]">
             <option value="">Sélectionnez un site</option>
             <option v-for="site in sites" :key="site.id" :value="site.id">{{ site.name }} ({{ site.code }})</option>
@@ -29,7 +29,7 @@
 
         <!-- View Switcher (Weekly vs Monthly) -->
         <div>
-          <label class="block text-[10px] text-muted-custom font-bold uppercase tracking-wider mb-1">Vue d'affichage</label>
+          <label class="block text-xs text-muted-custom font-bold uppercase tracking-wider mb-1">Vue d'affichage</label>
           <div class="flex items-center bg-panel-raised p-0.5 rounded-pill border border-custom">
             <button
               @click="activeView = 'WEEK'"
@@ -177,10 +177,10 @@
           <table class="w-full text-left border-collapse text-xs print:border print:border-slate-400">
             <thead>
               <tr class="bg-panel-raised text-muted-custom border-b border-custom print:bg-slate-200 print:text-slate-900 print:border-slate-400">
-                <th class="py-3 px-4 min-w-[220px] font-bold uppercase text-[11px] text-muted-custom print:text-slate-900">Collaborateur</th>
+                <th class="py-3 px-4 min-w-[220px] font-bold uppercase text-xs text-muted-custom print:text-slate-900">Collaborateur</th>
                 <th v-for="day in weekDays" :key="day.dateStr" class="py-3 px-3 min-w-[130px] border-l border-custom text-center print:border-slate-400">
                   <div class="font-bold text-main print:text-slate-900">{{ day.dayName }}</div>
-                  <div class="text-[11px] font-mono text-brand-strong print:text-slate-700">{{ day.formattedDate }}</div>
+                  <div class="text-xs font-mono text-brand-strong print:text-slate-700">{{ day.formattedDate }}</div>
                 </th>
               </tr>
             </thead>
@@ -189,9 +189,9 @@
                 <!-- Employee Header Column -->
                 <td class="py-3 px-4 bg-panel-raised print:bg-slate-50">
                   <div class="font-bold text-main print:text-slate-900">{{ emp.firstName }} {{ emp.lastName }}</div>
-                  <div class="text-[10px] text-muted-custom font-mono print:text-slate-600">{{ emp.employeeNumber }}</div>
+                  <div class="text-xs text-muted-custom font-mono print:text-slate-600">{{ emp.employeeNumber }}</div>
                   <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[10px] font-bold text-brand-strong bg-brand-soft px-1.5 py-0.5 rounded-control border border-brand-soft print:bg-slate-200 print:text-slate-900 print:border-slate-400">
+                    <span class="text-xs font-bold text-brand-strong bg-brand-soft px-1.5 py-0.5 rounded-control border border-brand-soft print:bg-slate-200 print:text-slate-900 print:border-slate-400">
                       {{ getEmployeeWeeklyHours(emp.id).toFixed(1) }} h
                     </span>
                   </div>
@@ -206,30 +206,33 @@
                 >
                   <!-- Existing Shift Cards for Employee & Date -->
                   <div class="space-y-1.5">
+                    <div v-if="getLeaveForCell(emp.id, day.dateStr)" class="rounded-control border border-brand-soft bg-brand-soft p-2 text-xs font-bold text-brand-strong">
+                      Congé approuvé · {{ getLeaveForCell(emp.id, day.dateStr)?.leaveRequest.leaveType.name }}
+                    </div>
                     <div
                       v-for="shift in getShiftsForCell(emp.id, day.dateStr)"
                       :key="shift.id"
                       @click.stop="openShiftDetails(shift)"
-                      class="p-2 rounded-control text-on-brand font-bold text-[11px] shadow-sm border relative transition-transform group-hover:scale-[1.02] print:bg-slate-100 print:text-slate-900 print:border-slate-400"
+                      class="p-2 rounded-control text-on-brand font-bold text-xs shadow-sm border relative transition-transform group-hover:scale-[1.02] print:bg-slate-100 print:text-slate-900 print:border-slate-400"
                       :style="{ backgroundColor: shift.templateColorSnapshot || '#b49c80', borderColor: `${shift.templateColorSnapshot || '#b49c80'}aa` }"
                     >
                       <div class="flex items-center justify-between font-bold">
                         <span>{{ shift.templateNameSnapshot || 'Shift' }}</span>
-                        <span class="text-[10px] opacity-80 font-mono">{{ (shift.totalWorkMinutes / 60).toFixed(1) }}h</span>
+                        <span class="text-xs opacity-80 font-mono">{{ (shift.totalWorkMinutes / 60).toFixed(1) }}h</span>
                       </div>
 
-                      <div v-for="seg in shift.segments" :key="seg.id" class="text-[10px] opacity-90 font-mono mt-0.5">
+                      <div v-for="seg in shift.segments" :key="seg.id" class="text-xs opacity-90 font-mono mt-0.5">
                         {{ seg.startLocalTime }} – {{ seg.endLocalTime }}{{ seg.endsNextDay ? ' (+1d)' : '' }}
                       </div>
 
-                      <div v-if="shift.position" class="mt-1 text-[9px] uppercase font-extrabold tracking-wider opacity-80 border-t border-black/10 pt-0.5">
+                      <div v-if="shift.position" class="mt-1 text-xs uppercase font-extrabold tracking-wider opacity-80 border-t border-black/10 pt-0.5">
                         {{ shift.position.title }}
                       </div>
                     </div>
                   </div>
 
                   <!-- Hover Plus Indicator -->
-                  <div class="hidden group-hover:flex items-center justify-center p-2 border border-dashed border-custom rounded-control text-muted-custom hover:text-main text-[11px] font-bold transition-colors mt-1 print:hidden">
+                  <div class="hidden group-hover:flex items-center justify-center p-2 border border-dashed border-custom rounded-control text-muted-custom hover:text-main text-xs font-bold transition-colors mt-1 print:hidden">
                     + Ajouter
                   </div>
                 </td>
@@ -261,14 +264,14 @@
               <tr v-for="emp in employees" :key="emp.id" class="hover:bg-surface-hover transition-colors">
                 <td class="py-3 px-4 font-bold text-main">
                   {{ emp.firstName }} {{ emp.lastName }}
-                  <span class="block text-[10px] text-muted-custom font-mono font-normal">{{ emp.employeeNumber }}</span>
+                  <span class="block text-xs text-muted-custom font-mono font-normal">{{ emp.employeeNumber }}</span>
                 </td>
 
                 <td
                   v-for="d in monthDaysCount"
                   :key="d"
                   @click="jumpToDayDate(d)"
-                  class="py-2 px-1 text-center border-l border-custom cursor-pointer hover:bg-surface-hover font-mono text-[10px]"
+                  class="py-2 px-1 text-center border-l border-custom cursor-pointer hover:bg-surface-hover font-mono text-xs"
                 >
                   <span v-if="hasShiftOnMonthDay(emp.id, d)" class="w-5 h-5 rounded-pill bg-brand-soft text-brand-strong font-bold inline-flex items-center justify-center border border-brand-soft">
                     S
@@ -287,7 +290,7 @@
     </div>
 
     <!-- Create / Edit Shift Modal -->
-    <div v-if="showShiftModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div v-if="showShiftModal" class="fixed inset-0 z-50 bg-overlay backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-panel border border-custom rounded-panel w-full max-w-lg p-6 shadow-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-custom pb-3">
           <h3 class="text-base font-bold text-main">
@@ -332,7 +335,7 @@
           <div class="space-y-3 pt-2 border-t border-custom">
             <div class="flex items-center justify-between">
               <h4 class="font-bold text-main">Créneaux du shift</h4>
-              <button @click="addShiftSegment()" type="button" class="text-brand-strong hover:underline text-[11px] font-bold cursor-pointer">
+              <button @click="addShiftSegment()" type="button" class="text-brand-strong hover:underline text-xs font-bold cursor-pointer">
                 + Ajouter créneau
               </button>
             </div>
@@ -340,15 +343,15 @@
             <div v-for="(seg, idx) in shiftForm.segments" :key="idx" class="bg-panel-raised border border-custom p-3 rounded-control space-y-2">
               <div class="grid grid-cols-3 gap-2">
                 <div>
-                  <label class="block text-[10px] text-muted-custom">Début</label>
+                  <label class="block text-xs text-muted-custom">Début</label>
                   <input v-model="seg.startLocalTime" type="text" placeholder="11:00" class="w-full bg-panel border border-custom text-main rounded-control px-2 py-1 text-center font-mono" />
                 </div>
                 <div>
-                  <label class="block text-[10px] text-muted-custom">Fin</label>
+                  <label class="block text-xs text-muted-custom">Fin</label>
                   <input v-model="seg.endLocalTime" type="text" placeholder="16:00" class="w-full bg-panel border border-custom text-main rounded-control px-2 py-1 text-center font-mono" />
                 </div>
                 <div class="pt-3">
-                  <label class="inline-flex items-center gap-1.5 text-[10px] text-secondary-custom cursor-pointer">
+                  <label class="inline-flex items-center gap-1.5 text-xs text-secondary-custom cursor-pointer">
                     <input v-model="seg.endsNextDay" type="checkbox" class="w-3.5 h-3.5 rounded bg-panel border-custom text-brand" />
                     Fin J+1
                   </label>
@@ -369,7 +372,7 @@
               </svg>
               Avertissements de politique RH
             </div>
-            <ul class="list-disc pl-5 space-y-1 text-[11px]">
+            <ul class="list-disc pl-5 space-y-1 text-xs">
               <li v-for="(w, idx) in warningConflicts" :key="idx">{{ w.message }}</li>
             </ul>
             <div class="flex items-center gap-2 pt-1 border-t border-amber-500/30">
@@ -402,7 +405,7 @@
     </div>
 
     <!-- Publish Confirmation Modal -->
-    <div v-if="showPublishModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div v-if="showPublishModal" class="fixed inset-0 z-50 bg-overlay backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-panel border border-custom rounded-panel w-full max-w-md p-6 shadow-2xl space-y-4">
         <h3 class="text-base font-bold text-main">Confirmation de publication du planning</h3>
         <p class="text-xs text-muted-custom">
@@ -429,7 +432,7 @@
     </div>
 
     <!-- Copy Week Modal -->
-    <div v-if="showCopyModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div v-if="showCopyModal" class="fixed inset-0 z-50 bg-overlay backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-panel border border-custom rounded-panel w-full max-w-md p-6 shadow-2xl space-y-4">
         <h3 class="text-base font-bold text-main">Copier le planning d'une semaine</h3>
         <p class="text-xs text-muted-custom">Dupliquez les shifts de la semaine précédente vers la semaine actuelle.</p>
@@ -478,6 +481,7 @@ const selectedSiteId = ref<string>('')
 const currentDate = ref<Date>(new Date())
 const schedule = ref<any>(null)
 const coverage = ref<any[]>([])
+const leaveDays = ref<any[]>([])
 const employees = ref<any[]>([])
 const positions = ref<any[]>([])
 const templates = ref<any[]>([])
@@ -634,6 +638,7 @@ async function loadPlanningData() {
     ])
     schedule.value = pRes.data?.schedule || null
     coverage.value = pRes.data?.coverage || []
+    leaveDays.value = pRes.data?.leaveDays || []
     templates.value = tRes.data || []
   } catch (e: any) {
     console.error(e)
@@ -695,6 +700,10 @@ function getShiftsForCell(empId: string, dateStr: string): any[] {
     const sDate = new Date(s.workDate).toISOString().slice(0, 10)
     return s.employeeId === empId && sDate === dateStr
   })
+}
+
+function getLeaveForCell(empId: string, dateStr: string): any | null {
+  return leaveDays.value.find((day: any) => day.leaveRequest.employeeId === empId && new Date(day.localDate).toISOString().slice(0, 10) === dateStr) || null
 }
 
 function openAddShiftModal(emp: any, dateStr: string) {

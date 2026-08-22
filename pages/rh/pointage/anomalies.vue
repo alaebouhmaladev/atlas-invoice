@@ -36,7 +36,7 @@
     <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-secondary-custom border-collapse">
-          <thead class="bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider border-b border-custom">
+          <thead class="bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider border-b border-custom">
             <tr>
               <th class="px-6 py-4">Sévérité</th>
               <th class="px-6 py-4">Type</th>
@@ -56,7 +56,7 @@
             </tr>
             <tr v-for="a in filteredAnomalies" :key="a.id" class="hover:bg-surface-hover transition-colors">
               <td class="px-6 py-4">
-                <span :class="getSeverityBadgeClass(a.severity)" class="px-2.5 py-1 text-[10px] font-bold rounded-pill border">
+                <span :class="getSeverityBadgeClass(a.severity)" class="px-2.5 py-1 text-xs font-bold rounded-pill border">
                   {{ a.severity }}
                 </span>
               </td>
@@ -86,13 +86,13 @@
     </div>
 
     <!-- Resolve Modal -->
-    <div v-if="selectedAnomaly" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div v-if="selectedAnomaly" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay backdrop-blur-sm">
       <div class="bg-panel border border-custom rounded-panel p-6 max-w-md w-full shadow-2xl space-y-4">
         <h3 class="text-base font-bold text-main">Résolution de l'Anomalie</h3>
         <p class="text-xs text-secondary-custom leading-relaxed">{{ selectedAnomaly.message }}</p>
 
         <div>
-          <label class="block text-[11px] font-bold text-muted-custom uppercase tracking-wider mb-1.5">Note de Résolution</label>
+          <label class="block text-xs font-bold text-muted-custom uppercase tracking-wider mb-1.5">Note de Résolution</label>
           <textarea
             v-model="resolutionNote"
             rows="3"

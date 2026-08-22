@@ -43,7 +43,7 @@ export async function detectMissingClockIns(tenantId: string, targetDate?: Date)
     const day = await prisma.attendanceDay.findFirst({
       where: { tenantId, employeeId: shift.employeeId, workDate: workDateObj }
     })
-    if (!day || (!day.firstClockIn && day.status !== 'REST_DAY' && day.status !== 'HOLIDAY')) {
+    if (!day || (!day.firstClockIn && day.status !== 'REST_DAY' && day.status !== 'HOLIDAY' && day.status !== 'ON_LEAVE' && day.status !== 'LOCKED')) {
       missingCount++
     }
   }
@@ -73,8 +73,31 @@ export async function detectAbsences(tenantId: string, targetDate?: Date) {
 
   let createdAbsenceCount = 0
   for (const shift of scheduledShifts) {
+    const lock = await prisma.attendancePeriodLock.findFirst({
+      where: {
+        tenantId,
+        siteId: shift.siteId,
+        isLocked: true,
+        periodStart: { lte: workDateObj },
+        periodEnd: { gte: workDateObj }
+      }
+    })
+    if (lock) continue
     const day = await calculateAttendanceDay(tenantId, shift.employeeId, workDateObj)
     if (day.status === 'ABSENT') {
+      await prisma.absenceRecord.upsert({
+        where: { tenantId_employeeId_localDate: { tenantId, employeeId: shift.employeeId, localDate: workDateObj } },
+        update: { siteId: shift.siteId, attendanceDayId: day.id, status: 'UNJUSTIFIED', source: 'ATTENDANCE_JOB' },
+        create: {
+          tenantId,
+          employeeId: shift.employeeId,
+          siteId: shift.siteId,
+          localDate: workDateObj,
+          attendanceDayId: day.id,
+          status: 'UNJUSTIFIED',
+          source: 'ATTENDANCE_JOB'
+        }
+      })
       createdAbsenceCount++
     }
   }
@@ -91,6 +114,7 @@ export async function recalculateDailyAttendance(tenantId: string, targetDate?: 
 
   let recalculatedCount = 0
   for (const day of days) {
+    if (day.validationStatus === 'LOCKED' || day.status === 'LOCKED') continue
     await calculateAttendanceDay(tenantId, day.employeeId, workDateObj)
     recalculatedCount++
   }

@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!invoiceId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant de facture requis' }
     })
   }

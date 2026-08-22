@@ -17,16 +17,16 @@ export function formatContractStatus(status?: string | null): string {
 }
 
 export function getContractStatusBadgeClass(status?: string | null): string {
-  if (!status) return 'bg-slate-800 text-slate-300 border border-slate-700'
+  if (!status) return 'bg-panel-raised text-secondary-custom border border-custom'
   const map: Record<string, string> = {
-    DRAFT: 'bg-slate-800/80 text-slate-400 border border-slate-700',
+    DRAFT: 'bg-panel-raised text-muted-custom border border-custom',
     ACTIVE: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
     EXPIRED: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
     TERMINATED: 'bg-rose-500/20 text-rose-300 border border-rose-500/30',
     RENEWED: 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
-    CANCELLED: 'bg-slate-800/80 text-slate-400 border border-slate-700'
+    CANCELLED: 'bg-panel-raised text-muted-custom border border-custom'
   }
-  return map[status] || 'bg-slate-800 text-slate-300 border border-slate-700'
+  return map[status] || 'bg-panel-raised text-secondary-custom border border-custom'
 }
 
 // --- Contract Type Mappers ---
@@ -63,7 +63,7 @@ export function formatDocumentCategory(category?: string | null): string {
 }
 
 export function getDocumentCategoryBadgeClass(category?: string | null): string {
-  if (!category) return 'bg-slate-800 text-slate-300 border border-slate-700'
+  if (!category) return 'bg-panel-raised text-secondary-custom border border-custom'
   const map: Record<string, string> = {
     CIN: 'bg-sky-500/20 text-sky-300 border border-sky-500/30',
     CONTRACT: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
@@ -75,9 +75,9 @@ export function getDocumentCategoryBadgeClass(category?: string | null): string 
     WARNING: 'bg-orange-500/20 text-orange-300 border border-orange-500/30',
     RESIGNATION: 'bg-rose-500/20 text-rose-300 border border-rose-500/30',
     TERMINATION: 'bg-red-500/20 text-red-300 border border-red-500/30',
-    OTHER: 'bg-slate-800 text-slate-300 border border-slate-700'
+    OTHER: 'bg-panel-raised text-secondary-custom border border-custom'
   }
-  return map[category] || 'bg-slate-800 text-slate-300 border border-slate-700'
+  return map[category] || 'bg-panel-raised text-secondary-custom border border-custom'
 }
 
 // --- Site Type Mappers ---
@@ -114,14 +114,14 @@ export function formatScheduleStatus(status?: string | null): string {
 }
 
 export function getScheduleStatusBadgeClass(status?: string | null): string {
-  if (!status) return 'bg-slate-800 text-slate-300 border border-slate-700'
+  if (!status) return 'bg-panel-raised text-secondary-custom border border-custom'
   const map: Record<string, string> = {
-    DRAFT: 'bg-slate-800/80 text-amber-300 border border-amber-500/30',
+    DRAFT: 'bg-panel-raised text-amber-300 border border-amber-500/30',
     PUBLISHED: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
     LOCKED: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
-    ARCHIVED: 'bg-slate-800/80 text-slate-400 border border-slate-700'
+    ARCHIVED: 'bg-panel-raised text-muted-custom border border-custom'
   }
-  return map[status] || 'bg-slate-800 text-slate-300 border border-slate-700'
+  return map[status] || 'bg-panel-raised text-secondary-custom border border-custom'
 }
 
 // --- Scheduled Shift Status Mappers ---
@@ -137,14 +137,14 @@ export function formatShiftStatus(status?: string | null): string {
 }
 
 export function getShiftStatusBadgeClass(status?: string | null): string {
-  if (!status) return 'bg-slate-800 text-slate-300 border border-slate-700'
+  if (!status) return 'bg-panel-raised text-secondary-custom border border-custom'
   const map: Record<string, string> = {
-    PLANNED: 'bg-slate-800/80 text-slate-300 border border-slate-700',
+    PLANNED: 'bg-panel-raised text-secondary-custom border border-custom',
     PUBLISHED: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
     CHANGED: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
     CANCELLED: 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
   }
-  return map[status] || 'bg-slate-800 text-slate-300 border border-slate-700'
+  return map[status] || 'bg-panel-raised text-secondary-custom border border-custom'
 }
 
 // --- Shift Segment Type Mappers ---
@@ -195,14 +195,20 @@ export function formatHrAuditAction(action?: string | null): string {
     HR_DOCUMENT_DELETED: 'Document RH supprimé',
     HR_ATTENDANCE_EVENT: 'Pointage enregistré',
     HR_ATTENDANCE_CORRECTION: 'Demande de correction',
-    HR_ATTENDANCE_ANOMALY_RESOLVED: 'Anomalie de pointage résolue'
+    HR_ATTENDANCE_ANOMALY_RESOLVED: 'Anomalie de pointage résolue',
+    HR_LEAVE_TYPE_CREATED: 'Type de congé créé',
+    HR_LEAVE_POLICY_CREATED: 'Politique de congé créée',
+    HR_LEAVE_REQUEST_SUBMITTED: 'Demande de congé soumise',
+    HR_LEAVE_REQUEST_APPROVED: 'Demande de congé approuvée',
+    HR_LEAVE_REQUEST_REJECTED: 'Demande de congé refusée',
+    HR_LEAVE_REQUEST_CANCELLED: 'Demande de congé annulée',
+    HR_LEAVE_BALANCE_ADJUSTED: 'Solde de congé ajusté',
+    HR_HOLIDAY_CALENDAR_CREATED: 'Calendrier férié créé',
+    HR_HOLIDAY_CREATED: 'Jour férié créé',
+    HR_ABSENCE_RESOLVED: 'Absence résolue'
   }
   if (map[action]) return map[action]
   
-  // Safe fallback for unlisted actions: format SCREAMING_SNAKE_CASE to readable sentence
-  const readable = action
-    .replace(/^HR_/, '')
-    .replace(/_/g, ' ')
-    .toLowerCase()
-  return readable.charAt(0).toUpperCase() + readable.slice(1)
+  // Do not expose untranslated internal action identifiers in the French UI.
+  return 'Événement RH non répertorié'
 }

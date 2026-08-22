@@ -46,18 +46,18 @@
             <span class="font-bold text-main">
               {{ formatActionLabel(log.action) }}
             </span>
-            <span class="text-[10px] text-muted-custom font-semibold">
+            <span class="text-xs text-muted-custom font-semibold">
               {{ formatDate(log.createdAt) }}
             </span>
           </div>
 
-          <p class="text-secondary-custom mt-0.5 text-[11px]">
+          <p class="text-secondary-custom mt-0.5 text-xs">
             Par <strong class="text-main font-bold">{{ log.actorDisplayNameSnapshot || log.user?.name || 'Système' }}</strong>
             <span v-if="log.actorRoleSnapshot || log.user?.role" class="text-muted-custom"> ({{ formatRole(log.actorRoleSnapshot || log.user?.role) }})</span>
           </p>
 
           <!-- Safe metadata description if available -->
-          <div v-if="log.metadata && Object.keys(log.metadata).length > 0" class="mt-1 bg-panel-raised p-2 rounded-control border border-custom text-[10px] font-mono text-secondary-custom">
+          <div v-if="log.metadata && Object.keys(log.metadata).length > 0" class="mt-1 bg-panel-raised p-2 rounded-control border border-custom text-xs font-mono text-secondary-custom">
             <span v-for="(val, key) in log.metadata" :key="key" class="mr-3 inline-block">
               <span class="text-muted-custom">{{ key }}:</span> {{ val }}
             </span>

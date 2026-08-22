@@ -49,7 +49,7 @@ const statusBadgeClasses = computed(() => {
     case 'CONVERTED':
       return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
     default:
-      return 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+      return 'bg-panel-raised text-muted-custom border-custom'
   }
 })
 
@@ -68,7 +68,7 @@ const dotClasses = computed(() => {
     case 'CONVERTED':
       return 'bg-cyan-400'
     default:
-      return 'bg-slate-400'
+      return 'bg-border-strong'
   }
 })
 </script>

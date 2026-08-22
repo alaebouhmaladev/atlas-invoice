@@ -3,7 +3,7 @@
     <div class="w-full max-w-md bg-panel border border-custom rounded-panel p-6 shadow-soft">
       <!-- Icon & Header -->
       <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-panel bg-[#b49c80]/15 border border-[#b49c80]/30 text-[#987d61] dark:text-[#d0baa0] flex items-center justify-center mx-auto mb-3">
+        <div class="w-12 h-12 rounded-panel bg-brand-soft border border-brand-soft text-brand-strong flex items-center justify-center mx-auto mb-3">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
@@ -44,7 +44,7 @@
             placeholder="••••••••••••"
             class="w-full px-3.5 py-2.5 bg-panel-raised border border-custom rounded-control text-xs text-main focus:outline-none focus:border-brand"
           />
-          <p class="text-[11px] text-muted-custom mt-1">
+          <p class="text-xs text-muted-custom mt-1">
             Au moins 12 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
           </p>
         </div>
@@ -63,9 +63,9 @@
         <button
           type="submit"
           :disabled="loading"
-          class="w-full py-3 bg-[#b49c80] hover:bg-[#987d61] text-slate-950 font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-6"
+          class="w-full py-3 bg-brand hover:bg-brand-strong text-on-brand font-bold rounded-pill text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-6"
         >
-          <svg v-if="loading" class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
+          <svg v-if="loading" class="animate-spin h-4 w-4 text-on-brand" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>

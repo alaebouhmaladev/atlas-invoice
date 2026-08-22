@@ -2,7 +2,7 @@
   <div class="space-y-6 max-w-7xl mx-auto pb-12">
     <!-- Top Navigation Bar -->
     <div class="flex items-center justify-between">
-      <NuxtLink to="/clients" class="inline-flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 font-semibold transition-colors">
+      <NuxtLink to="/clients" class="inline-flex items-center gap-1.5 text-xs text-brand-strong hover:text-brand font-semibold transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -11,7 +11,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loadingClient && !client" class="p-16 text-center text-slate-400">
+    <div v-if="loadingClient && !client" class="p-16 text-center text-muted-custom">
       <svg class="animate-spin h-8 w-8 text-amber-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -20,15 +20,15 @@
     </div>
 
     <!-- Client Not Found Error -->
-    <div v-else-if="!client" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-10 text-center space-y-4">
+    <div v-else-if="!client" class="bg-panel/60 border border-custom rounded-2xl p-10 text-center space-y-4">
       <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>
-      <h3 class="text-base font-bold text-slate-100">Client introuvable</h3>
-      <p class="text-xs text-slate-400">Ce client n'existe pas ou a été supprimé.</p>
-      <NuxtLink to="/clients" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold">
+      <h3 class="text-base font-bold text-main">Client introuvable</h3>
+      <p class="text-xs text-muted-custom">Ce client n'existe pas ou a été supprimé.</p>
+      <NuxtLink to="/clients" class="inline-flex items-center gap-2 px-4 py-2 bg-panel-raised text-main rounded-xl text-xs font-semibold">
         Retour aux clients
       </NuxtLink>
     </div>
@@ -36,23 +36,23 @@
     <!-- Client 360° Main Content -->
     <template v-else>
       <!-- HEADER CARD -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div class="bg-panel/80 border border-custom rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-custom pb-6">
           <div class="space-y-2">
             <div class="flex items-center gap-3 flex-wrap">
-              <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-50 tracking-tight">
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-main tracking-tight">
                 {{ client.displayName }}
               </h2>
               <ClientTypeBadge :type="client.type" />
               <ClientStatusBadge :is-archived="client.isArchived" />
             </div>
 
-            <p v-if="client.type === 'COMPANY' && client.companyName" class="text-xs text-slate-400">
-              Raison sociale : <strong class="text-slate-200">{{ client.companyName }}</strong>
-              <span v-if="client.ice" class="ml-3 text-slate-500">ICE : {{ client.ice }}</span>
+            <p v-if="client.type === 'COMPANY' && client.companyName" class="text-xs text-muted-custom">
+              Raison sociale : <strong class="text-main">{{ client.companyName }}</strong>
+              <span v-if="client.ice" class="ml-3 text-muted-custom">ICE : {{ client.ice }}</span>
             </p>
-            <p v-else-if="client.firstName || client.lastName" class="text-xs text-slate-400">
-              Nom complet : <strong class="text-slate-200">{{ client.firstName }} {{ client.lastName }}</strong>
+            <p v-else-if="client.firstName || client.lastName" class="text-xs text-muted-custom">
+              Nom complet : <strong class="text-main">{{ client.firstName }} {{ client.lastName }}</strong>
             </p>
           </div>
 
@@ -91,7 +91,7 @@
             <button
               v-if="canArchiveRestore"
               @click="openArchiveModal"
-              class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+              class="px-3.5 py-2 bg-panel-raised hover:bg-surface-hover text-main border border-custom rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <span>{{ client.isArchived ? 'Restaurer' : 'Archiver' }}</span>
             </button>
@@ -109,62 +109,62 @@
         <!-- FINANCIAL SUMMARY KPI CARDS -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <!-- Total Devis -->
-          <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-1">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Devis</span>
-            <div class="text-lg font-extrabold text-slate-100">{{ summary?.totalDevis || 0 }}</div>
+          <div class="bg-panel border border-custom rounded-2xl p-4 space-y-1">
+            <span class="text-xs font-bold text-muted-custom uppercase tracking-wider">Total Devis</span>
+            <div class="text-lg font-extrabold text-main">{{ summary?.totalDevis || 0 }}</div>
           </div>
 
           <!-- Devis Acceptés -->
-          <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-1">
-            <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Devis Acceptés</span>
+          <div class="bg-panel border border-custom rounded-2xl p-4 space-y-1">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Devis Acceptés</span>
             <div class="text-lg font-extrabold text-emerald-300">{{ summary?.acceptedDevis || 0 }}</div>
           </div>
 
           <!-- Total Facturé TTC -->
-          <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-1">
-            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Total Facturé TTC</span>
-            <div class="text-lg font-extrabold text-slate-100">{{ formatMoney(summary?.totalInvoicedTtc || 0) }}</div>
+          <div class="bg-panel border border-custom rounded-2xl p-4 space-y-1">
+            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Total Facturé TTC</span>
+            <div class="text-lg font-extrabold text-main">{{ formatMoney(summary?.totalInvoicedTtc || 0) }}</div>
           </div>
 
           <!-- Total Payé -->
-          <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-1">
-            <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Total Payé</span>
+          <div class="bg-panel border border-custom rounded-2xl p-4 space-y-1">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Total Payé</span>
             <div class="text-lg font-extrabold text-emerald-400">{{ formatMoney(summary?.totalPaid || 0) }}</div>
           </div>
 
           <!-- Reste à Payer -->
           <div
             class="border rounded-2xl p-4 space-y-1"
-            :class="(summary?.amountDue || 0) > 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-950/60 border-slate-800/80'"
+            :class="(summary?.amountDue || 0) > 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-panel border-custom'"
           >
-            <span class="text-[10px] font-bold uppercase tracking-wider" :class="(summary?.amountDue || 0) > 0 ? 'text-amber-400' : 'text-slate-400'">Reste à Payer</span>
-            <div class="text-lg font-extrabold" :class="(summary?.amountDue || 0) > 0 ? 'text-amber-300' : 'text-slate-100'">{{ formatMoney(summary?.amountDue || 0) }}</div>
+            <span class="text-xs font-bold uppercase tracking-wider" :class="(summary?.amountDue || 0) > 0 ? 'text-amber-400' : 'text-muted-custom'">Reste à Payer</span>
+            <div class="text-lg font-extrabold" :class="(summary?.amountDue || 0) > 0 ? 'text-amber-300' : 'text-main'">{{ formatMoney(summary?.amountDue || 0) }}</div>
           </div>
 
           <!-- Factures en Retard -->
           <div
             class="border rounded-2xl p-4 space-y-1"
-            :class="(summary?.overdueCount || 0) > 0 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-slate-950/60 border-slate-800/80'"
+            :class="(summary?.overdueCount || 0) > 0 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-panel border-custom'"
           >
-            <span class="text-[10px] font-bold uppercase tracking-wider" :class="(summary?.overdueCount || 0) > 0 ? 'text-rose-400' : 'text-slate-400'">Factures en Retard</span>
-            <div class="text-lg font-extrabold" :class="(summary?.overdueCount || 0) > 0 ? 'text-rose-300' : 'text-slate-100'">{{ summary?.overdueCount || 0 }}</div>
+            <span class="text-xs font-bold uppercase tracking-wider" :class="(summary?.overdueCount || 0) > 0 ? 'text-rose-400' : 'text-muted-custom'">Factures en Retard</span>
+            <div class="text-lg font-extrabold" :class="(summary?.overdueCount || 0) > 0 ? 'text-rose-300' : 'text-main'">{{ summary?.overdueCount || 0 }}</div>
           </div>
         </div>
       </div>
 
       <!-- TABS NAVIGATION BAR -->
-      <div class="border-b border-slate-800 flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
+      <div class="border-b border-custom flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
         <button
           v-for="tab in tabs"
           :key="tab.id"
           @click="selectTab(tab.id)"
           class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer"
           :class="activeTab === tab.id
-            ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-            : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-slate-800/80'"
+            ? 'bg-amber-500 text-on-brand shadow-md shadow-amber-500/20'
+            : 'bg-panel/60 text-muted-custom hover:text-main hover:bg-panel-raised/60 border border-custom'"
         >
           <span>{{ tab.label }}</span>
-          <span v-if="tab.badge !== undefined" class="px-1.5 py-0.5 rounded-md text-[10px]" :class="activeTab === tab.id ? 'bg-slate-950/30 text-slate-950' : 'bg-slate-800 text-slate-300'">
+          <span v-if="tab.badge !== undefined" class="px-1.5 py-0.5 rounded-md text-xs" :class="activeTab === tab.id ? 'bg-brand-strong text-on-brand' : 'bg-panel-raised text-secondary-custom'">
             {{ tab.badge }}
           </span>
         </button>
@@ -173,8 +173,8 @@
       <!-- TAB 1: VUE D'ENSEMBLE -->
       <div v-if="activeTab === 'overview'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Coordonnées Card -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-3">
+        <div class="bg-panel/60 border border-custom rounded-2xl p-6 space-y-4">
+          <h3 class="text-xs font-bold text-main uppercase tracking-wider flex items-center gap-2 border-b border-custom pb-3">
             <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
@@ -182,44 +182,44 @@
           </h3>
 
           <div class="space-y-3 text-xs">
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Email</span>
-              <span class="text-slate-200 font-semibold">{{ client.email || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Email</span>
+              <span class="text-main font-semibold">{{ client.email || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Téléphone</span>
-              <span class="text-slate-200 font-semibold">{{ client.phone || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Téléphone</span>
+              <span class="text-main font-semibold">{{ client.phone || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Adresse</span>
-              <span class="text-slate-200 font-semibold text-right">{{ client.address || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Adresse</span>
+              <span class="text-main font-semibold text-right">{{ client.address || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Ville</span>
-              <span class="text-slate-200 font-semibold">{{ client.city || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Ville</span>
+              <span class="text-main font-semibold">{{ client.city || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">ICE</span>
-              <span class="text-slate-200 font-semibold font-mono">{{ client.ice || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">ICE</span>
+              <span class="text-main font-semibold font-mono">{{ client.ice || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Registre du Commerce (RC)</span>
-              <span class="text-slate-200 font-semibold">{{ client.rc || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Registre du Commerce (RC)</span>
+              <span class="text-main font-semibold">{{ client.rc || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Identifiant Fiscal (IF)</span>
-              <span class="text-slate-200 font-semibold">{{ client.taxId || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Identifiant Fiscal (IF)</span>
+              <span class="text-main font-semibold">{{ client.taxId || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Patente</span>
-              <span class="text-slate-200 font-semibold">{{ client.patent || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Patente</span>
+              <span class="text-main font-semibold">{{ client.patent || '-' }}</span>
             </div>
           </div>
         </div>
 
         <!-- Coordonnées Bancaires Card -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-3">
+        <div class="bg-panel/60 border border-custom rounded-2xl p-6 space-y-4">
+          <h3 class="text-xs font-bold text-main uppercase tracking-wider flex items-center gap-2 border-b border-custom pb-3">
             <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
@@ -227,21 +227,21 @@
           </h3>
 
           <div class="space-y-3 text-xs">
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">Banque</span>
-              <span class="text-slate-200 font-semibold">{{ (client as any).bankName || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">Banque</span>
+              <span class="text-main font-semibold">{{ (client as any).bankName || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">RIB</span>
-              <span class="text-slate-200 font-mono font-semibold">{{ (client as any).rib || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">RIB</span>
+              <span class="text-main font-mono font-semibold">{{ (client as any).rib || '-' }}</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/40">
-              <span class="text-slate-400">SWIFT / BIC</span>
-              <span class="text-slate-200 font-mono font-semibold">{{ (client as any).swift || '-' }}</span>
+            <div class="flex justify-between py-1 border-b border-custom/40">
+              <span class="text-muted-custom">SWIFT / BIC</span>
+              <span class="text-main font-mono font-semibold">{{ (client as any).swift || '-' }}</span>
             </div>
           </div>
 
-          <div class="pt-4 border-t border-slate-800/60 text-[11px] text-slate-500">
+          <div class="pt-4 border-t border-custom/60 text-xs text-muted-custom">
             Fiche créée le {{ formatDate(client.createdAt) }} par {{ client.createdBy?.name || 'Système' }}
           </div>
         </div>
@@ -250,19 +250,19 @@
       <!-- TAB 2: DEVIS -->
       <div v-else-if="activeTab === 'devis'" class="space-y-4">
         <!-- Devis Search & Filter Controls -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-panel/60 border border-custom rounded-2xl p-4">
           <input
             v-model="devisSearch"
             type="text"
             placeholder="Rechercher par N° ou objet..."
-            class="w-full sm:w-72 px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full sm:w-72 px-4 py-2 bg-panel-raised border border-custom rounded-xl text-xs text-main placeholder:text-muted-custom focus:outline-none focus:ring-2 focus:ring-brand/50"
             @input="debouncedFetchDevis"
           />
 
           <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <select
               v-model="devisStatus"
-              class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none"
+              class="px-3 py-2 bg-panel-raised border border-custom rounded-xl text-xs text-main focus:outline-none"
               @change="fetchDevis"
             >
               <option value="all">Tous les statuts</option>
@@ -276,7 +276,7 @@
 
             <NuxtLink
               :to="`/devis/new?clientId=${client.id}`"
-              class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
+              class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-on-brand font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -287,16 +287,16 @@
         </div>
 
         <!-- Devis Table / Loading / Empty -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <div v-if="loadingDevis" class="p-12 text-center text-slate-400 text-xs">
+        <div class="bg-panel/60 border border-custom rounded-2xl overflow-hidden shadow-xl">
+          <div v-if="loadingDevis" class="p-12 text-center text-muted-custom text-xs">
             Chargement des devis...
           </div>
 
           <div v-else-if="devisList.length === 0" class="p-12 text-center space-y-3">
-            <p class="text-xs text-slate-400">Aucun devis pour ce client.</p>
+            <p class="text-xs text-muted-custom">Aucun devis pour ce client.</p>
             <NuxtLink
               :to="`/devis/new?clientId=${client.id}`"
-              class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold"
+              class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-on-brand rounded-xl text-xs font-bold"
             >
               Créer un devis
             </NuxtLink>
@@ -305,7 +305,7 @@
           <div v-else class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-slate-950/40">
+                <tr class="border-b border-custom text-xs font-bold text-muted-custom uppercase tracking-wider bg-panel-raised">
                   <th class="py-3.5 px-4">N° Devis</th>
                   <th class="py-3.5 px-4">Date</th>
                   <th class="py-3.5 px-4">Objet</th>
@@ -315,27 +315,27 @@
                   <th class="py-3.5 px-4">Facture liée</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-800/60 text-xs">
-                <tr v-for="q in devisList" :key="q.id" class="hover:bg-slate-800/30 transition-colors">
+              <tbody class="divide-y divide-custom text-xs">
+                <tr v-for="q in devisList" :key="q.id" class="hover:bg-panel-raised/30 transition-colors">
                   <td class="py-3.5 px-4 font-mono font-bold text-amber-400">
                     <NuxtLink :to="`/devis/${q.id}`" class="hover:underline">
                       {{ q.number }}
                     </NuxtLink>
                   </td>
-                  <td class="py-3.5 px-4 text-slate-300">{{ formatDateShort(q.issueDate) }}</td>
-                  <td class="py-3.5 px-4 text-slate-200 max-w-xs truncate">{{ q.subject }}</td>
+                  <td class="py-3.5 px-4 text-secondary-custom">{{ formatDateShort(q.issueDate) }}</td>
+                  <td class="py-3.5 px-4 text-main max-w-xs truncate">{{ q.subject }}</td>
                   <td class="py-3.5 px-4">
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase" :class="getQuoteStatusClass(q.status)">
+                    <span class="px-2 py-0.5 rounded-md text-xs font-bold uppercase" :class="getQuoteStatusClass(q.status)">
                       {{ getQuoteStatusLabel(q.status) }}
                     </span>
                   </td>
-                  <td class="py-3.5 px-4 text-right font-semibold text-slate-100">{{ formatMoney(q.totalTtc) }}</td>
-                  <td class="py-3.5 px-4 text-slate-400">{{ formatDateShort(q.validUntil) }}</td>
-                  <td class="py-3.5 px-4 font-mono text-slate-300">
+                  <td class="py-3.5 px-4 text-right font-semibold text-main">{{ formatMoney(q.totalTtc) }}</td>
+                  <td class="py-3.5 px-4 text-muted-custom">{{ formatDateShort(q.validUntil) }}</td>
+                  <td class="py-3.5 px-4 font-mono text-secondary-custom">
                     <NuxtLink v-if="q.invoice" :to="`/factures/${q.invoice.id}`" class="text-blue-400 hover:underline">
                       {{ q.invoice.number }}
                     </NuxtLink>
-                    <span v-else class="text-slate-600">-</span>
+                    <span v-else class="text-secondary-custom">-</span>
                   </td>
                 </tr>
               </tbody>
@@ -343,20 +343,20 @@
           </div>
 
           <!-- Pagination -->
-          <div v-if="devisPagination.totalPages > 1" class="p-4 border-t border-slate-800 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Page {{ devisPagination.page }} sur {{ devisPagination.totalPages }}</span>
+          <div v-if="devisPagination.totalPages > 1" class="p-4 border-t border-custom flex justify-between items-center text-xs">
+            <span class="text-muted-custom">Page {{ devisPagination.page }} sur {{ devisPagination.totalPages }}</span>
             <div class="flex gap-2">
               <button
                 :disabled="devisPagination.page <= 1"
                 @click="changeDevisPage(devisPagination.page - 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Précédent
               </button>
               <button
                 :disabled="devisPagination.page >= devisPagination.totalPages"
                 @click="changeDevisPage(devisPagination.page + 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Suivant
               </button>
@@ -368,19 +368,19 @@
       <!-- TAB 3: FACTURES -->
       <div v-else-if="activeTab === 'factures'" class="space-y-4">
         <!-- Facture Search & Filter Controls -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-panel/60 border border-custom rounded-2xl p-4">
           <input
             v-model="factureSearch"
             type="text"
             placeholder="Rechercher par N° ou objet..."
-            class="w-full sm:w-72 px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            class="w-full sm:w-72 px-4 py-2 bg-panel-raised border border-custom rounded-xl text-xs text-main placeholder:text-muted-custom focus:outline-none focus:ring-2 focus:ring-brand/50"
             @input="debouncedFetchFactures"
           />
 
           <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <select
               v-model="factureStatus"
-              class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none"
+              class="px-3 py-2 bg-panel-raised border border-custom rounded-xl text-xs text-main focus:outline-none"
               @change="fetchFactures"
             >
               <option value="all">Tous les statuts</option>
@@ -391,7 +391,7 @@
 
             <select
               v-model="paymentStatusFilter"
-              class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none"
+              class="px-3 py-2 bg-panel-raised border border-custom rounded-xl text-xs text-main focus:outline-none"
               @change="fetchFactures"
             >
               <option value="all">Tous les règlements</option>
@@ -402,7 +402,7 @@
 
             <NuxtLink
               :to="`/factures/new?clientId=${client.id}`"
-              class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
+              class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-on-brand font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -413,16 +413,16 @@
         </div>
 
         <!-- Factures Table / Loading / Empty -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <div v-if="loadingFactures" class="p-12 text-center text-slate-400 text-xs">
+        <div class="bg-panel/60 border border-custom rounded-2xl overflow-hidden shadow-xl">
+          <div v-if="loadingFactures" class="p-12 text-center text-muted-custom text-xs">
             Chargement des factures...
           </div>
 
           <div v-else-if="factureList.length === 0" class="p-12 text-center space-y-3">
-            <p class="text-xs text-slate-400">Aucune facture pour ce client.</p>
+            <p class="text-xs text-muted-custom">Aucune facture pour ce client.</p>
             <NuxtLink
               :to="`/factures/new?clientId=${client.id}`"
-              class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 text-slate-950 rounded-xl text-xs font-bold"
+              class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 text-on-brand rounded-xl text-xs font-bold"
             >
               Créer une facture
             </NuxtLink>
@@ -431,7 +431,7 @@
           <div v-else class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-slate-950/40">
+                <tr class="border-b border-custom text-xs font-bold text-muted-custom uppercase tracking-wider bg-panel-raised">
                   <th class="py-3.5 px-4">N° Facture</th>
                   <th class="py-3.5 px-4">Date</th>
                   <th class="py-3.5 px-4">Échéance</th>
@@ -442,31 +442,31 @@
                   <th class="py-3.5 px-4 text-right">Reste à Payer</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-800/60 text-xs">
-                <tr v-for="inv in factureList" :key="inv.id" class="hover:bg-slate-800/30 transition-colors">
+              <tbody class="divide-y divide-custom text-xs">
+                <tr v-for="inv in factureList" :key="inv.id" class="hover:bg-panel-raised/30 transition-colors">
                   <td class="py-3.5 px-4 font-mono font-bold text-emerald-400">
                     <NuxtLink :to="`/factures/${inv.id}`" class="hover:underline">
                       {{ inv.number || '[Brouillon]' }}
                     </NuxtLink>
                   </td>
-                  <td class="py-3.5 px-4 text-slate-300">{{ formatDateShort(inv.issueDate) }}</td>
-                  <td class="py-3.5 px-4" :class="inv.isOverdue ? 'text-rose-400 font-semibold' : 'text-slate-400'">
+                  <td class="py-3.5 px-4 text-secondary-custom">{{ formatDateShort(inv.issueDate) }}</td>
+                  <td class="py-3.5 px-4" :class="inv.isOverdue ? 'text-rose-400 font-semibold' : 'text-muted-custom'">
                     {{ formatDateShort(inv.dueDate) }}
-                    <span v-if="inv.isOverdue" class="ml-1 text-[9px] px-1 py-0.5 bg-rose-500/20 text-rose-300 rounded font-bold uppercase">En retard</span>
+                    <span v-if="inv.isOverdue" class="ml-1 text-xs px-1 py-0.5 bg-rose-500/20 text-rose-300 rounded font-bold uppercase">En retard</span>
                   </td>
                   <td class="py-3.5 px-4">
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase" :class="getInvoiceStatusClass(inv.status)">
+                    <span class="px-2 py-0.5 rounded-md text-xs font-bold uppercase" :class="getInvoiceStatusClass(inv.status)">
                       {{ getInvoiceStatusLabel(inv.status) }}
                     </span>
                   </td>
                   <td class="py-3.5 px-4">
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase" :class="getPaymentStatusClass(inv.paymentStatus)">
+                    <span class="px-2 py-0.5 rounded-md text-xs font-bold uppercase" :class="getPaymentStatusClass(inv.paymentStatus)">
                       {{ getPaymentStatusLabel(inv.paymentStatus) }}
                     </span>
                   </td>
-                  <td class="py-3.5 px-4 text-right font-semibold text-slate-100">{{ formatMoney(inv.totalTtc) }}</td>
+                  <td class="py-3.5 px-4 text-right font-semibold text-main">{{ formatMoney(inv.totalTtc) }}</td>
                   <td class="py-3.5 px-4 text-right font-semibold text-emerald-400">{{ formatMoney(inv.amountPaid) }}</td>
-                  <td class="py-3.5 px-4 text-right font-semibold" :class="Number(inv.amountDue) > 0 ? 'text-amber-300' : 'text-slate-400'">
+                  <td class="py-3.5 px-4 text-right font-semibold" :class="Number(inv.amountDue) > 0 ? 'text-amber-300' : 'text-muted-custom'">
                     {{ formatMoney(inv.amountDue) }}
                   </td>
                 </tr>
@@ -475,20 +475,20 @@
           </div>
 
           <!-- Pagination -->
-          <div v-if="facturePagination.totalPages > 1" class="p-4 border-t border-slate-800 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Page {{ facturePagination.page }} sur {{ facturePagination.totalPages }}</span>
+          <div v-if="facturePagination.totalPages > 1" class="p-4 border-t border-custom flex justify-between items-center text-xs">
+            <span class="text-muted-custom">Page {{ facturePagination.page }} sur {{ facturePagination.totalPages }}</span>
             <div class="flex gap-2">
               <button
                 :disabled="facturePagination.page <= 1"
                 @click="changeFacturePage(facturePagination.page - 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Précédent
               </button>
               <button
                 :disabled="facturePagination.page >= facturePagination.totalPages"
                 @click="changeFacturePage(facturePagination.page + 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Suivant
               </button>
@@ -500,19 +500,19 @@
       <!-- TAB 4: PAIEMENTS -->
       <div v-else-if="activeTab === 'payments'" class="space-y-4">
         <!-- Payments Table / Loading / Empty -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <div v-if="loadingPayments" class="p-12 text-center text-slate-400 text-xs">
+        <div class="bg-panel/60 border border-custom rounded-2xl overflow-hidden shadow-xl">
+          <div v-if="loadingPayments" class="p-12 text-center text-muted-custom text-xs">
             Chargement de l'historique des règlements...
           </div>
 
-          <div v-else-if="paymentList.length === 0" class="p-12 text-center text-slate-400 text-xs">
+          <div v-else-if="paymentList.length === 0" class="p-12 text-center text-muted-custom text-xs">
             Aucun paiement enregistré pour ce client.
           </div>
 
           <div v-else class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-slate-950/40">
+                <tr class="border-b border-custom text-xs font-bold text-muted-custom uppercase tracking-wider bg-panel-raised">
                   <th class="py-3.5 px-4">Date</th>
                   <th class="py-3.5 px-4">Facture</th>
                   <th class="py-3.5 px-4">Mode de paiement</th>
@@ -522,22 +522,22 @@
                   <th class="py-3.5 px-4">Statut</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-800/60 text-xs">
-                <tr v-for="pm in paymentList" :key="pm.id" class="hover:bg-slate-800/30 transition-colors">
-                  <td class="py-3.5 px-4 text-slate-300">{{ formatDateShort(pm.paymentDate) }}</td>
+              <tbody class="divide-y divide-custom text-xs">
+                <tr v-for="pm in paymentList" :key="pm.id" class="hover:bg-panel-raised/30 transition-colors">
+                  <td class="py-3.5 px-4 text-secondary-custom">{{ formatDateShort(pm.paymentDate) }}</td>
                   <td class="py-3.5 px-4 font-mono font-bold text-emerald-400">
                     <NuxtLink v-if="pm.invoice" :to="`/factures/${pm.invoice.id}`" class="hover:underline">
                       {{ pm.invoice.number }}
                     </NuxtLink>
                     <span v-else>-</span>
                   </td>
-                  <td class="py-3.5 px-4 text-slate-200">{{ formatPaymentMethod(pm.method) }}</td>
-                  <td class="py-3.5 px-4 font-mono text-slate-400">{{ pm.reference || '-' }}</td>
+                  <td class="py-3.5 px-4 text-main">{{ formatPaymentMethod(pm.method) }}</td>
+                  <td class="py-3.5 px-4 font-mono text-muted-custom">{{ pm.reference || '-' }}</td>
                   <td class="py-3.5 px-4 text-right font-extrabold text-emerald-400">{{ formatMoney(pm.amount) }}</td>
-                  <td class="py-3.5 px-4 text-slate-400">{{ pm.createdBy?.name || 'Système' }}</td>
+                  <td class="py-3.5 px-4 text-muted-custom">{{ pm.createdBy?.name || 'Système' }}</td>
                   <td class="py-3.5 px-4">
                     <span
-                      class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase"
+                      class="px-2 py-0.5 rounded-md text-xs font-bold uppercase"
                       :class="pm.status === 'CONFIRMED' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300 line-through'"
                     >
                       {{ pm.status === 'CONFIRMED' ? 'Confirmé' : 'Annulé' }}
@@ -549,20 +549,20 @@
           </div>
 
           <!-- Pagination -->
-          <div v-if="paymentPagination.totalPages > 1" class="p-4 border-t border-slate-800 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Page {{ paymentPagination.page }} sur {{ paymentPagination.totalPages }}</span>
+          <div v-if="paymentPagination.totalPages > 1" class="p-4 border-t border-custom flex justify-between items-center text-xs">
+            <span class="text-muted-custom">Page {{ paymentPagination.page }} sur {{ paymentPagination.totalPages }}</span>
             <div class="flex gap-2">
               <button
                 :disabled="paymentPagination.page <= 1"
                 @click="changePaymentPage(paymentPagination.page - 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Précédent
               </button>
               <button
                 :disabled="paymentPagination.page >= paymentPagination.totalPages"
                 @click="changePaymentPage(paymentPagination.page + 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Suivant
               </button>
@@ -573,46 +573,46 @@
 
       <!-- TAB 5: ACTIVITÉS -->
       <div v-else-if="activeTab === 'activities'" class="space-y-4">
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
-          <div v-if="loadingActivities" class="p-12 text-center text-slate-400 text-xs">
+        <div class="bg-panel/60 border border-custom rounded-2xl p-6 shadow-xl">
+          <div v-if="loadingActivities" class="p-12 text-center text-muted-custom text-xs">
             Chargement du journal des activités...
           </div>
 
-          <div v-else-if="activityList.length === 0" class="p-12 text-center text-slate-400 text-xs">
+          <div v-else-if="activityList.length === 0" class="p-12 text-center text-muted-custom text-xs">
             Aucune activité enregistrée pour ce client.
           </div>
 
-          <div v-else class="relative border-l-2 border-slate-800 ml-4 space-y-6 my-2">
+          <div v-else class="relative border-l-2 border-custom ml-4 space-y-6 my-2">
             <div v-for="act in activityList" :key="act.id" class="relative pl-6">
-              <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-slate-900 border-2 border-amber-500"></div>
-              <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 space-y-1">
+              <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-panel border-2 border-amber-500"></div>
+              <div class="bg-panel border border-custom rounded-xl p-4 space-y-1">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
-                  <span class="text-xs font-bold text-slate-200">{{ formatActionLabel(act.action) }}</span>
-                  <span class="text-[11px] text-slate-500">{{ formatDate(act.createdAt) }}</span>
+                  <span class="text-xs font-bold text-main">{{ formatActionLabel(act.action) }}</span>
+                  <span class="text-xs text-muted-custom">{{ formatDate(act.createdAt) }}</span>
                 </div>
-                <p class="text-xs text-slate-400">
-                  Par <strong class="text-slate-300">{{ act.user?.name || 'Système' }}</strong>
-                  <span v-if="act.entityType" class="ml-2 text-slate-500">({{ act.entityType }})</span>
+                <p class="text-xs text-muted-custom">
+                  Par <strong class="text-secondary-custom">{{ act.user?.name || 'Système' }}</strong>
+                  <span v-if="act.entityType" class="ml-2 text-muted-custom">({{ act.entityType }})</span>
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Pagination -->
-          <div v-if="activityPagination.totalPages > 1" class="pt-4 mt-4 border-t border-slate-800 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Page {{ activityPagination.page }} sur {{ activityPagination.totalPages }}</span>
+          <div v-if="activityPagination.totalPages > 1" class="pt-4 mt-4 border-t border-custom flex justify-between items-center text-xs">
+            <span class="text-muted-custom">Page {{ activityPagination.page }} sur {{ activityPagination.totalPages }}</span>
             <div class="flex gap-2">
               <button
                 :disabled="activityPagination.page <= 1"
                 @click="changeActivityPage(activityPagination.page - 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Précédent
               </button>
               <button
                 :disabled="activityPagination.page >= activityPagination.totalPages"
                 @click="changeActivityPage(activityPagination.page + 1)"
-                class="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg disabled:opacity-40"
+                class="px-3 py-1 bg-panel-raised text-main rounded-lg disabled:opacity-40"
               >
                 Suivant
               </button>
@@ -955,14 +955,14 @@ function getQuoteStatusLabel(s: string): string {
 
 function getQuoteStatusClass(s: string): string {
   const map: Record<string, string> = {
-    DRAFT: 'bg-slate-800 text-slate-300',
+    DRAFT: 'bg-panel-raised text-secondary-custom',
     SENT: 'bg-blue-500/20 text-blue-300',
     ACCEPTED: 'bg-emerald-500/20 text-emerald-300',
     REJECTED: 'bg-rose-500/20 text-rose-300',
     INVOICED: 'bg-purple-500/20 text-purple-300',
     EXPIRED: 'bg-amber-500/20 text-amber-300'
   }
-  return map[s] || 'bg-slate-800 text-slate-300'
+  return map[s] || 'bg-panel-raised text-secondary-custom'
 }
 
 function getInvoiceStatusLabel(s: string): string {
@@ -976,11 +976,11 @@ function getInvoiceStatusLabel(s: string): string {
 
 function getInvoiceStatusClass(s: string): string {
   const map: Record<string, string> = {
-    DRAFT: 'bg-slate-800 text-slate-300',
+    DRAFT: 'bg-panel-raised text-secondary-custom',
     FINALIZED: 'bg-blue-500/20 text-blue-300',
     CANCELLED: 'bg-rose-500/20 text-rose-300'
   }
-  return map[s] || 'bg-slate-800 text-slate-300'
+  return map[s] || 'bg-panel-raised text-secondary-custom'
 }
 
 function getPaymentStatusLabel(s: string): string {
@@ -1000,7 +1000,7 @@ function getPaymentStatusClass(s: string): string {
     PARTIAL: 'bg-amber-500/20 text-amber-300',
     PAID: 'bg-emerald-500/20 text-emerald-300'
   }
-  return map[s] || 'bg-slate-800 text-slate-300'
+  return map[s] || 'bg-panel-raised text-secondary-custom'
 }
 
 function formatActionLabel(a: string): string {

@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_ID', message: 'Identifiant de facture requis' }
     })
   }
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   if (!invoice) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Not Found',
+      statusMessage: 'Ressource introuvable',
       data: { code: 'INVOICE_NOT_FOUND', message: 'Facture introuvable' }
     })
   }

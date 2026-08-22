@@ -6,6 +6,9 @@ export default defineEventHandler((event) => {
   setResponseHeader(event, 'X-Frame-Options', 'SAMEORIGIN')
   setResponseHeader(event, 'Referrer-Policy', 'strict-origin-when-cross-origin')
   setResponseHeader(event, 'Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+  if (process.env.NODE_ENV === 'production') {
+    setResponseHeader(event, 'Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  }
   setResponseHeader(
     event,
     'Content-Security-Policy',

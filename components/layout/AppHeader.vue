@@ -28,10 +28,10 @@
       <div v-if="user" class="hidden sm:flex items-center gap-3 border-r border-custom pr-4">
         <div class="text-right">
           <div class="text-xs font-semibold text-main leading-tight">{{ user.name }}</div>
-          <div class="text-[11px] text-muted-custom leading-tight">{{ user.email }}</div>
+          <div class="text-xs text-muted-custom leading-tight">{{ user.email }}</div>
         </div>
         <span
-          class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border transition-colors"
+          class="px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase border transition-colors"
           :class="getRoleBadgeClass(user.role)"
         >
           {{ formatRole(user.role) }}
@@ -85,7 +85,7 @@ function formatRole(role?: Role | string): string {
 function getRoleBadgeClass(role?: Role | string): string {
   switch (role) {
     case 'SUPER_ADMIN':
-      return 'bg-[#b49c80]/15 text-[#987d61] dark:text-[#d0baa0] border-[#b49c80]/30'
+      return 'bg-brand-soft text-brand-strong border-brand-soft'
     case 'HR_MANAGER':
       return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
     case 'ACCOUNTANT':

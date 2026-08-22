@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4"
+      class="fixed inset-0 z-50 bg-overlay backdrop-blur-md flex items-center justify-center p-2 sm:p-4"
       role="dialog"
       aria-modal="true"
       :aria-label="title || 'Aperçu du PDF'"
@@ -23,7 +23,7 @@
               <h3 class="text-xs font-bold text-main truncate">
                 {{ title || 'Aperçu du PDF' }}
               </h3>
-              <p class="text-[11px] text-muted-custom truncate">
+              <p class="text-xs text-muted-custom truncate">
                 {{ documentNumber || 'Document commercial' }}
               </p>
             </div>

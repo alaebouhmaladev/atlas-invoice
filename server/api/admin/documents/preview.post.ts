@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!documentType || !['INVOICE', 'QUOTE'].includes(documentType)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusMessage: 'Requête invalide',
       data: { code: 'INVALID_DOCUMENT_TYPE', message: 'Type de document invalide.' }
     })
   }

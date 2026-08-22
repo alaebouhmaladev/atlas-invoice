@@ -33,6 +33,7 @@
   --on-brand: #14110e;
   --brand-foreground: var(--on-brand);
   --focus: #b49c80;
+  --overlay: rgba(9, 9, 10, 0.76);
 
   /* Legacy & Semantic Theme Token Mappings */
   --color-brand: var(--brand);
@@ -91,6 +92,7 @@ html.dark {
   --on-brand: #111111;
   --brand-foreground: var(--on-brand);
   --focus: #bca68d;
+  --overlay: rgba(0, 0, 0, 0.82);
 
   /* Legacy & Semantic Theme Token Mappings */
   --color-brand: var(--brand);
@@ -127,11 +129,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Minimum font size requirement: 12px */
-* {
-  min-font-size: 12px;
-}
-
 /* Utility Helper Classes */
 .bg-canvas { background-color: var(--canvas); }
 .bg-shell { background-color: var(--shell); }
@@ -140,6 +137,8 @@ body {
 .bg-workspace { background-color: var(--workspace); }
 .bg-panel { background-color: var(--panel); }
 .bg-panel-raised { background-color: var(--panel-raised); }
+.bg-overlay { background-color: var(--overlay); }
+.bg-border-strong { background-color: var(--border-strong); }
 
 .border-custom { border-color: var(--border); }
 .border-custom-strong { border-color: var(--border-strong); }
@@ -176,6 +175,38 @@ body {
 .dark .shadow-soft {
   box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4), 0 2px 8px -1px rgba(0, 0, 0, 0.2);
 }
+
+/* Phase 6 payroll controls use semantic tokens in every theme. */
+.input-field {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--panel-raised);
+  color: var(--text);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+}
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.btn-primary { background: var(--brand); color: var(--on-brand); }
+.btn-primary:hover { background: var(--brand-strong); }
+.btn-secondary { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--color-surface-hover); }
+.bg-danger-soft { background: color-mix(in srgb, var(--color-danger) 12%, transparent); }
+.bg-warning-soft { background: color-mix(in srgb, var(--color-warning) 12%, transparent); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.border-danger { border-color: var(--color-danger); }
 
 /* Focus styles */
 :focus-visible {

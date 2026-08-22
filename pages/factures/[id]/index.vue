@@ -12,7 +12,7 @@
 
     <!-- Loading State -->
     <div v-if="loading && !invoice" class="p-12 text-center text-muted-custom">
-      <svg class="animate-spin h-8 w-8 text-[#b49c80] mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-8 w-8 text-brand mx-auto mb-3" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
@@ -85,7 +85,7 @@
           <div class="bg-panel-raised border border-custom rounded-card p-5 space-y-3">
             <h3 class="text-xs font-bold text-brand-strong uppercase tracking-wider flex items-center justify-between">
               <span>Client (Informations Figées)</span>
-              <NuxtLink v-if="invoice.clientId" :to="`/clients/${invoice.clientId}`" class="text-[11px] text-muted-custom hover:text-main font-normal underline">
+              <NuxtLink v-if="invoice.clientId" :to="`/clients/${invoice.clientId}`" class="text-xs text-muted-custom hover:text-main font-normal underline">
                 Fiche client actuelle
               </NuxtLink>
             </h3>
@@ -97,7 +97,7 @@
               <div v-if="invoice.clientSnapshot?.address" class="text-secondary-custom">
                 {{ invoice.clientSnapshot.address }} {{ invoice.clientSnapshot.city ? `, ${invoice.clientSnapshot.city}` : '' }}
               </div>
-              <div v-if="invoice.clientSnapshot?.phone || invoice.clientSnapshot?.email" class="text-muted-custom text-[11px]">
+              <div v-if="invoice.clientSnapshot?.phone || invoice.clientSnapshot?.email" class="text-muted-custom text-xs">
                 {{ invoice.clientSnapshot.phone }} • {{ invoice.clientSnapshot.email }}
               </div>
             </div>
@@ -165,7 +165,7 @@
                   <tr v-for="item in invoice.items" :key="item.id" class="hover:bg-surface-hover transition-colors">
                     <td class="py-3 px-4">
                       <div class="font-bold text-main">{{ item.title }}</div>
-                      <div v-if="item.description" class="text-[11px] text-muted-custom mt-0.5 whitespace-pre-line">{{ item.description }}</div>
+                      <div v-if="item.description" class="text-xs text-muted-custom mt-0.5 whitespace-pre-line">{{ item.description }}</div>
                     </td>
                     <td class="py-3 px-4 text-center font-mono text-secondary-custom">{{ item.quantity }} {{ item.unit }}</td>
                     <td class="py-3 px-4 text-right font-mono text-secondary-custom">{{ formatMoney(item.unitPriceHt) }}</td>
@@ -185,7 +185,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div class="lg:col-span-6 space-y-4">
             <div v-if="invoice.paymentTerms || invoice.publicNotes" class="bg-panel-raised border border-custom rounded-card p-4 space-y-2 text-xs">
-              <span class="text-[11px] font-bold text-brand-strong uppercase tracking-wider">Conditions & Remarques</span>
+              <span class="text-xs font-bold text-brand-strong uppercase tracking-wider">Conditions & Remarques</span>
               <p v-if="invoice.paymentTerms" class="text-secondary-custom"><strong>Règlement :</strong> {{ invoice.paymentTerms }}</p>
               <p v-if="invoice.publicNotes" class="text-muted-custom italic">"{{ invoice.publicNotes }}"</p>
             </div>

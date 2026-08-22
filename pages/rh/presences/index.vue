@@ -36,7 +36,7 @@
     <div class="bg-panel border border-custom rounded-panel overflow-hidden shadow-soft">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-secondary-custom border-collapse">
-          <thead class="bg-panel-raised text-[11px] font-bold text-muted-custom uppercase tracking-wider border-b border-custom">
+          <thead class="bg-panel-raised text-xs font-bold text-muted-custom uppercase tracking-wider border-b border-custom">
             <tr>
               <th class="px-6 py-4">Collaborateur</th>
               <th class="px-6 py-4">Site</th>
@@ -58,7 +58,7 @@
             <tr v-for="d in days" :key="d.id" class="hover:bg-surface-hover transition-colors">
               <td class="px-6 py-4 font-bold text-main">
                 {{ d.employee.displayName }}
-                <div class="text-[11px] font-mono text-brand-strong font-normal">Matricule : {{ d.employee.employeeNumber }}</div>
+                <div class="text-xs font-mono text-brand-strong font-normal">Matricule : {{ d.employee.employeeNumber }}</div>
               </td>
               <td class="px-6 py-4 text-secondary-custom">{{ d.site.name }}</td>
               <td class="px-6 py-4 text-secondary-custom font-mono text-xs">{{ d.workDate.split('T')[0] }}</td>
@@ -70,7 +70,7 @@
                 <div v-if="d.lateMinutes === 0 && d.overtimeMinutes === 0" class="text-muted-custom">—</div>
               </td>
               <td class="px-6 py-4">
-                <span :class="getStatusBadgeClass(d.status)" class="px-2.5 py-1 text-[10px] font-bold rounded-pill border">
+                <span :class="getStatusBadgeClass(d.status)" class="px-2.5 py-1 text-xs font-bold rounded-pill border">
                   {{ d.status }}
                 </span>
               </td>
